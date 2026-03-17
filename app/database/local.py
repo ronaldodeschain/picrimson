@@ -28,6 +28,7 @@ class Database():
                     login TEXT,
                     senha TEXT,
                     cpf TEXT
+                    , role TEXT DEFAULT 'user'
                 );
 
                 CREATE TABLE IF NOT EXISTS categorias (
@@ -225,4 +226,9 @@ class Database():
                     id_rastreio INTEGER
                 );
             """)
+            # Ensure existing databases get the new column when migrating
+            cursor.execute("PRAGMA table_info(usuarios)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if "role" not in columns:
+                cursor.execute("ALTER TABLE usuarios ADD COLUMN role TEXT DEFAULT 'user'")
         print("Banco de dados criado com sucesso!")
