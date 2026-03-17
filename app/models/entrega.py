@@ -14,4 +14,16 @@ class Entrega(BaseModel):
     status_entrega:str
     id_pedido:int
     id_rastreio:int
-    
+
+class EntregaCriarAtualizar(BaseModel):
+    mensagem:str
+    tipo_mensagem:str
+    data_entrega_prevista:date
+    data_envio:date
+    tipo_entrega:str
+    endereco_entrega:str
+    observacoes:str
+    data_pedido:date
+    status_entrega:str
+    id_pedido:int
+    id_rastreio:int

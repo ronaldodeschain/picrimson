@@ -6,3 +6,9 @@ class Avaliacoes(BaseModel):
     avaliacao:float
     id_produto:int
     id_usuario:int
+    
+class AvalicoesCriarAtualizar(BaseModel):
+    comentario:str
+    avaliacao:float
+    id_produto:int
+    id_usuario:int

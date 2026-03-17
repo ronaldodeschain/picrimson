@@ -7,3 +7,10 @@ class Servico(BaseModel):
     descricao:str
     id_pedido:int
     id_orcamento:int
+
+class ServicoCriarAtualizar(BaseModel):
+    tipo_servico:str
+    valor_servico:float
+    descricao:str
+    id_pedido:int
+    id_orcamento:int

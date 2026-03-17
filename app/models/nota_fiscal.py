@@ -11,3 +11,13 @@ class NotaFiscal(BaseModel):
     id_caixa:int
     id_pagamento:int
     id_mensagem:int
+
+class NotaFiscalCriarAtualizar(BaseModel):
+    forma_pagamento:str
+    data_emissao:date
+    serie:str
+    numero:int
+    status:str
+    id_caixa:int
+    id_pagamento:int
+    id_mensagem:int

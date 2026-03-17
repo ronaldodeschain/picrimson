@@ -7,3 +7,10 @@ class Orcamento(BaseModel):
     imagem:str
     id_mensagem:int
     id_servico:int
+
+class OrcamentoCriarAtualizar(BaseModel):
+    mensagem:str
+    arquivo:str
+    imagem:str
+    id_mensagem:int
+    id_servico:int

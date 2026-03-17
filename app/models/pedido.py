@@ -8,3 +8,11 @@ class Pedido(BaseModel):
     id_carrinho:int
     id_cupom:int
     id_servico:int
+
+class PedidoCriarAtualizar(BaseModel):
+    valor_total:float
+    observacoes:str
+    id_pagamento:int
+    id_carrinho:int
+    id_cupom:int
+    id_servico:int

@@ -5,3 +5,8 @@ class Rastreio(BaseModel):
     codigo_rastreio:int
     id_entrega:int
     id_mensagem:int
+
+class RastreioCriarAtualizar(BaseModel):
+    codigo_rastreio:int
+    id_entrega:int
+    id_mensagem:int

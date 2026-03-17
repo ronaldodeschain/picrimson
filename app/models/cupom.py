@@ -6,3 +6,9 @@ class Cupom(BaseModel):
     valor_cupom:float
     tipo_cupom:str
     id_pedido:int
+
+class CupomCriarAtualizar(BaseModel):
+    chave_cupom:str
+    valor_cupom:float
+    tipo_cupom:str
+    id_pedido:int

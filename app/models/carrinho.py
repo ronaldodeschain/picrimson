@@ -6,3 +6,9 @@ class Carrinho(BaseModel):
     id_pedido:int
     id_item_pedido:int
     id_usuario:int
+
+class CarrinhoCriarAtualizar(BaseModel):
+    id_servico:int
+    id_pedido:int
+    id_item_pedido:int
+    id_usuario:int

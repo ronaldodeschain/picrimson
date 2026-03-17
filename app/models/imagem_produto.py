@@ -5,3 +5,8 @@ class ImagemProduto(BaseModel):
     nome_imagem:str
     arquivo_imagem:str
     id_produto:int
+
+class ImagemProdutoCriarAtualizar(BaseModel):
+    nome_imagem:str
+    arquivo_imagem:str
+    id_produto:int
