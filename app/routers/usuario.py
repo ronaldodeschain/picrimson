@@ -10,7 +10,8 @@ from app.repositories.usuario import UsuarioRepository
 import app.dependencies as dependencies
 
 router = APIRouter(
-    prefix="/usuario"
+    prefix="/usuario",
+    tags=["User Management"]
 )
 
 templates = Jinja2Templates(directory="templates")

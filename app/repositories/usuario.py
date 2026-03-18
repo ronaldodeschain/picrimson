@@ -1,3 +1,4 @@
+from typing import cast
 from app.database.local import Database
 from app.models.usuario import Usuario,UsuarioCriarAtualizar
 
@@ -85,14 +86,14 @@ class UsuarioRepository:
                 "INSERT INTO usuarios(nome_usuario,login,senha,cpf,role) values(?,?,?,?,?)",
                 (usuario.nome_usuario,usuario.login,usuario.senha,usuario.cpf, usuario.role)
             )
-            id_user = cursor.lastrowid
+            id_user = cast(int, cursor.lastrowid)
             return Usuario(
                 id_usuario=id_user,
                 nome_usuario=usuario.nome_usuario,
                 login=usuario.login,
                 senha=usuario.senha,
-                cpf=usuario.cpf
-                , role=usuario.role
+                cpf=usuario.cpf,
+                role=usuario.role
             )
     
     async def update_usuario(self,usario_id:int,
