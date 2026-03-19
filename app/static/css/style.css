@@ -1,0 +1,183 @@
+/* Base styling for Crimson Claw Studio */
+:root {
+  --bg: #0b0f14;
+  --panel: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #f1f4ff;
+  --muted: rgba(255, 255, 255, 0.7);
+  --primary: #57c7ff;
+  --primary-dark: #2fa5d2;
+  --danger: #ff5a5f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+   sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 20% 0%, rgba(87, 199, 255, 0.18),
+   transparent 55%),
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.1),
+     transparent 60%),
+    linear-gradient(135deg, #0b1220 0%, #06080f 100%);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar__logo a {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.navbar__nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.navbar__link {
+  color: var(--muted);
+  font-weight: 600;
+  padding: 0.35rem 0.5rem;
+  border-radius: 9999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navbar__link:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--text);
+}
+
+.navbar__link--primary {
+  background: rgba(87, 199, 255, 0.2);
+  color: var(--text);
+}
+
+.navbar__link--secondary {
+  color: var(--danger);
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Mobile nav */
+.navbar__toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.35rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.25rem;
+  justify-content: center;
+  align-items: center;
+  width: 42px;
+  height: 42px;
+}
+
+.navbar__toggle-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 1px;
+	transition: transform 180ms ease, opacity 180ms ease;
+}
+
+@media (max-width: 840px) {
+  .navbar {
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    row-gap: 0.75rem;
+  }
+
+  .navbar__toggle {
+    display: flex;
+  }
+
+  .navbar--open .navbar__toggle .navbar__toggle-bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .navbar--open .navbar__toggle .navbar__toggle-bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .navbar--open .navbar__toggle .navbar__toggle-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .navbar__nav,
+  .navbar__actions {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  display: none;
+  }
+
+  .navbar--open .navbar__nav,
+  .navbar--open .navbar__actions {
+    display: flex;
+  }
+
+  .navbar__link {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+  }
+}
+
+.main {
+  max-width: 980px;
+  margin: 2rem auto 3rem;
+  padding: 0 1.25rem;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem;
+  margin-top: 1.5rem;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.footer {
+  text-align: center;
+  padding: 2rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}

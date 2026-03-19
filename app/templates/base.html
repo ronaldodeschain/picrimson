@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}Crimson Claw Studio{% endblock %}</title>
+	<link rel="stylesheet" href="/static/css/style.css">
+	{% block extra_head %}{% endblock %}
+</head>
+<body>
+	<header class="navbar">
+		<div class="navbar__logo">
+			<a href="/">Crimson Claw</a>
+		</div>
+
+		<button class="navbar__toggle" id="navbarToggle" aria-label="Abrir menu" aria-controls="main-navbar" aria-expanded="false">
+			<span class="navbar__toggle-bar"></span>
+			<span class="navbar__toggle-bar"></span>
+			<span class="navbar__toggle-bar"></span>
+		</button>
+		<nav id="main-navbar" class="navbar__nav" aria-hidden="true">
+			<!-- nav menu items -->
+			<a href="/" class="navbar__link">Home</a>
+			<a href="#" class="navbar__link">Produtos</a>
+			<a href="#" class="navbar__link">Serviços</a>
+			<a href="#" class="navbar__link">Orçamentos</a>
+			<a href="#" class="navbar__link">Sobre</a>
+		</nav>
+		<div class="navbar__actions" aria-hidden="true">
+			{% if user %}
+				<a href="#" class="navbar__link">Área do Cliente</a>
+				{% if is_admin %}
+					<a href="#" class="navbar__link navbar__link--primary">Admin</a>
+				{% endif %}
+				<a href="#" class="navbar__link navbar__link--secondary">Sair</a>
+			{% else %}
+				<a href="#" class="navbar__link navbar__link--primary">Entrar</a>
+			{% endif %}
+		</div>
+	</header>
+
+	<main class="main">
+		{% block content %}{% endblock %}
+	</main>
+
+	<footer class="footer">
+		<p>© {{ year or 2026 }} Crimson Claw Studio. Todos os direitos reservados.</p>
+	</footer>
+
+	{% block extra_scripts %}{% endblock %}
+
+	<script>
+		const toggle = document.getElementById('navbarToggle');
+		const navbar = document.querySelector('.navbar');
+		const menu = document.querySelector('.navbar__nav');
+		const actions = document.querySelector('.navbar__actions');
+		if (toggle && navbar) {
+			toggle.addEventListener('click', () => {
+				navbar.classList.toggle('navbar--open');
+				const expanded = toggle.getAttribute('aria-expanded') === 'true';
+				toggle.setAttribute('aria-expanded', String(!expanded));
+				if (menu) {
+					menu.setAttribute('aria-hidden', String(expanded));
+				}
+				if (actions) {
+					actions.setAttribute('aria-hidden', String(expanded));
+				}
+			});
+		}
+	</script>
+</body>
+</html>
