@@ -54,3 +54,13 @@ async def home(request:Request):
         "is_admin": False,
         "year": datetime.utcnow().year,
     })
+
+@app.get("/login.html",response_class=HTMLResponse)
+async def login(request:Request):
+    return templates.TemplateResponse("login.html",{
+        "request": request,
+        "user":None,
+        "is_admin": False,
+        "is_auth":True,
+        "year": datetime.utcnow().year,
+    })
