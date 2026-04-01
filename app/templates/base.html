@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% block title %}Crimson Claw Studio{% endblock %}</title>
 	<link rel="stylesheet" href="/static/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	{% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -45,29 +46,26 @@
 	</main>
 
 	<footer class="footer">
-		<p>© {{ year or 2026 }} Crimson Claw Studio. Todos os direitos reservados.</p>
+		<div class="footer__content">
+			<p>© {{ year or 2026 }} Crimson Claw Studio. Todos os direitos reservados.</p>
+			<div class="footer__social">
+				<a href="#" class="footer__social-link" aria-label="Facebook">
+					<i class="fab fa-facebook-f"></i>
+				</a>
+				<a href="https://www.instagram.com/ronaldo_deschain/" 
+				class="footer__social-link" aria-label="Instagram">
+					<i class="fab fa-instagram"></i>
+				</a>
+				<a href="https://www.linkedin.com/in/ronaldo-lemos-da-silva/" 
+				class="footer__social-link" aria-label="LinkedIn">
+					<i class="fab fa-linkedin-in"></i>
+				</a>
+			</div>
+		</div>
 	</footer>
 
 	{% block extra_scripts %}{% endblock %}
 
-	<script>
-		const toggle = document.getElementById('navbarToggle');
-		const navbar = document.querySelector('.navbar');
-		const menu = document.querySelector('.navbar__nav');
-		const actions = document.querySelector('.navbar__actions');
-		if (toggle && navbar) {
-			toggle.addEventListener('click', () => {
-				navbar.classList.toggle('navbar--open');
-				const expanded = toggle.getAttribute('aria-expanded') === 'true';
-				toggle.setAttribute('aria-expanded', String(!expanded));
-				if (menu) {
-					menu.setAttribute('aria-hidden', String(expanded));
-				}
-				if (actions) {
-					actions.setAttribute('aria-hidden', String(expanded));
-				}
-			});
-		}
-	</script>
+	<script src="/static/js/navbar.js"></script>
 </body>
 </html>

@@ -14,3 +14,10 @@ class UsuarioCriarAtualizar(BaseModel):
     senha:str
     cpf:str
     role:str = "user"
+
+class UsuarioResposta(BaseModel):
+    id_usuario:int
+    nome_usuario:str
+    login:str
+    cpf:str
+    role:str

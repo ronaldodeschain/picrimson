@@ -5,7 +5,7 @@ from fastapi.requests import Request
 from fastapi.responses import HTMLResponse,RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app.models.usuario import UsuarioCriarAtualizar
+from app.models.usuario import UsuarioCriarAtualizar, UsuarioResposta
 from app.repositories.usuario import UsuarioRepository
 import app.dependencies as dependencies
 
@@ -16,7 +16,7 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/",response_model=list[UsuarioCriarAtualizar])
+@router.get("/",response_model=list[UsuarioResposta])
 async def listar_usuarios(
     usuario_repository:Annotated[UsuarioRepository,Depends(
         dependencies.get_usuario_repository

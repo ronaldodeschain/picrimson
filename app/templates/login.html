@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Login - Crimson Claw Studio{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/imask@7.4.0"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <form id="formLogin" class="form-login" action="'/login" method="post">
@@ -23,11 +27,15 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Logar</button>
-            <a href="/home" class="btn btn-secondary">Cancelar</a>
+            <a href="/" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
     <div class="cadastro-link">
         <p> Não tem conta? <a href="/cadastro"> Criar Conta</a></p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/form-mask.js"></script>
 {% endblock %}
