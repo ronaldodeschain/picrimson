@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 
-from app.routers.api import usuario, categoria, produto, pedido, pagamento, servico, endereco, telefone, avaliacao, caixa, carrinho, cupom, email, entrega, favoritos, imagem_produto, item_pedido, mensagem, nota_fiscal, orcamento, rastreio
+from app.routers.api import usuario, categoria, produto, pedido, pagamento, servico, endereco, telefone, avaliacao, caixa, carrinho, cupom, email, entrega, favoritos, imagem_produto, item_pedido, mensagem, nota_fiscal, orcamento, rastreio, pergunta, resposta
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -39,6 +39,8 @@ app.include_router(mensagem.router, prefix=api_prefix)
 app.include_router(nota_fiscal.router, prefix=api_prefix)
 app.include_router(orcamento.router, prefix=api_prefix)
 app.include_router(rastreio.router, prefix=api_prefix)
+app.include_router(pergunta.router, prefix=api_prefix)
+app.include_router(resposta.router, prefix=api_prefix)
 
 
 @app.get("/health")

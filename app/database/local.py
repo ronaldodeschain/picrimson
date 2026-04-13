@@ -27,13 +27,23 @@ class Database():
                     nome_usuario TEXT,
                     login TEXT,
                     senha TEXT,
-                    cpf TEXT
-                    , role TEXT DEFAULT 'user'
+                    cpf TEXT,
+                    id_favoritos INTEGER,
+                    id_email INTEGER,
+                    id_endereco INTEGER,
+                    id_carrinho INTEGER,
+                    id_telefone INTEGER,
+                    id_mensagem INTEGER,
+                    id_avaliacoes INTEGER,
+                    id_pergunta INTEGER,
+                    id_resposta INTEGER,
+                    role TEXT DEFAULT 'user'
                 );
 
                 CREATE TABLE IF NOT EXISTS categorias (
                     id_categoria INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nome_categoria TEXT
+                    nome_categoria TEXT,
+                    id_produto INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS produtos (
@@ -46,24 +56,28 @@ class Database():
                     largura REAL,
                     quantidade INTEGER,
                     peso REAL,
-                    valor REAL
+                    valor REAL,
+                    id_item_pedidos INTEGER,
+                    id_categoria INTEGER,
+                    id_avaliacoes INTEGER,
+                    id_imagem_produto INTEGER,
+                    id_favoritos INTEGER,
+                    id_pergunta INTEGER,
+                    id_resposta INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS imagem_produtos (
                     id_imagem_produto INTEGER PRIMARY KEY AUTOINCREMENT,
                     nome_imagem TEXT,
                     arquivo_imagem TEXT,
-                    id_produto INTEGER,
-                    FOREIGN KEY(id_produto) REFERENCES produtos(id_produto)
+                    id_produto INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS item_pedidos (
                     id_item_pedido INTEGER PRIMARY KEY AUTOINCREMENT,
                     id_usuario INTEGER,
                     id_produto INTEGER,
-                    id_carrinho INTEGER,
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario),
-                    FOREIGN KEY(id_produto) REFERENCES produtos(id_produto)
+                    id_carrinho INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS notas_fiscais (
@@ -73,6 +87,7 @@ class Database():
                     serie TEXT,
                     numero INTEGER,
                     status TEXT,
+                    valor_total REAL,
                     id_caixa INTEGER,
                     id_pagamento INTEGER,
                     id_mensagem INTEGER
@@ -87,8 +102,7 @@ class Database():
                     cidade TEXT,
                     estado TEXT,
                     observacoes TEXT,
-                    id_usuario INTEGER,
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_usuario INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS orcamentos (
@@ -105,9 +119,7 @@ class Database():
                     comentario TEXT,
                     avaliacao REAL,
                     id_produto INTEGER,
-                    id_usuario INTEGER,
-                    FOREIGN KEY(id_produto) REFERENCES produtos(id_produto),
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_usuario INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS pagamentos (
@@ -115,19 +127,12 @@ class Database():
                     expiracao TEXT,
                     valor_total REAL,
                     data_pagamento TEXT,
+                    status_pagamento TEXT,
                     pixTxid TEXT,
                     id_pedido INTEGER,
                     id_caixa INTEGER,
                     id_nota_fiscal INTEGER,
                     id_entrega INTEGER
-                );
-
-                CREATE TABLE IF NOT EXISTS cupons (
-                    id_cupom INTEGER PRIMARY KEY AUTOINCREMENT,
-                    chave_cupom TEXT,
-                    valor_cupom REAL,
-                    tipo_cupom TEXT,
-                    id_pedido INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS pedidos (
@@ -140,14 +145,22 @@ class Database():
                     id_servico INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS rastreios (
+                CREATE TABLE IF NOT EXISTS cupons (
+                    id_cupom INTEGER PRIMARY KEY AUTOINCREMENT,
+                    chave_cupom TEXT,
+                    valor_cupom REAL,
+                    tipo_cupom TEXT,
+                    id_pedido INTEGER
+                );
+
+                CREATE TABLE IF NOT EXISTS rastreio (
                     id_rastreio INTEGER PRIMARY KEY AUTOINCREMENT,
                     codigo_rastreio INTEGER,
                     id_entrega INTEGER,
                     id_mensagem INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS caixas (
+                CREATE TABLE IF NOT EXISTS caixa (
                     id_caixa INTEGER PRIMARY KEY AUTOINCREMENT,
                     tipo_movimentacao TEXT,
                     valor REAL,
@@ -157,23 +170,21 @@ class Database():
                     id_pagamento INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS emails (
+                CREATE TABLE IF NOT EXISTS email (
                     id_email INTEGER PRIMARY KEY AUTOINCREMENT,
                     email TEXT,
-                    id_usuario INTEGER,
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_usuario INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS carrinhos (
+                CREATE TABLE IF NOT EXISTS carrinho (
                     id_carrinho INTEGER PRIMARY KEY AUTOINCREMENT,
                     id_servico INTEGER,
                     id_pedido INTEGER,
                     id_item_pedido INTEGER,
-                    id_usuario INTEGER,
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_usuario INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS servicos (
+                CREATE TABLE IF NOT EXISTS servico (
                     id_servico INTEGER PRIMARY KEY AUTOINCREMENT,
                     tipo_servico TEXT,
                     valor_servico REAL,
@@ -182,7 +193,7 @@ class Database():
                     id_orcamento INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS mensagens (
+                CREATE TABLE IF NOT EXISTS mensagem (
                     id_mensagem INTEGER PRIMARY KEY AUTOINCREMENT,
                     mensagem TEXT,
                     tipo_mensagem TEXT,
@@ -191,27 +202,23 @@ class Database():
                     id_orcamento INTEGER,
                     id_usuario INTEGER,
                     id_nota_fiscal INTEGER,
-                    id_rastreio INTEGER,
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_rastreio INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS telefones (
+                CREATE TABLE IF NOT EXISTS telefone (
                     id_telefone INTEGER PRIMARY KEY AUTOINCREMENT,
                     telefone_principal INTEGER,
                     telefone_secundario INTEGER,
-                    id_usuario INTEGER,
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_usuario INTEGER
                 );
 
                 CREATE TABLE IF NOT EXISTS favoritos (
                     id_favoritos INTEGER PRIMARY KEY AUTOINCREMENT,
                     id_produto INTEGER,
-                    id_usuario INTEGER,
-                    FOREIGN KEY(id_produto) REFERENCES produtos(id_produto),
-                    FOREIGN KEY(id_usuario) REFERENCES usuarios(id_usuario)
+                    id_usuario INTEGER
                 );
 
-                CREATE TABLE IF NOT EXISTS entregas (
+                CREATE TABLE IF NOT EXISTS entrega (
                     id_entrega INTEGER PRIMARY KEY AUTOINCREMENT,
                     mensagem TEXT,
                     tipo_mensagem TEXT,
@@ -225,6 +232,24 @@ class Database():
                     id_pedido INTEGER,
                     id_rastreio INTEGER
                 );
+
+                CREATE TABLE IF NOT EXISTS pergunta (
+                    id_pergunta INTEGER PRIMARY KEY AUTOINCREMENT,
+                    pergunta TEXT,
+                    data_criacao TEXT,
+                    id_usuario INTEGER,
+                    id_produto INTEGER,
+                    id_resposta INTEGER
+                );
+
+                CREATE TABLE IF NOT EXISTS resposta(
+                    id_resposta INTEGER PRIMARY KEY AUTOINCREMENT,
+                    texto_resposta TEXT,
+                    data_resposta TEXT,
+                    id_usuario INTEGER,
+                    id_produto INTEGER
+                );
+
             """)
             # Ensure existing databases get the new column when migrating
             cursor.execute("PRAGMA table_info(usuarios)")

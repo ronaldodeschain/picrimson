@@ -23,6 +23,8 @@ from app.repositories.mensagem import MensagemRepository
 from app.repositories.nota_fiscal import NotaFiscalRepository
 from app.repositories.orcamento import OrcamentoRepository
 from app.repositories.rastreio import RastreioRepository
+from app.repositories.pergunta import PerguntaRepository
+from app.repositories.resposta import RespostaRepository
 
 
 db = Database()
@@ -94,6 +96,16 @@ def get_email_repository(
     Local_db: Annotated[Database,Depends(get_database)]
 ) -> EmailRepository:
     return EmailRepository(Local_db)
+
+def get_pergunta_repository(
+    Local_db: Annotated[Database,Depends(get_database)]
+) -> PerguntaRepository:
+    return PerguntaRepository(Local_db)
+
+def get_resposta_repository(
+    Local_db: Annotated[Database,Depends(get_database)]
+) -> RespostaRepository:
+    return RespostaRepository(Local_db)
 
 def get_entrega_repository(
     Local_db: Annotated[Database,Depends(get_database)]
