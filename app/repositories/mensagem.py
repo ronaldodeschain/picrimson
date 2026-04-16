@@ -10,7 +10,7 @@ class MensagemRepository:
     async def listar_mensagens(self) -> list[Mensagem]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM mensagens")
+            cursor.execute("SELECT * FROM mensagem")
             linhas = cursor.fetchall()
             return [
                 Mensagem(
@@ -30,7 +30,7 @@ class MensagemRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM mensagens WHERE id_mensagem = ?",
+                "SELECT * FROM mensagem WHERE id_mensagem = ?",
                 (mensagem_id,)
             )
             linha = cursor.fetchone()
@@ -52,7 +52,7 @@ class MensagemRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO mensagens (mensagem, tipo_mensagem, id_pedido, id_email, id_orcamento, id_usuario, id_nota_fiscal, id_rastreio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO mensagem (mensagem, tipo_mensagem, id_pedido, id_email, id_orcamento, id_usuario, id_nota_fiscal, id_rastreio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (mensagem.mensagem, mensagem.tipo_mensagem, mensagem.id_pedido, mensagem.id_email, mensagem.id_orcamento, mensagem.id_usuario, mensagem.id_nota_fiscal, mensagem.id_rastreio)
             )
             id_mensagem = cast(int, cursor.lastrowid)
@@ -72,7 +72,7 @@ class MensagemRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE mensagens SET mensagem = ?, tipo_mensagem = ?, id_pedido = ?, id_email = ?, id_orcamento = ?, id_usuario = ?, id_nota_fiscal = ?, id_rastreio = ? WHERE id_mensagem = ?",
+                "UPDATE mensagem SET mensagem = ?, tipo_mensagem = ?, id_pedido = ?, id_email = ?, id_orcamento = ?, id_usuario = ?, id_nota_fiscal = ?, id_rastreio = ? WHERE id_mensagem = ?",
                 (mensagem.mensagem, mensagem.tipo_mensagem, mensagem.id_pedido, mensagem.id_email, mensagem.id_orcamento, mensagem.id_usuario, mensagem.id_nota_fiscal, mensagem.id_rastreio, mensagem_id)
             )
             if cursor.rowcount > 0:
@@ -92,5 +92,5 @@ class MensagemRepository:
     async def delete_mensagem(self, mensagem_id: int) -> bool:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("DELETE FROM mensagens WHERE id_mensagem = ?", (mensagem_id,))
+            cursor.execute("DELETE FROM mensagem WHERE id_mensagem = ?", (mensagem_id,))
             return cursor.rowcount > 0

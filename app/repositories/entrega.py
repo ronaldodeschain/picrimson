@@ -11,7 +11,7 @@ class EntregaRepository:
     async def listar_entregas(self) -> list[Entrega]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM entregas")
+            cursor.execute("SELECT * FROM entrega")
             linhas = cursor.fetchall()
             return [
                 Entrega(
@@ -34,7 +34,7 @@ class EntregaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM entregas WHERE id_entrega = ?",
+                "SELECT * FROM entrega WHERE id_entrega = ?",
                 (entrega_id,)
             )
             linha = cursor.fetchone()
@@ -59,7 +59,7 @@ class EntregaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO entregas (mensagem, tipo_mensagem, data_entrega_prevista, data_envio, tipo_entrega, endereco_entrega, observacoes, data_pedido, status_entrega, id_pedido, id_rastreio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO entrega (mensagem, tipo_mensagem, data_entrega_prevista, data_envio, tipo_entrega, endereco_entrega, observacoes, data_pedido, status_entrega, id_pedido, id_rastreio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (entrega.mensagem, entrega.tipo_mensagem, entrega.data_entrega_prevista.isoformat(), entrega.data_envio.isoformat(), entrega.tipo_entrega, entrega.endereco_entrega, entrega.observacoes, entrega.data_pedido.isoformat(), entrega.status_entrega, entrega.id_pedido, entrega.id_rastreio)
             )
             id_entrega = cast(int, cursor.lastrowid)
@@ -82,7 +82,7 @@ class EntregaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE entregas SET mensagem = ?, tipo_mensagem = ?, data_entrega_prevista = ?, data_envio = ?, tipo_entrega = ?, endereco_entrega = ?, observacoes = ?, data_pedido = ?, status_entrega = ?, id_pedido = ?, id_rastreio = ? WHERE id_entrega = ?",
+                "UPDATE entrega SET mensagem = ?, tipo_mensagem = ?, data_entrega_prevista = ?, data_envio = ?, tipo_entrega = ?, endereco_entrega = ?, observacoes = ?, data_pedido = ?, status_entrega = ?, id_pedido = ?, id_rastreio = ? WHERE id_entrega = ?",
                 (entrega.mensagem, entrega.tipo_mensagem, entrega.data_entrega_prevista.isoformat(), entrega.data_envio.isoformat(), entrega.tipo_entrega, entrega.endereco_entrega, entrega.observacoes, entrega.data_pedido.isoformat(), entrega.status_entrega, entrega.id_pedido, entrega.id_rastreio, entrega_id)
             )
             if cursor.rowcount > 0:
@@ -105,5 +105,5 @@ class EntregaRepository:
     async def delete_entrega(self, entrega_id: int) -> bool:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("DELETE FROM entregas WHERE id_entrega = ?", (entrega_id,))
+            cursor.execute("DELETE FROM entrega WHERE id_entrega = ?", (entrega_id,))
             return cursor.rowcount > 0

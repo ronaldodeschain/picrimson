@@ -19,7 +19,7 @@ class UsuarioRepository:
                     login=linha[2],
                     senha=linha[3],
                     cpf=linha[4]
-                    , role=linha[5] if len(linha) > 5 else "user"
+                    , role=linha[5] if len(linha) > 5 and linha[5] is not None else "user"
                 ) for linha in linhas
             ]
     
@@ -38,7 +38,7 @@ class UsuarioRepository:
                     login=linha[2],
                     senha=linha[3],
                     cpf=linha[4]
-                        , role=linha[5] if len(linha) > 5 else "user"
+                        , role=linha[5] if len(linha) > 5 and linha[5] is not None else "user"
                 )
             return None
             
@@ -58,7 +58,7 @@ class UsuarioRepository:
                     login=linha[2],
                     senha=linha[3],
                     cpf=linha[4]
-                        , role=linha[5] if len(linha) > 5 else "user"
+                        , role=linha[5] if len(linha) > 5 and linha[5] is not None else "user"
                 )
 
 
@@ -67,15 +67,17 @@ class UsuarioRepository:
             cursor = connexion.cursor()
             cursor.execute(
                 "SELECT * FROM usuarios WHERE email =?",
-                (email))
-            linha= cursor.fetchone()
+                (email,))
+            linha = cursor.fetchone()
             if linha:
                 return Usuario(
                     id_usuario=linha[0],
                     nome_usuario=linha[1],
                     login=linha[2],
                     senha=linha[3],
-                    cpf=linha[4])
+                    cpf=linha[4],
+                    role=linha[5] if len(linha) > 5 and linha[5] is not None else "user"
+                )
             return None
 
     async def criar_usuario(self,

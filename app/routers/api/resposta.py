@@ -32,24 +32,14 @@ async def get_resposta(
         raise HTTPException(status_code=404, detail="Resposta não encontrada")
     return resposta
 
-@router.post("/")
+@router.post("/", response_model=RespostaCriarAtualizar)
 async def criar_resposta(
+    resposta: RespostaCriarAtualizar,
     resposta_repository: Annotated[RespostaRepository, Depends(
         dependencies.get_resposta_repository
-    )],
-    request: Request,
-    texto_resposta: str,
-    data_resposta: str,
-    id_usuario: int,
-    id_produto: int
+    )]
 ):
-    resposta_criar = RespostaCriarAtualizar(
-        texto_resposta=texto_resposta,
-        data_resposta=data_resposta,
-        id_usuario=id_usuario,
-        id_produto=id_produto
-    )
-    return await resposta_repository.criar_resposta(resposta_criar)
+    return await resposta_repository.criar_resposta(resposta)
 
 @router.put("/{resposta_id}", response_model=RespostaCriarAtualizar | None)
 async def update_resposta(

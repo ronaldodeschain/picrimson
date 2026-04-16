@@ -10,7 +10,7 @@ class RastreioRepository:
     async def listar_rastreios(self) -> list[Rastreio]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM rastreios")
+            cursor.execute("SELECT * FROM rastreio")
             linhas = cursor.fetchall()
             return [
                 Rastreio(
@@ -25,7 +25,7 @@ class RastreioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM rastreios WHERE id_rastreio = ?",
+                "SELECT * FROM rastreio WHERE id_rastreio = ?",
                 (rastreio_id,)
             )
             linha = cursor.fetchone()
@@ -42,7 +42,7 @@ class RastreioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO rastreios (codigo_rastreio, id_entrega, id_mensagem) VALUES (?, ?, ?)",
+                "INSERT INTO rastreio (codigo_rastreio, id_entrega, id_mensagem) VALUES (?, ?, ?)",
                 (rastreio.codigo_rastreio, rastreio.id_entrega, rastreio.id_mensagem)
             )
             id_rastreio = cast(int, cursor.lastrowid)

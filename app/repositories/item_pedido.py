@@ -10,7 +10,7 @@ class ItemPedidoRepository:
     async def listar_itens_pedido(self) -> list[ItemPedido]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM itens_pedido")
+            cursor.execute("SELECT * FROM item_pedidos")
             linhas = cursor.fetchall()
             return [
                 ItemPedido(
@@ -25,7 +25,7 @@ class ItemPedidoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM itens_pedido WHERE id_item_pedido = ?",
+                "SELECT * FROM item_pedidos WHERE id_item_pedido = ?",
                 (item_id,)
             )
             linha = cursor.fetchone()
@@ -42,7 +42,7 @@ class ItemPedidoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO itens_pedido (id_usuario, id_produto, id_carrinho) VALUES (?, ?, ?)",
+                "INSERT INTO item_pedidos (id_usuario, id_produto, id_carrinho) VALUES (?, ?, ?)",
                 (item.id_usuario, item.id_produto, item.id_carrinho)
             )
             id_item_pedido = cast(int, cursor.lastrowid)

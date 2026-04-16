@@ -6,9 +6,11 @@ class Resposta(BaseModel):
     data_resposta: str
     id_usuario: int
     id_produto: int
+    id_pergunta: int | None = None
 
 class RespostaCriarAtualizar(BaseModel):
     texto_resposta: str
     data_resposta: str
     id_usuario: int
     id_produto: int
+    id_pergunta: int | None = None

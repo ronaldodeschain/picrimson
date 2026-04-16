@@ -10,7 +10,7 @@ class ImagemProdutoRepository:
     async def listar_imagens_produto(self) -> list[ImagemProduto]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM imagens_produto")
+            cursor.execute("SELECT * FROM imagem_produtos")
             linhas = cursor.fetchall()
             return [
                 ImagemProduto(
@@ -25,7 +25,7 @@ class ImagemProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM imagens_produto WHERE id_imagem_produto = ?",
+                "SELECT * FROM imagem_produtos WHERE id_imagem_produto = ?",
                 (imagem_id,)
             )
             linha = cursor.fetchone()
@@ -42,7 +42,7 @@ class ImagemProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO imagens_produto (nome_imagem, arquivo_imagem, id_produto) VALUES (?, ?, ?)",
+                "INSERT INTO imagem_produtos (nome_imagem, arquivo_imagem, id_produto) VALUES (?, ?, ?)",
                 (imagem.nome_imagem, imagem.arquivo_imagem, imagem.id_produto)
             )
             id_imagem_produto = cast(int, cursor.lastrowid)
@@ -57,7 +57,7 @@ class ImagemProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE imagens_produto SET nome_imagem = ?, arquivo_imagem = ?, id_produto = ? WHERE id_imagem_produto = ?",
+                "UPDATE imagem_produtos SET nome_imagem = ?, arquivo_imagem = ?, id_produto = ? WHERE id_imagem_produto = ?",
                 (imagem.nome_imagem, imagem.arquivo_imagem, imagem.id_produto, imagem_id)
             )
             if cursor.rowcount > 0:
@@ -72,5 +72,5 @@ class ImagemProdutoRepository:
     async def delete_imagem_produto(self, imagem_id: int) -> bool:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("DELETE FROM imagens_produto WHERE id_imagem_produto = ?", (imagem_id,))
+            cursor.execute("DELETE FROM imagem_produtos WHERE id_imagem_produto = ?", (imagem_id,))
             return cursor.rowcount > 0

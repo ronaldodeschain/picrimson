@@ -10,7 +10,7 @@ class ServicoRepository:
     async def listar_servicos(self) -> list[Servico]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM servicos")
+            cursor.execute("SELECT * FROM servico")
             linhas = cursor.fetchall()
             return [
                 Servico(
@@ -27,7 +27,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM servicos WHERE id_servico = ?",
+                "SELECT * FROM servico WHERE id_servico = ?",
                 (servico_id,)
             )
             linha = cursor.fetchone()
@@ -47,7 +47,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO servicos(tipo_servico, valor_servico, descricao, id_pedido, id_orcamento) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO servico(tipo_servico, valor_servico, descricao, id_pedido, id_orcamento) VALUES (?, ?, ?, ?, ?)",
                 (servico.tipo_servico, servico.valor_servico, servico.descricao, servico.id_pedido, servico.id_orcamento)
             )
             id_servico = cast(int, cursor.lastrowid)
@@ -65,7 +65,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE servicos SET tipo_servico = ?, valor_servico = ?, descricao = ?, id_pedido = ?, id_orcamento = ? WHERE id_servico = ?",
+                "UPDATE servico SET tipo_servico = ?, valor_servico = ?, descricao = ?, id_pedido = ?, id_orcamento = ? WHERE id_servico = ?",
                 (servico.tipo_servico, servico.valor_servico, servico.descricao, servico.id_pedido, servico.id_orcamento, servico_id)
             )
             if cursor.rowcount == 0:
@@ -83,7 +83,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM servicos WHERE id_servico = ?",
+                "DELETE FROM servico WHERE id_servico = ?",
                 (servico_id,)
             )
             return cursor.rowcount > 0

@@ -247,13 +247,14 @@ class Database():
                     texto_resposta TEXT,
                     data_resposta TEXT,
                     id_usuario INTEGER,
-                    id_produto INTEGER
+                    id_produto INTEGER,
+                    id_pergunta INTEGER
                 );
 
             """)
             # Ensure existing databases get the new column when migrating
-            cursor.execute("PRAGMA table_info(usuarios)")
+            cursor.execute("PRAGMA table_info(resposta)")
             columns = [row[1] for row in cursor.fetchall()]
-            if "role" not in columns:
-                cursor.execute("ALTER TABLE usuarios ADD COLUMN role TEXT DEFAULT 'user'")
+            if "id_pergunta" not in columns:
+                cursor.execute("ALTER TABLE resposta ADD COLUMN id_pergunta INTEGER")
         print("Banco de dados criado com sucesso!")

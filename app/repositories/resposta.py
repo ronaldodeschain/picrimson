@@ -18,7 +18,8 @@ class RespostaRepository:
                     texto_resposta=linha[1],
                     data_resposta=linha[2],
                     id_usuario=linha[3],
-                    id_produto=linha[4]
+                    id_produto=linha[4],
+                    id_pergunta=linha[5] if linha[5] is not None else None
                 ) for linha in linhas
             ]
 
@@ -36,17 +37,18 @@ class RespostaRepository:
                     texto_resposta=linha[1],
                     data_resposta=linha[2],
                     id_usuario=linha[3],
-                    id_produto=linha[4]
+                    id_produto=linha[4],
+                    id_pergunta=linha[5] if linha[5] is not None else None
                 )
             return None
 
     async def criar_resposta(self,
-                              resposta: RespostaCriarAtualizar) -> Resposta | None:
+                            resposta: RespostaCriarAtualizar) -> Resposta | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO resposta(texto_resposta, data_resposta, id_usuario, id_produto) VALUES (?, ?, ?, ?)",
-                (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto)
+                "INSERT INTO resposta(texto_resposta, data_resposta, id_usuario, id_produto, id_pergunta) VALUES (?, ?, ?, ?, ?)",
+                (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto, resposta.id_pergunta)
             )
             id_resposta = cast(int, cursor.lastrowid)
             return Resposta(
@@ -54,16 +56,17 @@ class RespostaRepository:
                 texto_resposta=resposta.texto_resposta,
                 data_resposta=resposta.data_resposta,
                 id_usuario=resposta.id_usuario,
-                id_produto=resposta.id_produto
+                id_produto=resposta.id_produto,
+                id_pergunta=resposta.id_pergunta
             )
 
     async def update_resposta(self, resposta_id: int,
-                              resposta: RespostaCriarAtualizar) -> Resposta | None:
+                            resposta: RespostaCriarAtualizar) -> Resposta | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE resposta SET texto_resposta = ?, data_resposta = ?, id_usuario = ?, id_produto = ? WHERE id_resposta = ?",
-                (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto, resposta_id)
+                "UPDATE resposta SET texto_resposta = ?, data_resposta = ?, id_usuario = ?, id_produto = ?, id_pergunta = ? WHERE id_resposta = ?",
+                (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto, resposta.id_pergunta, resposta_id)
             )
             if cursor.rowcount == 0:
                 return None
@@ -72,7 +75,8 @@ class RespostaRepository:
                 texto_resposta=resposta.texto_resposta,
                 data_resposta=resposta.data_resposta,
                 id_usuario=resposta.id_usuario,
-                id_produto=resposta.id_produto
+                id_produto=resposta.id_produto,
+                id_pergunta=resposta.id_pergunta
             )
 
     async def delete_resposta(self, resposta_id: int) -> bool:

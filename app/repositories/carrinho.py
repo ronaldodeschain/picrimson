@@ -10,7 +10,7 @@ class CarrinhoRepository:
     async def listar_carrinhos(self) -> list[Carrinho]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("SELECT * FROM carrinhos")
+            cursor.execute("SELECT * FROM carrinho")
             linhas = cursor.fetchall()
             return [
                 Carrinho(
@@ -26,7 +26,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM carrinhos WHERE id_carrinho = ?",
+                "SELECT * FROM carrinho WHERE id_carrinho = ?",
                 (carrinho_id,)
             )
             linha = cursor.fetchone()
@@ -45,7 +45,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO carrinhos(id_servico, id_pedido, id_item_pedido, id_usuario) VALUES (?, ?, ?, ?)",
+                "INSERT INTO carrinho(id_servico, id_pedido, id_item_pedido, id_usuario) VALUES (?, ?, ?, ?)",
                 (carrinho.id_servico, carrinho.id_pedido, carrinho.id_item_pedido, carrinho.id_usuario)
             )
             id_carrinho = cast(int, cursor.lastrowid)
@@ -62,7 +62,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE carrinhos SET id_servico = ?, id_pedido = ?, id_item_pedido = ?, id_usuario = ? WHERE id_carrinho = ?",
+                "UPDATE carrinho SET id_servico = ?, id_pedido = ?, id_item_pedido = ?, id_usuario = ? WHERE id_carrinho = ?",
                 (carrinho.id_servico, carrinho.id_pedido, carrinho.id_item_pedido, carrinho.id_usuario, carrinho_id)
             )
             if cursor.rowcount == 0:
@@ -79,7 +79,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM carrinhos WHERE id_carrinho = ?",
+                "DELETE FROM carrinho WHERE id_carrinho = ?",
                 (carrinho_id,)
             )
             return cursor.rowcount > 0
