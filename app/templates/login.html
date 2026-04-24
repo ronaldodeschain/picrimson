@@ -6,8 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <form id="formLogin" class="form-login" action="'/login" method="post">
+<div class="container login-page">
+    <section class="login-card card">
+        <div class="login-card__header">
+            <h1>Entrar</h1>
+            <p>Use seu email e senha para acessar sua conta.</p>
+        </div>
+        <form id="formLogin" class="form-login" action="/login.html" method="post">
         <div class="form-group">
             <label for="email">Email *</label>
             <input type="email" id="email" name="email" class="form-control"
@@ -15,7 +20,7 @@
         </div>
         <div class="form-group">
             <label for="password"> Senha *</label>
-            <input for="password" id="password" name="password"
+            <input type="password" id="password" name="password"
             class="form-control"
             placeholder="******" value="{{password}}" required>
         </div>
@@ -30,6 +35,7 @@
             <a href="/" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
+    </section>
     <div class="cadastro-link">
         <p> Não tem conta? <a href="/cadastro"> Criar Conta</a></p>
     </div>

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: crimson_db
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://user_admin:password123@db:5432/crimson_db
+      DATABASE_TYPE: postgres
+    depends_on:
+      - db
+    volumes:
+      - .:/app

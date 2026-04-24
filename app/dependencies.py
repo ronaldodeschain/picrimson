@@ -1,7 +1,9 @@
-from typing import Annotated
+import os
+from typing import Annotated, Union
 from fastapi import Depends
 
 from app.database.local import Database
+from app.database.postgres import PostgresDatabase
 from app.repositories.usuario import UsuarioRepository
 from app.repositories.categoria import CategoriaRepository
 from app.repositories.produto import ProdutoRepository
@@ -26,123 +28,122 @@ from app.repositories.rastreio import RastreioRepository
 from app.repositories.pergunta import PerguntaRepository
 from app.repositories.resposta import RespostaRepository
 
-
-db = Database()
-
-def get_database() -> Database:
-    return db
+def get_database() -> Union[Database, PostgresDatabase]:
+    if os.getenv("DATABASE_TYPE") == "postgres":
+        return PostgresDatabase()
+    return Database()
 
 def get_usuario_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> UsuarioRepository:
-    return UsuarioRepository(Local_db)
+    return UsuarioRepository(db)
 
 def get_categoria_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> CategoriaRepository:
-    return CategoriaRepository(Local_db)
+    return CategoriaRepository(db)
 
 def get_produto_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> ProdutoRepository:
-    return ProdutoRepository(Local_db)
+    return ProdutoRepository(db)
 
 def get_pedido_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> PedidoRepository:
-    return PedidoRepository(Local_db)
+    return PedidoRepository(db)
 
 def get_pagamento_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> PagamentoRepository:
-    return PagamentoRepository(Local_db)
+    return PagamentoRepository(db)
 
 def get_servico_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> ServicoRepository:
-    return ServicoRepository(Local_db)
+    return ServicoRepository(db)
 
 def get_endereco_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> EnderecoRepository:
-    return EnderecoRepository(Local_db)
+    return EnderecoRepository(db)
 
 def get_telefone_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> TelefoneRepository:
-    return TelefoneRepository(Local_db)
+    return TelefoneRepository(db)
 
 def get_avaliacoes_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> AvaliacoesRepository:
-    return AvaliacoesRepository(Local_db)
+    return AvaliacoesRepository(db)
 
 def get_caixa_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> CaixaRepository:
-    return CaixaRepository(Local_db)
+    return CaixaRepository(db)
 
 def get_carrinho_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> CarrinhoRepository:
-    return CarrinhoRepository(Local_db)
+    return CarrinhoRepository(db)
 
 def get_cupom_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> CupomRepository:
-    return CupomRepository(Local_db)
+    return CupomRepository(db)
 
 def get_email_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> EmailRepository:
-    return EmailRepository(Local_db)
+    return EmailRepository(db)
 
 def get_pergunta_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> PerguntaRepository:
-    return PerguntaRepository(Local_db)
+    return PerguntaRepository(db)
 
 def get_resposta_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> RespostaRepository:
-    return RespostaRepository(Local_db)
+    return RespostaRepository(db)
 
 def get_entrega_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> EntregaRepository:
-    return EntregaRepository(Local_db)
+    return EntregaRepository(db)
 
 def get_favoritos_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> FavoritosRepository:
-    return FavoritosRepository(Local_db)
+    return FavoritosRepository(db)
 
 def get_imagem_produto_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> ImagemProdutoRepository:
-    return ImagemProdutoRepository(Local_db)
+    return ImagemProdutoRepository(db)
 
 def get_item_pedido_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> ItemPedidoRepository:
-    return ItemPedidoRepository(Local_db)
+    return ItemPedidoRepository(db)
 
 def get_mensagem_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> MensagemRepository:
-    return MensagemRepository(Local_db)
+    return MensagemRepository(db)
 
 def get_nota_fiscal_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> NotaFiscalRepository:
-    return NotaFiscalRepository(Local_db)
+    return NotaFiscalRepository(db)
 
 def get_orcamento_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> OrcamentoRepository:
-    return OrcamentoRepository(Local_db)
+    return OrcamentoRepository(db)
 
 def get_rastreio_repository(
-    Local_db: Annotated[Database,Depends(get_database)]
+    db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]
 ) -> RastreioRepository:
-    return RastreioRepository(Local_db)
+    return RastreioRepository(db)
