@@ -1,11 +1,12 @@
 from datetime import datetime, date
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.pagamento import Pagamento, PagamentoCriarAtualizar
 
 
 class PagamentoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_pagamentos(self) -> list[Pagamento]:
@@ -19,11 +20,11 @@ class PagamentoRepository:
                     expiracao=datetime.fromisoformat(linha[1]) if linha[1] else None,
                     valor_total=linha[2],
                     data_pagamento=date.fromisoformat(linha[3]) if linha[3] else None,
-                    pixTxid=linha[4],
-                    id_pedido=linha[5],
-                    id_caixa=linha[6],
-                    id_nota_fiscal=linha[7],
-                    id_entrega=linha[8]
+                    pixTxid=linha[5],
+                    id_pedido=linha[6],
+                    id_caixa=linha[7],
+                    id_nota_fiscal=linha[8],
+                    id_entrega=linha[9]
                 ) for linha in linhas
             ]
 
@@ -31,7 +32,7 @@ class PagamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM pagamentos WHERE id_pagamento = ?",
+                "SELECT * FROM pagamentos WHERE id_pagamento = %s",
                 (pagamento_id,)
             )
             linha = cursor.fetchone()
@@ -41,11 +42,11 @@ class PagamentoRepository:
                     expiracao=datetime.fromisoformat(linha[1]) if linha[1] else None,
                     valor_total=linha[2],
                     data_pagamento=date.fromisoformat(linha[3]) if linha[3] else None,
-                    pixTxid=linha[4],
-                    id_pedido=linha[5],
-                    id_caixa=linha[6],
-                    id_nota_fiscal=linha[7],
-                    id_entrega=linha[8]
+                    pixTxid=linha[5],
+                    id_pedido=linha[6],
+                    id_caixa=linha[7],
+                    id_nota_fiscal=linha[8],
+                    id_entrega=linha[9]
                 )
             return None
 
@@ -54,10 +55,10 @@ class PagamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO pagamentos(expiracao, valor_total, data_pagamento, pixTxid, id_pedido, id_caixa, id_nota_fiscal, id_entrega) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO pagamentos(expiracao, valor_total, data_pagamento, pixTxid, id_pedido, id_caixa, id_nota_fiscal, id_entrega) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_pagamento",
                 (pagamento.expiracao.isoformat() if pagamento.expiracao else None, pagamento.valor_total, pagamento.data_pagamento.isoformat() if pagamento.data_pagamento else None, pagamento.pixTxid, pagamento.id_pedido, pagamento.id_caixa, pagamento.id_nota_fiscal, pagamento.id_entrega)
             )
-            id_pagamento = cast(int, cursor.lastrowid)
+            id_pagamento = cursor.fetchone()[0]
             return Pagamento(
                 id_pagamento=id_pagamento,
                 expiracao=pagamento.expiracao,
@@ -75,7 +76,7 @@ class PagamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE pagamentos SET expiracao = ?, valor_total = ?, data_pagamento = ?, pixTxid = ?, id_pedido = ?, id_caixa = ?, id_nota_fiscal = ?, id_entrega = ? WHERE id_pagamento = ?",
+                "UPDATE pagamentos SET expiracao = %s, valor_total = %s, data_pagamento = %s, pixTxid = %s, id_pedido = %s, id_caixa = %s, id_nota_fiscal = %s, id_entrega = %s WHERE id_pagamento = %s",
                 (pagamento.expiracao.isoformat() if pagamento.expiracao else None, pagamento.valor_total, pagamento.data_pagamento.isoformat() if pagamento.data_pagamento else None, pagamento.pixTxid, pagamento.id_pedido, pagamento.id_caixa, pagamento.id_nota_fiscal, pagamento.id_entrega, pagamento_id)
             )
             if cursor.rowcount == 0:
@@ -96,7 +97,7 @@ class PagamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM pagamentos WHERE id_pagamento = ?",
+                "DELETE FROM pagamentos WHERE id_pagamento = %s",
                 (pagamento_id,)
             )
             return cursor.rowcount > 0

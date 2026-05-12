@@ -5,7 +5,7 @@ from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app.models.categoria import CategoriaCriarAtualizar
+from app.models.categoria import Categoria, CategoriaCriarAtualizar
 from app.repositories.categoria import CategoriaRepository
 import app.dependencies as dependencies
 
@@ -16,7 +16,7 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/", response_model=list[CategoriaCriarAtualizar])
+@router.get("/", response_model=list[Categoria])
 async def listar_categorias(
     categoria_repository: Annotated[CategoriaRepository, Depends(
         dependencies.get_categoria_repository
@@ -24,7 +24,7 @@ async def listar_categorias(
 ):
     return await categoria_repository.listar_categorias()
 
-@router.get("/{categoria_id}", response_model=CategoriaCriarAtualizar)
+@router.get("/{categoria_id}", response_model=Categoria)
 async def get_categoria(
     categoria_id: int,
     categoria_repository: Annotated[CategoriaRepository, Depends(
@@ -51,7 +51,7 @@ async def criar_categoria(
     categoria = await categoria_repository.criar_categoria(categoria_criar)
     return categoria
 
-@router.put("/{categoria_id}", response_model=CategoriaCriarAtualizar | None)
+@router.put("/{categoria_id}", response_model=Categoria | None)
 async def update_categoria(
     categoria_repository: Annotated[CategoriaRepository, Depends(
         dependencies.get_categoria_repository

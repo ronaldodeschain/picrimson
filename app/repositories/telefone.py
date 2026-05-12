@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.telefone import Telefone, TelefoneCriarAtualizar
 
 
 class TelefoneRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_telefones(self) -> list[Telefone]:
@@ -25,7 +26,7 @@ class TelefoneRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM telefone WHERE id_telefone = ?",
+                "SELECT * FROM telefone WHERE id_telefone = %s",
                 (telefone_id,)
             )
             linha = cursor.fetchone()
@@ -43,10 +44,10 @@ class TelefoneRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO telefone(telefone_principal, telefone_secundario, id_usuario) VALUES (?, ?, ?)",
+                "INSERT INTO telefone(telefone_principal, telefone_secundario, id_usuario) VALUES (%s, %s, %s) RETURNING id_telefone",
                 (telefone.telefone_principal, telefone.telefone_secundario, telefone.id_usuario)
             )
-            id_telefone = cast(int, cursor.lastrowid)
+            id_telefone = cursor.fetchone()[0]
             return Telefone(
                 id_telefone=id_telefone,
                 telefone_principal=telefone.telefone_principal,
@@ -59,7 +60,7 @@ class TelefoneRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE telefone SET telefone_principal = ?, telefone_secundario = ?, id_usuario = ? WHERE id_telefone = ?",
+                "UPDATE telefone SET telefone_principal = %s, telefone_secundario = %s, id_usuario = %s WHERE id_telefone = %s",
                 (telefone.telefone_principal, telefone.telefone_secundario, telefone.id_usuario, telefone_id)
             )
             if cursor.rowcount == 0:
@@ -75,7 +76,7 @@ class TelefoneRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM telefone WHERE id_telefone = ?",
+                "DELETE FROM telefone WHERE id_telefone = %s",
                 (telefone_id,)
             )
             return cursor.rowcount > 0

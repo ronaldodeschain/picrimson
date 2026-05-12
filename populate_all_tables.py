@@ -1,6 +1,6 @@
 import asyncio
 from datetime import date
-from app.database.local import Database
+from app.dependencies import get_database
 from app.repositories.usuario import UsuarioRepository
 from app.repositories.categoria import CategoriaRepository
 from app.repositories.produto import ProdutoRepository
@@ -50,7 +50,7 @@ from app.models.pergunta import PerguntaCriarAtualizar
 from app.models.resposta import RespostaCriarAtualizar
 
 async def populate_all_tables():
-    db = Database()
+    db = get_database()
     usuario_repo = UsuarioRepository(db)
     categoria_repo = CategoriaRepository(db)
     produto_repo = ProdutoRepository(db)

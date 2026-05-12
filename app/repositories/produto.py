@@ -1,10 +1,10 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.produto import Produto, ProdutoCriarAtualizar
 
-
 class ProdutoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_produtos(self) -> list[Produto]:
@@ -31,7 +31,7 @@ class ProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM produtos WHERE id_produto = ?",
+                "SELECT * FROM produtos WHERE id_produto = %s",
                 (produto_id,)
             )
             linha = cursor.fetchone()
@@ -55,10 +55,10 @@ class ProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO produtos(nome_produto, descricao, material, altura, comprimento, largura, quantidade, peso, valor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO produtos(nome_produto, descricao, material, altura, comprimento, largura, quantidade, peso, valor) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_produto",
                 (produto.nome_produto, produto.descricao, produto.material, produto.altura, produto.comprimento, produto.largura, produto.quantidade, produto.peso, produto.valor)
             )
-            id_produto = cast(int, cursor.lastrowid)
+            id_produto = cursor.fetchone()[0]
             return Produto(
                 id_produto=id_produto,
                 nome_produto=produto.nome_produto,
@@ -77,7 +77,7 @@ class ProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE produtos SET nome_produto = ?, descricao = ?, material = ?, altura = ?, comprimento = ?, largura = ?, quantidade = ?, peso = ?, valor = ? WHERE id_produto = ?",
+                "UPDATE produtos SET nome_produto = %s, descricao = %s, material = %s, altura = %s, comprimento = %s, largura = %s, quantidade = %s, peso = %s, valor = %s WHERE id_produto = %s",
                 (produto.nome_produto, produto.descricao, produto.material, produto.altura, produto.comprimento, produto.largura, produto.quantidade, produto.peso, produto.valor, produto_id)
             )
             if cursor.rowcount == 0:
@@ -99,7 +99,7 @@ class ProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM produtos WHERE id_produto = ?",
+                "DELETE FROM produtos WHERE id_produto = %s",
                 (produto_id,)
             )
             return cursor.rowcount > 0

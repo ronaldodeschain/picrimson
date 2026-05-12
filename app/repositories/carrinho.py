@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.carrinho import Carrinho, CarrinhoCriarAtualizar
 
 
 class CarrinhoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_carrinhos(self) -> list[Carrinho]:
@@ -26,7 +27,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM carrinho WHERE id_carrinho = ?",
+                "SELECT * FROM carrinho WHERE id_carrinho = %s",
                 (carrinho_id,)
             )
             linha = cursor.fetchone()
@@ -45,10 +46,10 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO carrinho(id_servico, id_pedido, id_item_pedido, id_usuario) VALUES (?, ?, ?, ?)",
+                "INSERT INTO carrinho(id_servico, id_pedido, id_item_pedido, id_usuario) VALUES (%s, %s, %s, %s) RETURNING id_carrinho",
                 (carrinho.id_servico, carrinho.id_pedido, carrinho.id_item_pedido, carrinho.id_usuario)
             )
-            id_carrinho = cast(int, cursor.lastrowid)
+            id_carrinho = cursor.fetchone()[0]
             return Carrinho(
                 id_carrinho=id_carrinho,
                 id_servico=carrinho.id_servico,
@@ -62,7 +63,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE carrinho SET id_servico = ?, id_pedido = ?, id_item_pedido = ?, id_usuario = ? WHERE id_carrinho = ?",
+                "UPDATE carrinho SET id_servico = %s, id_pedido = %s, id_item_pedido = %s, id_usuario = %s WHERE id_carrinho = %s",
                 (carrinho.id_servico, carrinho.id_pedido, carrinho.id_item_pedido, carrinho.id_usuario, carrinho_id)
             )
             if cursor.rowcount == 0:
@@ -79,7 +80,7 @@ class CarrinhoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM carrinho WHERE id_carrinho = ?",
+                "DELETE FROM carrinho WHERE id_carrinho = %s",
                 (carrinho_id,)
             )
             return cursor.rowcount > 0

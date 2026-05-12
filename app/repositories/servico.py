@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.servico import Servico, ServicoCriarAtualizar
 
 
 class ServicoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_servicos(self) -> list[Servico]:
@@ -27,7 +28,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM servico WHERE id_servico = ?",
+                "SELECT * FROM servico WHERE id_servico = %s",
                 (servico_id,)
             )
             linha = cursor.fetchone()
@@ -47,10 +48,10 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO servico(tipo_servico, valor_servico, descricao, id_pedido, id_orcamento) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO servico(tipo_servico, valor_servico, descricao, id_pedido, id_orcamento) VALUES (%s, %s, %s, %s, %s) RETURNING id_servico",
                 (servico.tipo_servico, servico.valor_servico, servico.descricao, servico.id_pedido, servico.id_orcamento)
             )
-            id_servico = cast(int, cursor.lastrowid)
+            id_servico = cursor.fetchone()[0]
             return Servico(
                 id_servico=id_servico,
                 tipo_servico=servico.tipo_servico,
@@ -65,7 +66,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE servico SET tipo_servico = ?, valor_servico = ?, descricao = ?, id_pedido = ?, id_orcamento = ? WHERE id_servico = ?",
+                "UPDATE servico SET tipo_servico = %s, valor_servico = %s, descricao = %s, id_pedido = %s, id_orcamento = %s WHERE id_servico = %s",
                 (servico.tipo_servico, servico.valor_servico, servico.descricao, servico.id_pedido, servico.id_orcamento, servico_id)
             )
             if cursor.rowcount == 0:
@@ -83,7 +84,7 @@ class ServicoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM servico WHERE id_servico = ?",
+                "DELETE FROM servico WHERE id_servico = %s",
                 (servico_id,)
             )
             return cursor.rowcount > 0

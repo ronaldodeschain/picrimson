@@ -1,10 +1,10 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.categoria import Categoria, CategoriaCriarAtualizar
 
-
 class CategoriaRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_categorias(self) -> list[Categoria]:
@@ -23,7 +23,7 @@ class CategoriaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM categorias WHERE id_categoria = ?",
+                "SELECT * FROM categorias WHERE id_categoria = %s",
                 (categoria_id,)
             )
             linha = cursor.fetchone()
@@ -39,10 +39,10 @@ class CategoriaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO categorias(nome_categoria) VALUES (?)",
+                "INSERT INTO categorias(nome_categoria) VALUES (%s) RETURNING id_categoria",
                 (categoria.nome_categoria,)
             )
-            id_categoria = cast(int, cursor.lastrowid)
+            id_categoria = cursor.fetchone()[0]
             return Categoria(
                 id_categoria=id_categoria,
                 nome_categoria=categoria.nome_categoria
@@ -53,7 +53,7 @@ class CategoriaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE categorias SET nome_categoria = ? WHERE id_categoria = ?",
+                "UPDATE categorias SET nome_categoria = %s WHERE id_categoria = %s",
                 (categoria.nome_categoria, categoria_id)
             )
             if cursor.rowcount == 0:
@@ -67,7 +67,7 @@ class CategoriaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM categorias WHERE id_categoria = ?",
+                "DELETE FROM categorias WHERE id_categoria = %s",
                 (categoria_id,)
             )
             return cursor.rowcount > 0

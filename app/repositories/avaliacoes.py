@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.avaliacoes import Avaliacoes, AvaliacoesCriarAtualizar
 
 
 class AvaliacoesRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_avaliacoes(self) -> list[Avaliacoes]:
@@ -26,7 +27,7 @@ class AvaliacoesRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM avaliacoes WHERE id_avaliacao = ?",
+                "SELECT * FROM avaliacoes WHERE id_avaliacao = %s",
                 (avaliacao_id,)
             )
             linha = cursor.fetchone()
@@ -41,14 +42,14 @@ class AvaliacoesRepository:
             return None
 
     async def criar_avaliacao(self,
-                               avaliacao: AvaliacoesCriarAtualizar) -> Avaliacoes | None:
+                avaliacao: AvaliacoesCriarAtualizar) -> Avaliacoes | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO avaliacoes(comentario, avaliacao, id_produto, id_usuario) VALUES (?, ?, ?, ?)",
+                "INSERT INTO avaliacoes(comentario, avaliacao, id_produto, id_usuario) VALUES (%s, %s, %s, %s) RETURNING id_avaliacao",
                 (avaliacao.comentario, avaliacao.avaliacao, avaliacao.id_produto, avaliacao.id_usuario)
             )
-            id_avaliacao = cast(int, cursor.lastrowid)
+            id_avaliacao = cursor.fetchone()[0]
             return Avaliacoes(
                 id_avaliacao=id_avaliacao,
                 comentario=avaliacao.comentario,
@@ -58,11 +59,11 @@ class AvaliacoesRepository:
             )
 
     async def update_avaliacao(self, avaliacao_id: int,
-                               avaliacao: AvaliacoesCriarAtualizar) -> Avaliacoes | None:
+                    avaliacao: AvaliacoesCriarAtualizar) -> Avaliacoes | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE avaliacoes SET comentario = ?, avaliacao = ?, id_produto = ?, id_usuario = ? WHERE id_avaliacao = ?",
+                "UPDATE avaliacoes SET comentario = %s, avaliacao = %s, id_produto = %s, id_usuario = %s WHERE id_avaliacao = %s",
                 (avaliacao.comentario, avaliacao.avaliacao, avaliacao.id_produto, avaliacao.id_usuario, avaliacao_id)
             )
             if cursor.rowcount == 0:
@@ -79,7 +80,7 @@ class AvaliacoesRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM avaliacoes WHERE id_avaliacao = ?",
+                "DELETE FROM avaliacoes WHERE id_avaliacao = %s",
                 (avaliacao_id,)
             )
             return cursor.rowcount > 0

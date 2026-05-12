@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.resposta import Resposta, RespostaCriarAtualizar
 
 
 class RespostaRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_respostas(self) -> list[Resposta]:
@@ -27,7 +28,7 @@ class RespostaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM resposta WHERE id_resposta = ?",
+                "SELECT * FROM resposta WHERE id_resposta = %s",
                 (resposta_id,)
             )
             linha = cursor.fetchone()
@@ -47,10 +48,10 @@ class RespostaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO resposta(texto_resposta, data_resposta, id_usuario, id_produto, id_pergunta) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO resposta(texto_resposta, data_resposta, id_usuario, id_produto, id_pergunta) VALUES (%s, %s, %s, %s, %s) RETURNING id_resposta",
                 (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto, resposta.id_pergunta)
             )
-            id_resposta = cast(int, cursor.lastrowid)
+            id_resposta = cursor.fetchone()[0]
             return Resposta(
                 id_resposta=id_resposta,
                 texto_resposta=resposta.texto_resposta,
@@ -65,7 +66,7 @@ class RespostaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE resposta SET texto_resposta = ?, data_resposta = ?, id_usuario = ?, id_produto = ?, id_pergunta = ? WHERE id_resposta = ?",
+                "UPDATE resposta SET texto_resposta = %s, data_resposta = %s, id_usuario = %s, id_produto = %s, id_pergunta = %s WHERE id_resposta = %s",
                 (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto, resposta.id_pergunta, resposta_id)
             )
             if cursor.rowcount == 0:
@@ -83,7 +84,7 @@ class RespostaRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM resposta WHERE id_resposta = ?",
+                "DELETE FROM resposta WHERE id_resposta = %s",
                 (resposta_id,)
             )
             return cursor.rowcount > 0

@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.favoritos import Favoritos, FavoritosCriarAtualizar
 
 
 class FavoritosRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_favoritos(self) -> list[Favoritos]:
@@ -24,7 +25,7 @@ class FavoritosRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM favoritos WHERE id_favoritos = ?",
+                "SELECT * FROM favoritos WHERE id_favoritos = %s",
                 (favorito_id,)
             )
             linha = cursor.fetchone()
@@ -40,10 +41,10 @@ class FavoritosRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO favoritos (id_produto, id_usuario) VALUES (?, ?)",
+                "INSERT INTO favoritos (id_produto, id_usuario) VALUES (%s, %s) RETURNING id_favoritos",
                 (favorito.id_produto, favorito.id_usuario)
             )
-            id_favoritos = cast(int, cursor.lastrowid)
+            id_favoritos = cursor.fetchone()[0]
             return Favoritos(
                 id_favoritos=id_favoritos,
                 id_produto=favorito.id_produto,
@@ -54,7 +55,7 @@ class FavoritosRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE favoritos SET id_produto = ?, id_usuario = ? WHERE id_favoritos = ?",
+                "UPDATE favoritos SET id_produto = %s, id_usuario = %s WHERE id_favoritos = %s",
                 (favorito.id_produto, favorito.id_usuario, favorito_id)
             )
             if cursor.rowcount > 0:
@@ -68,5 +69,5 @@ class FavoritosRepository:
     async def delete_favorito(self, favorito_id: int) -> bool:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("DELETE FROM favoritos WHERE id_favoritos = ?", (favorito_id,))
+            cursor.execute("DELETE FROM favoritos WHERE id_favoritos = %s", (favorito_id,))
             return cursor.rowcount > 0

@@ -1,9 +1,12 @@
 import os
 from typing import Annotated, Union
 from fastapi import Depends
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from app.database.local import Database
-from app.database.postgres import PostgresDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.repositories.usuario import UsuarioRepository
 from app.repositories.categoria import CategoriaRepository
 from app.repositories.produto import ProdutoRepository
@@ -28,10 +31,17 @@ from app.repositories.rastreio import RastreioRepository
 from app.repositories.pergunta import PerguntaRepository
 from app.repositories.resposta import RespostaRepository
 
+# Instância global para evitar a inicialização do banco em cada requisição
+_db_instance = None
+
 def get_database() -> Union[Database, PostgresDatabase]:
-    if os.getenv("DATABASE_TYPE") == "postgres":
-        return PostgresDatabase()
-    return Database()
+    global _db_instance
+    if _db_instance is None:
+        if os.getenv("DATABASE_TYPE") == "postgres":
+            _db_instance = PostgresDatabase()
+        else:
+            _db_instance = Database()
+    return _db_instance
 
 def get_usuario_repository(
     db: Annotated[Union[Database, PostgresDatabase], Depends(get_database)]

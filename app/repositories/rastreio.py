@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.rastreio import Rastreio, RastreioCriarAtualizar
 
 
 class RastreioRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_rastreios(self) -> list[Rastreio]:
@@ -25,7 +26,7 @@ class RastreioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM rastreio WHERE id_rastreio = ?",
+                "SELECT * FROM rastreio WHERE id_rastreio = %s",
                 (rastreio_id,)
             )
             linha = cursor.fetchone()
@@ -42,10 +43,10 @@ class RastreioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO rastreio (codigo_rastreio, id_entrega, id_mensagem) VALUES (?, ?, ?)",
+                "INSERT INTO rastreio (codigo_rastreio, id_entrega, id_mensagem) VALUES (%s, %s, %s) RETURNING id_rastreio",
                 (rastreio.codigo_rastreio, rastreio.id_entrega, rastreio.id_mensagem)
             )
-            id_rastreio = cast(int, cursor.lastrowid)
+            id_rastreio = cursor.fetchone()[0]
             return Rastreio(
                 id_rastreio=id_rastreio,
                 codigo_rastreio=rastreio.codigo_rastreio,
@@ -57,7 +58,7 @@ class RastreioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE rastreios SET codigo_rastreio = ?, id_entrega = ?, id_mensagem = ? WHERE id_rastreio = ?",
+                "UPDATE rastreio SET codigo_rastreio = %s, id_entrega = %s, id_mensagem = %s WHERE id_rastreio = %s",
                 (rastreio.codigo_rastreio, rastreio.id_entrega, rastreio.id_mensagem, rastreio_id)
             )
             if cursor.rowcount > 0:
@@ -72,5 +73,5 @@ class RastreioRepository:
     async def delete_rastreio(self, rastreio_id: int) -> bool:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("DELETE FROM rastreios WHERE id_rastreio = ?", (rastreio_id,))
+            cursor.execute("DELETE FROM rastreio WHERE id_rastreio = %s", (rastreio_id,))
             return cursor.rowcount > 0

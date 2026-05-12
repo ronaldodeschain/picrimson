@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.orcamento import Orcamento, OrcamentoCriarAtualizar
 
 
 class OrcamentoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_orcamentos(self) -> list[Orcamento]:
@@ -27,7 +28,7 @@ class OrcamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM orcamentos WHERE id_orcamento = ?",
+                "SELECT * FROM orcamentos WHERE id_orcamento = %s",
                 (orcamento_id,)
             )
             linha = cursor.fetchone()
@@ -46,10 +47,10 @@ class OrcamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO orcamentos (mensagem, arquivo, imagem, id_mensagem, id_servico) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO orcamentos (mensagem, arquivo, imagem, id_mensagem, id_servico) VALUES (%s, %s, %s, %s, %s) RETURNING id_orcamento",
                 (orcamento.mensagem, orcamento.arquivo, orcamento.imagem, orcamento.id_mensagem, orcamento.id_servico)
             )
-            id_orcamento = cast(int, cursor.lastrowid)
+            id_orcamento = cursor.fetchone()[0]
             return Orcamento(
                 id_orcamento=id_orcamento,
                 mensagem=orcamento.mensagem,
@@ -63,7 +64,7 @@ class OrcamentoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE orcamentos SET mensagem = ?, arquivo = ?, imagem = ?, id_mensagem = ?, id_servico = ? WHERE id_orcamento = ?",
+                "UPDATE orcamentos SET mensagem = %s, arquivo = %s, imagem = %s, id_mensagem = %s, id_servico = %s WHERE id_orcamento = %s",
                 (orcamento.mensagem, orcamento.arquivo, orcamento.imagem, orcamento.id_mensagem, orcamento.id_servico, orcamento_id)
             )
             if cursor.rowcount > 0:
@@ -80,5 +81,5 @@ class OrcamentoRepository:
     async def delete_orcamento(self, orcamento_id: int) -> bool:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            cursor.execute("DELETE FROM orcamentos WHERE id_orcamento = ?", (orcamento_id,))
+            cursor.execute("DELETE FROM orcamentos WHERE id_orcamento = %s", (orcamento_id,))
             return cursor.rowcount > 0

@@ -1,10 +1,11 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.endereco import Endereco, EnderecoCriarAtualizar
 
 
 class EnderecoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_enderecos(self) -> list[Endereco]:
@@ -30,7 +31,7 @@ class EnderecoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM enderecos WHERE id_endereco = ?",
+                "SELECT * FROM enderecos WHERE id_endereco = %s",
                 (endereco_id,)
             )
             linha = cursor.fetchone()
@@ -53,10 +54,10 @@ class EnderecoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO enderecos(rua, numero, complemento, cep, cidade, estado, observacoes, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO enderecos(rua, numero, complemento, cep, cidade, estado, observacoes, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_endereco",
                 (endereco.rua, endereco.numero, endereco.complemento, endereco.cep, endereco.cidade, endereco.estado, endereco.observacoes, endereco.id_usuario)
             )
-            id_endereco = cast(int, cursor.lastrowid)
+            id_endereco = cursor.fetchone()[0]
             return Endereco(
                 id_endereco=id_endereco,
                 rua=endereco.rua,
@@ -74,7 +75,7 @@ class EnderecoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE enderecos SET rua = ?, numero = ?, complemento = ?, cep = ?, cidade = ?, estado = ?, observacoes = ?, id_usuario = ? WHERE id_endereco = ?",
+                "UPDATE enderecos SET rua = %s, numero = %s, complemento = %s, cep = %s, cidade = %s, estado = %s, observacoes = %s, id_usuario = %s WHERE id_endereco = %s",
                 (endereco.rua, endereco.numero, endereco.complemento, endereco.cep, endereco.cidade, endereco.estado, endereco.observacoes, endereco.id_usuario, endereco_id)
             )
             if cursor.rowcount == 0:
@@ -95,7 +96,7 @@ class EnderecoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM enderecos WHERE id_endereco = ?",
+                "DELETE FROM enderecos WHERE id_endereco = %s",
                 (endereco_id,)
             )
             return cursor.rowcount > 0

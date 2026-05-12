@@ -1,10 +1,10 @@
-from typing import cast
-from app.database.local import Database
+from typing import cast, Union
+from app.database.local import Database as SQLiteDatabase
+from app.database.crimson_database_pg import Database as PostgresDatabase
 from app.models.pedido import Pedido, PedidoCriarAtualizar
 
-
 class PedidoRepository:
-    def __init__(self, db: Database):
+    def __init__(self, db: Union[SQLiteDatabase, PostgresDatabase]):
         self.db = db
 
     async def listar_pedidos(self) -> list[Pedido]:
@@ -28,7 +28,7 @@ class PedidoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "SELECT * FROM pedidos WHERE id_pedido = ?",
+                "SELECT * FROM pedidos WHERE id_pedido = %s",
                 (pedido_id,)
             )
             linha = cursor.fetchone()
@@ -49,10 +49,10 @@ class PedidoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO pedidos(valor_total, observacoes, id_pagamento, id_carrinho, id_cupom, id_servico) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO pedidos(valor_total, observacoes, id_pagamento, id_carrinho, id_cupom, id_servico) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id_pedido",
                 (pedido.valor_total, pedido.observacoes, pedido.id_pagamento, pedido.id_carrinho, pedido.id_cupom, pedido.id_servico)
             )
-            id_pedido = cast(int, cursor.lastrowid)
+            id_pedido = cursor.fetchone()[0]
             return Pedido(
                 id_pedido=id_pedido,
                 valor_total=pedido.valor_total,
@@ -68,7 +68,7 @@ class PedidoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE pedidos SET valor_total = ?, observacoes = ?, id_pagamento = ?, id_carrinho = ?, id_cupom = ?, id_servico = ? WHERE id_pedido = ?",
+                "UPDATE pedidos SET valor_total = %s, observacoes = %s, id_pagamento = %s, id_carrinho = %s, id_cupom = %s, id_servico = %s WHERE id_pedido = %s",
                 (pedido.valor_total, pedido.observacoes, pedido.id_pagamento, pedido.id_carrinho, pedido.id_cupom, pedido.id_servico, pedido_id)
             )
             if cursor.rowcount == 0:
@@ -87,7 +87,7 @@ class PedidoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "DELETE FROM pedidos WHERE id_pedido = ?",
+                "DELETE FROM pedidos WHERE id_pedido = %s",
                 (pedido_id,)
             )
             return cursor.rowcount > 0
