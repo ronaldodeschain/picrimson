@@ -50,14 +50,17 @@ class EnderecoRepository:
             return None
 
     async def criar_endereco(self,
-                              endereco: EnderecoCriarAtualizar) -> Endereco | None:
+                            endereco: EnderecoCriarAtualizar) -> Endereco | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO enderecos(rua, numero, complemento, cep, cidade, estado, observacoes, id_usuario) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_endereco",
                 (endereco.rua, endereco.numero, endereco.complemento, endereco.cep, endereco.cidade, endereco.estado, endereco.observacoes, endereco.id_usuario)
             )
-            id_endereco = cursor.fetchone()[0]
+            row = cursor.fetchone()
+            if not row:
+                return None
+            id_endereco = row[0]
             return Endereco(
                 id_endereco=id_endereco,
                 rua=endereco.rua,
@@ -71,7 +74,7 @@ class EnderecoRepository:
             )
 
     async def update_endereco(self, endereco_id: int,
-                              endereco: EnderecoCriarAtualizar) -> Endereco | None:
+                            endereco: EnderecoCriarAtualizar) -> Endereco | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
