@@ -1,1 +1,46 @@
 {% extends "base.html" %}
+
+{% block title %}Cadastro - Crimson Claw Studio{% endblock %}
+
+{% block content %}
+<div class="container login-page">
+	<section class="login-card card">
+		<div class="login-card__header">
+			<h1>Criar conta</h1>
+			<p>Preencha seus dados para acessar sua área Minha Conta.</p>
+		</div>
+		{% if success %}
+		<div class="alert alert-success">
+			Cadastro realizado com sucesso! Agora você pode <a href="/login.html">fazer login</a>.
+		</div>
+		{% endif %}
+		{% if error %}
+		<div class="alert alert-danger">
+			{{ error }}
+		</div>
+		{% endif %}
+		<form id="formCadastro" class="form-login" action="/cadastro" method="post">
+			<div class="form-group">
+				<label for="nome">Nome completo *</label>
+				<input type="text" id="nome" name="nome" class="form-control" value="{{ nome }}" required>
+			</div>
+			<div class="form-group">
+				<label for="email">Email *</label>
+				<input type="email" id="email" name="email" class="form-control" value="{{ email }}" required>
+			</div>
+			<div class="form-group">
+				<label for="senha">Senha *</label>
+				<input type="password" id="senha" name="senha" class="form-control" required>
+			</div>
+			<div class="form-group">
+				<label for="cpf">CPF *</label>
+				<input type="text" id="cpf" name="cpf" class="form-control" value="{{ cpf }}" required>
+			</div>
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary">Criar conta</button>
+				<a href="/login.html" class="btn btn-secondary">Já tenho conta</a>
+			</div>
+		</form>
+	</section>
+</div>
+{% endblock %}

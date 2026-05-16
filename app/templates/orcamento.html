@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <section class="quote-page mb-5">
+        <div class="quote-header text-center mb-4">
+            <p class="text-uppercase text-muted mb-2">Solicite seu orçamento</p>
+            <h1 class="display-5 fw-bold">Formulário de orçamento para projetos 3D e personalizados</h1>
+            <p class="lead text-muted mt-3">Preencha com detalhes do seu projeto. Respondemos em até 24 horas.</p>
+        </div>
+
+        {% if success %}
+        <div class="alert alert-success p-4 mb-4" role="alert">
+            <h4 class="alert-heading">Recebemos seu pedido!</h4>
+            <p>Obrigado, {{ nome }}. Sua solicitação foi enviada com sucesso. Nossa equipe entrará em contato em até 24 horas.</p>
+        </div>
+        {% endif %}
+
+        <div class="quote-grid">
+            <div class="quote-form card p-4">
+                <form action="/orcamento" method="post" enctype="multipart/form-data">
+                    <div class="form-group mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" id="nome" name="nome" class="form-control" placeholder="Seu nome completo" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="contato" class="form-label">Email ou WhatsApp</label>
+                        <input type="text" id="contato" name="contato" class="form-control" placeholder="email@exemplo.com ou (11) 9XXXX-XXXX" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="tipo_projeto" class="form-label">Tipo de projeto</label>
+                        <select id="tipo_projeto" name="tipo_projeto" class="form-control" required>
+                            {% for tipo in tipos_projeto %}
+                            <option value="{{ tipo }}">{{ tipo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="descricao" class="form-label">Descrição do projeto</label>
+                        <textarea id="descricao" name="descricao" rows="5" class="form-control" placeholder="Explique o que você quer, uso final e referências." required></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="arquivo" class="form-label">Upload de arquivo</label>
+                        <input type="file" id="arquivo" name="arquivo" class="form-control" accept=".stl,.obj,.jpg,.png,.jpeg,.pdf" />
+                        <small class="form-text text-muted">Envie STL, imagem de referência ou arquivo de sketch.</small>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="tamanho_desejado" class="form-label">Tamanho desejado</label>
+                        <input type="text" id="tamanho_desejado" name="tamanho_desejado" class="form-control" placeholder="Ex: 10cm de altura, base de 15x15cm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Enviar solicitação</button>
+                </form>
+            </div>
+
+            <aside class="quote-sidebar card p-4">
+                <div class="mb-4">
+                    <h3 class="mb-3">Confiança e agilidade</h3>
+                    <p class="text-muted">A equipe Crimson Claw responde em até 24 horas com uma proposta clara, custos e calendário de produção.</p>
+                </div>
+                <div class="quote-process p-3 bg-dark rounded">
+                    <h4 class="mb-3">Nosso processo</h4>
+                    <div class="process-item mb-3">
+                        <strong>Análise</strong>
+                        <p class="text-muted mb-0">Recebemos seu briefing, analisamos referências e definimos viabilidade técnica.</p>
+                    </div>
+                    <div class="process-item mb-3">
+                        <strong>Proposta</strong>
+                        <p class="text-muted mb-0">Enviamos preço, prazo e opções de material para o seu projeto.</p>
+                    </div>
+                    <div class="process-item">
+                        <strong>Produção</strong>
+                        <p class="text-muted mb-0">Após aprovação, começamos a modelagem/impressão e acabamento com cuidado total.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+</div>
+{% endblock %}

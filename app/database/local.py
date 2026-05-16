@@ -112,6 +112,11 @@ class Database():
                     imagem TEXT,
                     id_mensagem INTEGER,
                     id_servico INTEGER
+                    , nome TEXT
+                    , contato TEXT
+                    , tipo_projeto TEXT
+                    , descricao TEXT
+                    , tamanho_desejado TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS avaliacoes (

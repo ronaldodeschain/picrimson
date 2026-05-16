@@ -51,7 +51,8 @@ async def criar_produto(
     largura: float,
     quantidade: int,
     peso: float,
-    valor: float
+    valor: float,
+    id_categoria: int | None = None
 ):
     produto_criar = ProdutoCriarAtualizar(
         nome_produto=nome_produto,
@@ -62,7 +63,8 @@ async def criar_produto(
         largura=largura,
         quantidade=quantidade,
         peso=peso,
-        valor=valor
+        valor=valor,
+        id_categoria=id_categoria
     )
     produto = await produto_repository.criar_produto(produto_criar)
     return produto

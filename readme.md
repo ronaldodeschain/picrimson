@@ -4,7 +4,10 @@ docker run --name crimson-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=
 
 docker compose build 
 
-autenticação de usuário <- Etapa atual>
+Criando Frontend para testar integração com backend <atual>
+
+
+autenticação de usuário
 camadas de serviço
 testes de integração
 testes de unidade

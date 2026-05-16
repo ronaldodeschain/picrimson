@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <section class="about-hero text-center py-5 mb-5 rounded bg-dark text-white">
+        <p class="text-uppercase text-muted mb-2">Nossa história</p>
+        <h1 class="display-5 fw-bold">Criamos peças únicas para colecionadores apaixonados por mundos fantásticos.</h1>
+        <p class="lead text-muted mt-3">O Crimson Claw combina arte e tecnologia para entregar impressões 3D que emocionam, funcionam e encantam.</p>
+    </section>
+
+    <section class="about-values mb-5">
+        <div class="row gy-4">
+            {% for valor in valores %}
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <p class="mb-0 text-muted">{{ valor }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="about-story mb-5">
+        <div class="row align-items-center gy-4">
+            <div class="col-lg-6">
+                <h2>Como começou</h2>
+                <p class="text-muted">Um colecionador e amante de RPG transformou paixão em ateliê. O objetivo sempre foi um só: levar peças com narrativa, personalidade e acabamento profissional ao público geek.</p>
+                <h3 class="mt-4">Por que impressão 3D?</h3>
+                <p class="text-muted">Porque ela permite criar formas impossíveis, personalizar cada detalhe e entregar objetos que parecem feitos à mão, mas com precisão e repetibilidade.</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-image rounded" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-difference mb-5">
+        <div class="row gy-4">
+            {% for etapa in etapas %}
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h4>{{ etapa.titulo }}</h4>
+                    <p class="text-muted">{{ etapa.texto }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="about-testimonials mb-5">
+        <div class="text-center mb-4">
+            <p class="text-uppercase text-muted mb-2">Depoimentos</p>
+            <h2>O que nossos clientes falam</h2>
+        </div>
+        <div class="row gy-4">
+            {% for t in testemunhos %}
+            <div class="col-md-4">
+                <div class="card p-4 h-100 testimonial-card">
+                    <p class="text-muted mb-4">“{{ t.comentario }}”</p>
+                    <div class="d-flex align-items-center justify-content-between mt-auto">
+                        <span class="fw-bold">{{ t.nome_usuario }}</span>
+                        <span class="text-warning">★{{ "%.1f"|format(t.avaliacao) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <p class="text-muted text-center">Ainda não temos depoimentos disponíveis.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="about-behind mb-5">
+        <div class="d-flex flex-column flex-md-row gap-4">
+            <div class="card p-4 about-behind-card">
+                <h3>Fotos da produção</h3>
+                <p class="text-muted">Mostramos o processo real: modelagem digital, impressão 3D e acabamento manual, tudo no mesmo ateliê.</p>
+            </div>
+            <div class="card p-4 about-behind-card">
+                <h3>Equipamentos</h3>
+                <p class="text-muted">Impressoras de resina, estações de pintura e softwares de modelagem usados para garantir resultado artístico e técnico.</p>
+            </div>
+            <div class="card p-4 about-behind-card">
+                <h3>Processo</h3>
+                <p class="text-muted">Pesquisa, modelagem, prova técnica, impressão e acabamento: cada passo é registrado para entregar confiança ao cliente.</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

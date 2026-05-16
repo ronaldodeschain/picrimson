@@ -39,14 +39,17 @@ class ImagemProdutoRepository:
                 )
             return None
 
-    async def criar_imagem_produto(self, imagem: ImagemProdutoCriarAtualizar) -> ImagemProduto:
+    async def criar_imagem_produto(self, imagem: ImagemProdutoCriarAtualizar) -> ImagemProduto | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO imagem_produtos (nome_imagem, arquivo_imagem, id_produto) VALUES (%s, %s, %s) RETURNING id_imagem_produto",
                 (imagem.nome_imagem, imagem.arquivo_imagem, imagem.id_produto)
             )
-            id_imagem_produto = cursor.fetchone()[0]
+            row = cursor.fetchone()
+            if not row:
+                return None
+            id_imagem_produto = row[0]
             return ImagemProduto(
                 id_imagem_produto=id_imagem_produto,
                 nome_imagem=imagem.nome_imagem,

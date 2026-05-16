@@ -23,6 +23,15 @@ class EmailRepository:
                 return Email(id_email=row[0], email=row[1], id_usuario=row[2])
             return None
 
+    async def get_email_por_valor(self, email_val: str) -> Optional[Email]:
+        with self.db.connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id_email, email, id_usuario FROM email WHERE email = %s", (email_val,))
+            row = cursor.fetchone()
+            if row:
+                return Email(id_email=row[0], email=row[1], id_usuario=row[2])
+            return None
+
     async def criar_email(self, email: EmailCriarAtualizar) -> Email:
         with self.db.connect() as conn:
             cursor = conn.cursor()

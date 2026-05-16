@@ -23,20 +23,20 @@
 		<nav id="main-navbar" class="navbar__nav" aria-hidden="true">
 			<!-- nav menu items -->
 			<a href="/" class="navbar__link">Home</a>
-			<a href="#" class="navbar__link">Produtos</a>
-			<a href="#" class="navbar__link">Serviços</a>
-			<a href="#" class="navbar__link">Orçamentos</a>
-			<a href="#" class="navbar__link">Sobre</a>
+			<a href="/produtos" class="navbar__link">Produtos</a>
+			<a href="/servicos" class="navbar__link">Serviços</a>
+			<a href="/orcamento" class="navbar__link">Orçamentos</a>
+			<a href="/sobre" class="navbar__link">Sobre</a>
 		</nav>
 		<div class="navbar__actions" aria-hidden="true">
 			{% if user %}
-				<a href="#" class="navbar__link">Área do Cliente</a>
+				<a href="/minha-conta" class="navbar__link">Minha Conta</a>
 				{% if is_admin %}
 					<a href="#" class="navbar__link navbar__link--primary">Admin</a>
 				{% endif %}
 				<a href="#" class="navbar__link navbar__link--secondary">Sair</a>
 			{% else %}
-				<a href="login.html" class="navbar__link navbar__link--primary">Entrar</a>
+				<a href="/minha-conta" class="navbar__link navbar__link--primary">Minha Conta</a>
 			{% endif %}
 		</div>
 	</header>

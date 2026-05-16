@@ -23,6 +23,24 @@ class AvaliacoesRepository:
                 ) for linha in linhas
             ]
 
+    async def listar_avaliacoes_com_usuario(self) -> list[dict]:
+        with self.db.connect() as connexion:
+            cursor = connexion.cursor()
+            cursor.execute(
+                "SELECT a.comentario, a.avaliacao, u.nome_usuario "
+                "FROM avaliacoes a "
+                "LEFT JOIN usuarios u ON a.id_usuario = u.id_usuario"
+            )
+            linhas = cursor.fetchall()
+            return [
+                {
+                    "comentario": linha[0],
+                    "avaliacao": linha[1],
+                    "nome_usuario": linha[2] if linha[2] else "Cliente satisfeito"
+                }
+                for linha in linhas
+            ]
+
     async def get_avaliacao(self, avaliacao_id: int) -> Avaliacoes | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()

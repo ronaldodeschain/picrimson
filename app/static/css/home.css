@@ -1,0 +1,148 @@
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 15px 10px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s;
+    font-size: 1.5rem;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    place-items: center;
+    border-radius: 999px;
+}
+
+.carousel-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.carousel-btn.prev {
+    left: 10px;
+    border-radius: 0 4px 4px 0;
+}
+
+.carousel-btn.next {
+    right: 10px;
+    border-radius: 4px 0 0 4px;
+}
+
+.carousel-wrapper {
+    display: block !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-track {
+    display: flex !important;
+    gap: 20px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    padding: 10px;
+}
+
+.carousel-slide {
+    flex-direction: column;
+}
+
+.carousel-image-link {
+    display: block;
+    overflow: hidden;
+}
+
+.carousel-slide .card-img-top {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-slide .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.carousel-slide {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    scroll-snap-align: center;
+}
+
+@media (min-width: 768px) {
+    .carousel-slide {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .carousel-slide {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* Container do Grid de Produtos */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Ajuste das Imagens dos Cards para não quebrarem o layout */
+.product-card .card-img-top {
+    width: 100%;
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+    display: block;
+}
+
+/* Círculos de ícones (Seção Como Funciona) */
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 2rem;
+}
+
+/* Efeito visual ao passar o mouse nos cards */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+}

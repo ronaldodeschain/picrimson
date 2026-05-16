@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/home.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="service-hero text-center py-5 mb-5 bg-dark text-white rounded">
+        <div class="py-5">
+            <h1 class="display-4 fw-bold">Serviços personalizados para impressão 3D e projetos criativos</h1>
+            <p class="lead mb-4">Transforme ideias em peças únicas com modelagem, impressão, pintura e dioramas sob medida.</p>
+            <a href="/orcamento" class="btn btn-warning btn-lg px-4 text-dark">Solicitar orçamento</a>
+        </div>
+    </section>
+
+    <section class="service-grid mb-5">
+        {% for servico in servicos %}
+        <article class="service-card card">
+            <div class="service-card__header">
+                <span class="service-card__badge">{{ servico.badge }}</span>
+                <h2>{{ servico.titulo }}</h2>
+            </div>
+            <p class="service-card__description">{{ servico.descricao }}</p>
+            <p class="service-card__examples"><strong>Exemplos reais:</strong> {{ servico.exemplos }}</p>
+            <p class="service-card__price"><strong>Faixa de preço:</strong> {{ servico.preco }}</p>
+            <div class="service-card__actions">
+                <a href="/orcamento" class="btn btn-primary btn-lg">{{ servico.cta }}</a>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+
+    <section class="service-process py-5 mb-5 border-top border-bottom">
+        <h2 class="text-center mb-5">Antes e depois / processo de criação</h2>
+        <div class="process-grid">
+            {% for etapa in etapas %}
+            <div class="process-card card">
+                <div class="process-step">{{ etapa.numero }}</div>
+                <h3>{{ etapa.titulo }}</h3>
+                <p class="text-muted">{{ etapa.descricao }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="service-cta text-center py-5">
+        <div class="card border-primary p-5 shadow">
+            <h2 class="mb-3">Peça seu orçamento e veja sua ideia ganhar forma</h2>
+            <p class="lead mb-4">Com foco em qualidade, customização e acabamento artístico, somos a escolha certa para seu próximo projeto.</p>
+            <a href="/orcamento" class="btn btn-primary btn-lg px-5">Solicitar orçamento</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -104,7 +104,8 @@ async def populate_all_tables():
             largura=5.0 + i,
             quantidade=100 + i,
             peso=1.5 + i,
-            valor=50.0 + i * 10
+            valor=50.0 + i * 10,
+            id_categoria=i
         )
         await produto_repo.criar_produto(produto)
 
@@ -112,7 +113,7 @@ async def populate_all_tables():
     for i in range(1, 6):
         imagem_produto = ImagemProdutoCriarAtualizar(
             nome_imagem=f"Imagem {i}",
-            arquivo_imagem=f"arquivo{i}.jpg",
+            arquivo_imagem=f"https://picsum.photos/id/{i+10}/600/400",
             id_produto=i
         )
         await imagem_produto_repo.criar_imagem_produto(imagem_produto)

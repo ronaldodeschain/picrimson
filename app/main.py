@@ -1,9 +1,6 @@
-from datetime import datetime
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-import os
+from app.autenticacao_middleware import DocsAuthMiddleware
 
 from app.routers.api import api_router
 from app.routers.web import web_router
@@ -16,6 +13,8 @@ app = FastAPI(
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+# Adiciona o middleware de autenticação para as rotas de documetação
+app.add_middleware(DocsAuthMiddleware)
 # Inclui os agregadores de rotas
 app.include_router(api_router, prefix="/api")
 app.include_router(web_router)
