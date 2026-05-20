@@ -37,6 +37,22 @@ class FavoritosRepository:
                 )
             return None
 
+    async def listar_favoritos_por_usuario(self, id_usuario: int) -> list[Favoritos]:
+        with self.db.connect() as connexion:
+            cursor = connexion.cursor()
+            cursor.execute(
+                "SELECT * FROM favoritos WHERE id_usuario = %s",
+                (id_usuario,)
+            )
+            linhas = cursor.fetchall()
+            return [
+                Favoritos(
+                    id_favoritos=linha[0],
+                    id_produto=linha[1],
+                    id_usuario=linha[2]
+                ) for linha in linhas
+            ]
+
     async def criar_favorito(self, favorito: FavoritosCriarAtualizar) -> Favoritos:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()

@@ -32,6 +32,18 @@ class EmailRepository:
                 return Email(id_email=row[0], email=row[1], id_usuario=row[2])
             return None
 
+    async def update_email_por_usuario(self, id_usuario: int, novo_email: str) -> Optional[Email]:
+        with self.db.connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE email SET email = %s WHERE id_usuario = %s RETURNING id_email",
+                (novo_email, id_usuario)
+            )
+            row = cursor.fetchone()
+            if row:
+                return Email(id_email=row[0], email=novo_email, id_usuario=id_usuario)
+            return None
+
     async def criar_email(self, email: EmailCriarAtualizar) -> Email:
         with self.db.connect() as conn:
             cursor = conn.cursor()

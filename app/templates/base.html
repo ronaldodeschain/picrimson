@@ -29,14 +29,17 @@
 			<a href="/sobre" class="navbar__link">Sobre</a>
 		</nav>
 		<div class="navbar__actions" aria-hidden="true">
-			{% if user %}
+			{% set nav_user = user if user else request.state.user %}
+			{% set nav_admin = is_admin if is_admin else request.state.is_admin %}
+			{% if nav_user %}
 				<a href="/minha-conta" class="navbar__link">Minha Conta</a>
-				{% if is_admin %}
+				{% if nav_admin %}
 					<a href="#" class="navbar__link navbar__link--primary">Admin</a>
 				{% endif %}
-				<a href="#" class="navbar__link navbar__link--secondary">Sair</a>
+				<a href="/logout" class="navbar__link navbar__link--secondary">Sair</a>
 			{% else %}
-				<a href="/minha-conta" class="navbar__link navbar__link--primary">Minha Conta</a>
+				<a href="/login.html" class="navbar__link">Entrar</a>
+				<a href="/cadastro" class="navbar__link navbar__link--primary">Criar conta</a>
 			{% endif %}
 		</div>
 	</header>

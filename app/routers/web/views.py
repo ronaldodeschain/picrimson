@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Request, Depends, Form, File, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 from pathlib import Path
@@ -14,6 +14,13 @@ import app.dependencies as dependencies
 
 router = APIRouter(tags=["Frontend"])
 templates = Jinja2Templates(directory="app/templates")
+
+
+async def get_authenticated_usuario(request: Request, usuario_repo: Annotated[UsuarioRepository, Depends(dependencies.get_usuario_repository)]):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return None
+    return await usuario_repo.get_cliente(user_id)
 
 @router.get("/", response_class=HTMLResponse)
 async def home(
@@ -49,6 +56,9 @@ async def login_submit(
     request: Request,
     email_repo: Annotated[EmailRepository, Depends(dependencies.get_email_repository)],
     usuario_repo: Annotated[UsuarioRepository, Depends(dependencies.get_usuario_repository)],
+    endereco_repo: Annotated[dependencies.EnderecoRepository, Depends(dependencies.get_endereco_repository)],
+    telefone_repo: Annotated[dependencies.TelefoneRepository, Depends(dependencies.get_telefone_repository)],
+    favoritos_repo: Annotated[dependencies.FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
     email: str = Form(...),
     password: str = Form(...),
 ):
@@ -78,6 +88,15 @@ async def login_submit(
             "is_auth": True,
             "year": datetime.utcnow().year,
         })
+    endereco = None
+    telefone = None
+    favoritos = []
+    if usuario.id_usuario is not None:
+        endereco = await endereco_repo.get_endereco_por_usuario(usuario.id_usuario)
+        telefone = await telefone_repo.get_telefone_por_usuario(usuario.id_usuario)
+        favoritos = await favoritos_repo.listar_favoritos_por_usuario(usuario.id_usuario)
+
+    request.session["user_id"] = usuario.id_usuario
 
     pedidos = []
     orcamentos = []
@@ -85,10 +104,19 @@ async def login_submit(
         "request": request,
         "user": usuario,
         "is_admin": usuario.role == "admin",
+        "endereco": endereco,
+        "telefone": telefone,
+        "favoritos": favoritos,
         "pedidos": pedidos,
         "orcamentos": orcamentos,
         "year": datetime.utcnow().year,
     })
+
+
+@router.get("/logout")
+async def logout(request: Request):
+    request.session.pop("user_id", None)
+    return RedirectResponse(url="/", status_code=302)
 
 
 @router.get("/produtos", response_class=HTMLResponse)
@@ -344,13 +372,137 @@ async def cadastro_submit(
 
 
 @router.get("/minha-conta", response_class=HTMLResponse)
-async def minha_conta(request: Request):
+async def minha_conta(
+    request: Request,
+    usuario_repo: Annotated[UsuarioRepository, Depends(dependencies.get_usuario_repository)],
+    endereco_repo: Annotated[dependencies.EnderecoRepository, Depends(dependencies.get_endereco_repository)],
+    telefone_repo: Annotated[dependencies.TelefoneRepository, Depends(dependencies.get_telefone_repository)],
+    favoritos_repo: Annotated[dependencies.FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
+):
+    usuario = await get_authenticated_usuario(request, usuario_repo)
+    if not usuario:
+        return RedirectResponse(url="/login.html", status_code=302)
+
+    if usuario.id_usuario is None:
+        return RedirectResponse(url="/login.html", status_code=302)
+
+    usuario_id = usuario.id_usuario
+    endereco = await endereco_repo.get_endereco_por_usuario(usuario_id)
+    telefone = await telefone_repo.get_telefone_por_usuario(usuario_id)
+    favoritos = await favoritos_repo.listar_favoritos_por_usuario(usuario_id)
+    pedidos = []
+    orcamentos = []
     return templates.TemplateResponse("minha_conta.html", {
         "request": request,
-        "user": None,
-        "is_admin": False,
-        "pedidos": [],
-        "orcamentos": [],
+        "user": usuario,
+        "is_admin": usuario.role == "admin",
+        "pedidos": pedidos,
+        "orcamentos": orcamentos,
+        "endereco": endereco,
+        "telefone": telefone,
+        "favoritos": favoritos,
+        "year": datetime.utcnow().year,
+    })
+
+
+@router.post("/minha-conta", response_class=HTMLResponse)
+async def minha_conta_update(
+    request: Request,
+    usuario_repo: Annotated[UsuarioRepository, Depends(dependencies.get_usuario_repository)],
+    email_repo: Annotated[EmailRepository, Depends(dependencies.get_email_repository)],
+    endereco_repo: Annotated[dependencies.EnderecoRepository, Depends(dependencies.get_endereco_repository)],
+    telefone_repo: Annotated[dependencies.TelefoneRepository, Depends(dependencies.get_telefone_repository)],
+    favoritos_repo: Annotated[dependencies.FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
+    user_id: int = Form(...),
+    nome: str = Form(...),
+    email: str = Form(...),
+    senha: str | None = Form(None),
+    cpf: str = Form(...),
+    rua: str = Form(""),
+    numero: str = Form(""),
+    complemento: str = Form(""),
+    cep: str = Form(""),
+    cidade: str = Form(""),
+    estado: str = Form(""),
+    observacoes: str = Form(""),
+    telefone_principal: str = Form(""),
+    telefone_secundario: str = Form(""),
+):
+    from app.models.usuario import UsuarioCriarAtualizar
+    from app.models.endereco import EnderecoCriarAtualizar
+    from app.models.telefone import TelefoneCriarAtualizar
+
+    usuario = await usuario_repo.get_cliente(user_id)
+    if not usuario:
+        return RedirectResponse(url="/login.html", status_code=302)
+
+    new_password = senha if senha else usuario.senha
+    usuario_atualizado = await usuario_repo.update_usuario(
+        user_id,
+        UsuarioCriarAtualizar(
+            nome_usuario=nome,
+            login=email,
+            senha=new_password,
+            cpf=cpf,
+            role=usuario.role
+        )
+    )
+    if usuario_atualizado is None:
+        usuario_atualizado = usuario
+    await email_repo.update_email_por_usuario(user_id, email)
+
+    def parse_int(value: str) -> int | None:
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return None
+
+    endereco_existente = await endereco_repo.get_endereco_por_usuario(user_id)
+    if rua or numero or complemento or cep or cidade or estado or observacoes:
+        endereco_data = EnderecoCriarAtualizar(
+            rua=rua,
+            numero=parse_int(numero) or 0,
+            complemento=complemento,
+            cep=cep,
+            cidade=cidade,
+            estado=estado,
+            observacoes=observacoes,
+            id_usuario=user_id
+        )
+        if endereco_existente:
+            endereco_atualizado = await endereco_repo.update_endereco(endereco_existente.id_endereco, endereco_data)
+        else:
+            endereco_atualizado = await endereco_repo.criar_endereco(endereco_data)
+    else:
+        endereco_atualizado = endereco_existente
+
+    telefone_existente = await telefone_repo.get_telefone_por_usuario(user_id)
+    if telefone_principal or telefone_secundario:
+        telefone_data = TelefoneCriarAtualizar(
+            telefone_principal=parse_int(telefone_principal) or 0,
+            telefone_secundario=parse_int(telefone_secundario) or 0,
+            id_usuario=user_id
+        )
+        if telefone_existente:
+            telefone_atualizado = await telefone_repo.update_telefone(telefone_existente.id_telefone, telefone_data)
+        else:
+            telefone_atualizado = await telefone_repo.criar_telefone(telefone_data)
+    else:
+        telefone_atualizado = telefone_existente
+
+    favoritos = await favoritos_repo.listar_favoritos_por_usuario(user_id)
+    pedidos = []
+    orcamentos = []
+    return templates.TemplateResponse("minha_conta.html", {
+        "request": request,
+        "user": usuario_atualizado,
+        "is_admin": usuario_atualizado.role == "admin",
+        "pedidos": pedidos,
+        "orcamentos": orcamentos,
+        "endereco": endereco_atualizado,
+        "telefone": telefone_atualizado,
+        "favoritos": favoritos,
+        "success": "Dados atualizados com sucesso.",
         "year": datetime.utcnow().year,
     })
 

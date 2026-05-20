@@ -39,6 +39,23 @@ class TelefoneRepository:
                 )
             return None
 
+    async def get_telefone_por_usuario(self, id_usuario: int) -> Telefone | None:
+        with self.db.connect() as connexion:
+            cursor = connexion.cursor()
+            cursor.execute(
+                "SELECT * FROM telefone WHERE id_usuario = %s",
+                (id_usuario,)
+            )
+            linha = cursor.fetchone()
+            if linha:
+                return Telefone(
+                    id_telefone=linha[0],
+                    telefone_principal=linha[1],
+                    telefone_secundario=linha[2],
+                    id_usuario=linha[3]
+                )
+            return None
+
     async def criar_telefone(self,
                               telefone: TelefoneCriarAtualizar) -> Telefone | None:
         with self.db.connect() as connexion:

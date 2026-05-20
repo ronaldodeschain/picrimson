@@ -49,6 +49,28 @@ class EnderecoRepository:
                 )
             return None
 
+    async def get_endereco_por_usuario(self, id_usuario: int) -> Endereco | None:
+        with self.db.connect() as connexion:
+            cursor = connexion.cursor()
+            cursor.execute(
+                "SELECT * FROM enderecos WHERE id_usuario = %s",
+                (id_usuario,)
+            )
+            linha = cursor.fetchone()
+            if linha:
+                return Endereco(
+                    id_endereco=linha[0],
+                    rua=linha[1],
+                    numero=linha[2],
+                    complemento=linha[3],
+                    cep=linha[4],
+                    cidade=linha[5],
+                    estado=linha[6],
+                    observacoes=linha[7],
+                    id_usuario=linha[8]
+                )
+            return None
+
     async def criar_endereco(self,
                             endereco: EnderecoCriarAtualizar) -> Endereco | None:
         with self.db.connect() as connexion:

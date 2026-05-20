@@ -4,6 +4,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 import base64
 from dotenv import load_dotenv
 import os
+from app.dependencies import get_database
+from app.repositories.usuario import UsuarioRepository
 
 load_dotenv()
 
@@ -43,3 +45,22 @@ class DocsAuthMiddleware(BaseHTTPMiddleware):
             headers={"WWW-Authenticate":"Basic"},
             content="You shall not pass!",
         )
+
+
+class SessionUserMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        request.state.user = None
+        request.state.is_admin = False
+        user_id = request.session.get("user_id")
+        if user_id is not None:
+            try:
+                db = get_database()
+                usuario_repo = UsuarioRepository(db)
+                usuario = await usuario_repo.get_cliente(user_id)
+                if usuario:
+                    request.state.user = usuario
+                    request.state.is_admin = usuario.role == "admin"
+            except Exception:
+                request.state.user = None
+                request.state.is_admin = False
+        return await call_next(request)
