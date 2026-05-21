@@ -358,6 +358,39 @@ async def cadastro_submit(
         await email_repo_instance.criar_email(email_model)
     except Exception:
         pass
+    # create empty endereco and telefone records so Minha Conta always has objects to read
+    try:
+        from app.models.endereco import EnderecoCriarAtualizar
+        from app.models.telefone import TelefoneCriarAtualizar
+        endereco_repo_instance = dependencies.get_endereco_repository(dependencies.get_database())
+        telefone_repo_instance = dependencies.get_telefone_repository(dependencies.get_database())
+        uid = usuario.id_usuario if usuario and usuario.id_usuario is not None else 0
+        endereco_model = EnderecoCriarAtualizar(
+            rua="",
+            numero=0,
+            complemento="",
+            cep="",
+            cidade="",
+            estado="",
+            observacoes="",
+            id_usuario=uid
+        )
+        telefone_model = TelefoneCriarAtualizar(
+            telefone_principal=0,
+            telefone_secundario=0,
+            id_usuario=uid
+        )
+        # create but ignore result/errors
+        try:
+            await endereco_repo_instance.criar_endereco(endereco_model)
+        except Exception:
+            pass
+        try:
+            await telefone_repo_instance.criar_telefone(telefone_model)
+        except Exception:
+            pass
+    except Exception:
+        pass
     return templates.TemplateResponse("cadastro.html", {
         "request": request,
         "user": None,
