@@ -65,6 +65,19 @@
                 <button class="btn btn-outline-primary">Personalizar</button>
             </div>
 
+            <div class="mb-3">
+                <form action="/favoritar" method="post" style="display:inline">
+                    <input type="hidden" name="produto_id" value="{{ produto.id_produto }}">
+                    <button type="submit" class="btn btn-light">
+                        {% if is_favorited %}
+                            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritado
+                        {% else %}
+                            <i class="fa-regular fa-star" aria-hidden="true"></i> Favoritar
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+
             <div>
                 <a href="/orcamento" class="text-decoration-none">Não encontrou o que quer? Faça um orçamento personalizado</a>
             </div>

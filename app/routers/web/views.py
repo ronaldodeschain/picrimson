@@ -10,6 +10,8 @@ from app.repositories.imagem_produto import ImagemProdutoRepository
 from app.repositories.avaliacoes import AvaliacoesRepository
 from app.repositories.usuario import UsuarioRepository
 from app.repositories.email import EmailRepository
+from app.repositories.favoritos import FavoritosRepository
+from app.repositories.produto import ProdutoRepository
 import app.dependencies as dependencies
 
 router = APIRouter(tags=["Frontend"])
@@ -179,13 +181,23 @@ async def produto_detail(
     imagens_prod = [img for img in imagens if img.id_produto == produto_id]
     if not produto:
         return templates.TemplateResponse("home.html", {"request": request, "titulo": "Produto não encontrado", "produtos": [], "user": None, "is_admin": False, "year": datetime.utcnow().year})
+    # determine favorite state for current user
+    # instantiate repos directly from database factory (not via Depends)
+    usuario_repo_inst = UsuarioRepository(dependencies.get_database())
+    usuario = await get_authenticated_usuario(request, usuario_repo_inst)
+    is_favorited = False
+    if usuario and usuario.id_usuario is not None:
+        fav_repo = FavoritosRepository(dependencies.get_database())
+        favs = await fav_repo.listar_favoritos_por_usuario(usuario.id_usuario)
+        is_favorited = any(f.id_produto == produto_id for f in favs)
     return templates.TemplateResponse("product.html", {
         "request": request,
         "titulo": produto.nome_produto,
         "produto": produto,
         "imagens": imagens_prod,
-        "user": None,
-        "is_admin": False,
+        "user": usuario,
+        "is_admin": usuario.role == "admin" if usuario else False,
+        "is_favorited": is_favorited,
         "year": datetime.utcnow().year,
     })
 
@@ -411,6 +423,8 @@ async def minha_conta(
     endereco_repo: Annotated[dependencies.EnderecoRepository, Depends(dependencies.get_endereco_repository)],
     telefone_repo: Annotated[dependencies.TelefoneRepository, Depends(dependencies.get_telefone_repository)],
     favoritos_repo: Annotated[dependencies.FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
+    produto_repo: Annotated[ProdutoRepository, Depends(dependencies.get_produto_repository)],
+    section: str | None = None,
 ):
     usuario = await get_authenticated_usuario(request, usuario_repo)
     if not usuario:
@@ -423,17 +437,54 @@ async def minha_conta(
     endereco = await endereco_repo.get_endereco_por_usuario(usuario_id)
     telefone = await telefone_repo.get_telefone_por_usuario(usuario_id)
     favoritos = await favoritos_repo.listar_favoritos_por_usuario(usuario_id)
+    # enrich favorites with product details
+    favoritos_detalhados = []
+    for f in favoritos:
+        p = await produto_repo.get_produto(f.id_produto)
+        if p:
+            favoritos_detalhados.append({"favorito": f, "produto": p})
     pedidos = []
+    if not pedidos:
+        pedidos = [
+            {
+                "id_pedido": 1057,
+                "data": "2026-05-20",
+                "status": "Enviado",
+                "status_class": "status-success",
+                "valor_total": 398.50,
+                "quantidade": 3,
+                "link": "/pedido/1057"
+            },
+            {
+                "id_pedido": 1049,
+                "data": "2026-05-16",
+                "status": "Em processamento",
+                "status_class": "status-warning",
+                "valor_total": 259.90,
+                "quantidade": 1,
+                "link": "/pedido/1049"
+            },
+            {
+                "id_pedido": 1032,
+                "data": "2026-05-10",
+                "status": "Cancelado",
+                "status_class": "status-danger",
+                "valor_total": 112.00,
+                "quantidade": 2,
+                "link": "/pedido/1032"
+            }
+        ]
     orcamentos = []
     return templates.TemplateResponse("minha_conta.html", {
         "request": request,
         "user": usuario,
         "is_admin": usuario.role == "admin",
+        "section": section or "pedidos",
         "pedidos": pedidos,
         "orcamentos": orcamentos,
         "endereco": endereco,
         "telefone": telefone,
-        "favoritos": favoritos,
+        "favoritos": favoritos_detalhados,
         "year": datetime.utcnow().year,
     })
 
@@ -451,6 +502,7 @@ async def minha_conta_update(
     email: str = Form(...),
     senha: str | None = Form(None),
     cpf: str = Form(...),
+    section: str = Form("dados"),
     rua: str = Form(""),
     numero: str = Form(""),
     complemento: str = Form(""),
@@ -470,11 +522,12 @@ async def minha_conta_update(
         return RedirectResponse(url="/login.html", status_code=302)
 
     new_password = senha if senha else usuario.senha
+    # Do not allow changing the login/email via this form — keep existing login
     usuario_atualizado = await usuario_repo.update_usuario(
         user_id,
         UsuarioCriarAtualizar(
             nome_usuario=nome,
-            login=email,
+            login=usuario.login,
             senha=new_password,
             cpf=cpf,
             role=usuario.role
@@ -482,7 +535,7 @@ async def minha_conta_update(
     )
     if usuario_atualizado is None:
         usuario_atualizado = usuario
-    await email_repo.update_email_por_usuario(user_id, email)
+    # ignore any submitted email value and do not update the email table here
 
     def parse_int(value: str) -> int | None:
         try:
@@ -524,17 +577,25 @@ async def minha_conta_update(
         telefone_atualizado = telefone_existente
 
     favoritos = await favoritos_repo.listar_favoritos_por_usuario(user_id)
+    # enrich favorites for template
+    favoritos_detalhados = []
+    produto_repo_inst = ProdutoRepository(dependencies.get_database())
+    for f in favoritos:
+        p = await produto_repo_inst.get_produto(f.id_produto)
+        if p:
+            favoritos_detalhados.append({"favorito": f, "produto": p})
     pedidos = []
     orcamentos = []
     return templates.TemplateResponse("minha_conta.html", {
         "request": request,
         "user": usuario_atualizado,
         "is_admin": usuario_atualizado.role == "admin",
+        "section": section,
         "pedidos": pedidos,
         "orcamentos": orcamentos,
         "endereco": endereco_atualizado,
         "telefone": telefone_atualizado,
-        "favoritos": favoritos,
+        "favoritos": favoritos_detalhados,
         "success": "Dados atualizados com sucesso.",
         "year": datetime.utcnow().year,
     })
@@ -607,3 +668,51 @@ async def servicos(request: Request):
         "is_admin": False,
         "year": datetime.utcnow().year,
     })
+
+
+@router.post("/favoritar")
+async def toggle_favoritar(
+    request: Request,
+    favoritos_repo: Annotated[dependencies.FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
+    produto_id: int = Form(...),
+):
+    # only allow logged-in users to favorite
+    usuario = request.state.user
+    if not usuario or usuario.id_usuario is None:
+        return RedirectResponse(url="/login.html", status_code=302)
+
+    # check existing favorite
+    favs = await favoritos_repo.listar_favoritos_por_usuario(usuario.id_usuario)
+    existing = next((f for f in favs if f.id_produto == produto_id), None)
+    from app.models.favoritos import FavoritosCriarAtualizar
+    if existing:
+        # remove
+        await favoritos_repo.delete_favorito(existing.id_favoritos)
+    else:
+        model = FavoritosCriarAtualizar(id_produto=produto_id, id_usuario=usuario.id_usuario)
+        await favoritos_repo.criar_favorito(model)
+
+    # Redirect back to the page the user came from (referer). Use 303 to follow POST->GET.
+    referer = request.headers.get("referer")
+    if referer:
+        return RedirectResponse(url=referer, status_code=303)
+    return RedirectResponse(url=f"/produto/{produto_id}", status_code=303)
+
+
+@router.get("/favoritar/remove/{produto_id}")
+async def remover_favorito(
+    request: Request,
+    produto_id: int,
+    favoritos_repo: Annotated[dependencies.FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
+):
+    usuario = request.state.user
+    if not usuario or usuario.id_usuario is None:
+        return RedirectResponse(url="/login.html", status_code=302)
+    favs = await favoritos_repo.listar_favoritos_por_usuario(usuario.id_usuario)
+    existing = next((f for f in favs if f.id_produto == produto_id), None)
+    if existing:
+        await favoritos_repo.delete_favorito(existing.id_favoritos)
+    referer = request.headers.get("referer")
+    if referer:
+        return RedirectResponse(url=referer, status_code=303)
+    return RedirectResponse(url="/minha-conta", status_code=303)

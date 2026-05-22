@@ -1,177 +1,188 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Minha Conta - Crimson Claw Studio{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <section class="card p-4 mb-5">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
-            <div>
-                <h1>Minha Conta</h1>
-                <p class="text-muted">Acompanhe seus pedidos, orçamentos enviados e atualize seus dados pessoais.</p>
-            </div>
-            {% if user %}
-            <div class="text-end">
-                <p class="mb-1">Bem-vindo, <strong>{{ user.nome_usuario }}</strong></p>
-                <p class="text-muted">Email: {{ user.login }}</p>
-            </div>
-            {% endif %}
-        </div>
-    </section>
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/account.css">
+{% endblock %}
 
-    {% if user %}
-    <section class="row gy-4 mb-5">
-        <div class="col-md-6">
-            <div class="card p-4 h-100">
-                <h3>Pedidos</h3>
-                <p class="text-muted">Veja o histórico de pedidos e o status atual de produção.</p>
-                {% if pedidos %}
-                    <ul class="list-unstyled">
-                        {% for pedido in pedidos %}
-                        <li class="mb-3">
-                            <strong>Pedido #{{ pedido.id_pedido }}</strong><br>
-                            Status: {{ pedido.status }}
-                        </li>
+{% block content %}
+<div class="account-dashboard container py-5">
+    <header class="account-header mb-4">
+        <div>
+            <p class="eyebrow">Minha Conta</p>
+            <h1>Bem-vindo, {{ user.nome_usuario }}</h1>
+            <p class="account-subtitle">Acompanhe seus pedidos, favoritos e atualize seus informações com facilidade.</p>
+        </div>
+    </header>
+
+    <div class="account-layout row gap-4">
+        <aside class="account-sidebar col-lg-3">
+            <div class="account-card sidebar-card">
+                <div class="sidebar-user">
+                    <h2>{{ user.nome_usuario }}</h2>
+                    <p>{{ user.login }}</p>
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="/minha-conta?section=pedidos" class="sidebar-link {% if section == 'pedidos' %}active{% endif %}">Pedidos</a>
+                    <a href="/minha-conta?section=favoritos" class="sidebar-link {% if section == 'favoritos' %}active{% endif %}">Favoritos</a>
+                    <a href="/minha-conta?section=dados" class="sidebar-link {% if section == 'dados' %}active{% endif %}">Dados Pessoais</a>
+                    <a href="/minha-conta?section=enderecos" class="sidebar-link {% if section == 'enderecos' %}active{% endif %}">Endereços</a>
+                    <a href="/logout" class="sidebar-link sidebar-link--danger">Logout</a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="account-main col-lg-8">
+            <div class="account-card main-card">
+                {% if success %}
+                <div class="alert alert-success mb-4">{{ success }}</div>
+                {% endif %}
+                {% if error %}
+                <div class="alert alert-danger mb-4">{{ error }}</div>
+                {% endif %}
+
+                {% macro PedidoCard(pedido) %}
+                <article class="pedido-card">
+                    <div class="pedido-card__head">
+                        <div>
+                            <p class="pedido-number">Pedido #{{ pedido.id_pedido }}</p>
+                            <p class="text-muted">{{ pedido.data }}</p>
+                        </div>
+                        <span class="status-pill {{ pedido.status_class }}">{{ pedido.status }}</span>
+                    </div>
+                    <div class="pedido-card__body">
+                        <div class="pedido-meta">
+                            <strong>Valor total</strong>
+                            <span>R$ {{ "%.2f"|format(pedido.valor_total) }}</span>
+                        </div>
+                        <div class="pedido-meta">
+                            <strong>Itens</strong>
+                            <span>{{ pedido.quantidade }}</span>
+                        </div>
+                        <a href="{{ pedido.link }}" class="btn btn-outline-primary btn-sm">Visualizar</a>
+                    </div>
+                </article>
+                {% endmacro %}
+
+                {% if section == 'favoritos' %}
+                    <div class="section-header">
+                        <h2>Favoritos</h2>
+                        <p class="section-description">Seus produtos favoritos estão aqui para acesso rápido.</p>
+                    </div>
+                    {% if favoritos %}
+                    <div class="favorites-grid">
+                        {% for item in favoritos %}
+                        {% set produto = item.produto %}
+                        <article class="favorite-card">
+                            <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens and produto.imagens|length > 0 else '/static/img/placeholder-100.png' }}" alt="{{ produto.nome_produto }}">
+                            <div class="favorite-card__info">
+                                <h3>{{ produto.nome_produto }}</h3>
+                                <p class="text-muted">R$ {{ "%.2f"|format(produto.valor) }}</p>
+                            </div>
+                            <div class="favorite-card__actions">
+                                <a href="/produto/{{ produto.id_produto }}" class="btn btn-sm btn-secondary">Ver produto</a>
+                                <a href="/favoritar/remove/{{ produto.id_produto }}" class="btn btn-sm btn-outline-danger">Remover</a>
+                            </div>
+                        </article>
                         {% endfor %}
-                    </ul>
+                    </div>
+                    {% else %}
+                        <p class="text-muted">Você ainda não adicionou favoritos.</p>
+                    {% endif %}
+                {% elif section == 'dados' %}
+                    <div class="section-header">
+                        <h2>Dados Pessoais</h2>
+                        <p class="section-description">Atualize suas informações pessoais de forma segura.</p>
+                    </div>
+                    <form action="/minha-conta" method="post" class="section-form">
+                        <input type="hidden" name="user_id" value="{{ user.id_usuario }}">
+                        <input type="hidden" name="section" value="dados">
+                        <div class="field-grid">
+                            <div class="form-group">
+                                <label for="nome">Nome completo</label>
+                                <input id="nome" name="nome" value="{{ user.nome_usuario }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cpf">CPF</label>
+                                <input id="cpf" name="cpf" value="{{ user.cpf }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input id="email" name="email" type="email" value="{{ user.login }}" readonly aria-readonly="true">
+                            </div>
+                            <div class="form-group">
+                                <label for="senha">Nova senha</label>
+                                <input id="senha" name="senha" type="password" placeholder="Deixe em branco para manter">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+                        </div>
+                    </form>
+                {% elif section == 'enderecos' %}
+                    <div class="section-header">
+                        <h2>Endereços</h2>
+                        <p class="section-description">Gerencie seu endereço de entrega e telefone de contato.</p>
+                    </div>
+                    <form action="/minha-conta" method="post" class="section-form">
+                        <input type="hidden" name="user_id" value="{{ user.id_usuario }}">
+                        <input type="hidden" name="section" value="enderecos">
+                        <div class="field-grid">
+                            <div class="form-group">
+                                <label for="rua">Rua</label>
+                                <input id="rua" name="rua" value="{{ endereco.rua if endereco else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="numero">Número</label>
+                                <input id="numero" name="numero" value="{{ endereco.numero if endereco else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="complemento">Complemento</label>
+                                <input id="complemento" name="complemento" value="{{ endereco.complemento if endereco else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="cep">CEP</label>
+                                <input id="cep" name="cep" value="{{ endereco.cep if endereco else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="cidade">Cidade</label>
+                                <input id="cidade" name="cidade" value="{{ endereco.cidade if endereco else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="estado">Estado</label>
+                                <input id="estado" name="estado" value="{{ endereco.estado if endereco else '' }}">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="observacoes">Observações</label>
+                                <textarea id="observacoes" name="observacoes">{{ endereco.observacoes if endereco else '' }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone_principal">Telefone principal</label>
+                                <input id="telefone_principal" name="telefone_principal" value="{{ telefone.telefone_principal if telefone else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone_secundario">Telefone secundário</label>
+                                <input id="telefone_secundario" name="telefone_secundario" value="{{ telefone.telefone_secundario if telefone else '' }}">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+                        </div>
+                    </form>
                 {% else %}
-                    <p class="text-muted">Nenhum pedido registrado ainda.</p>
+                    <div class="section-header">
+                        <h2>Pedidos</h2>
+                        <p class="section-description">Veja o histórico, status e detalhes dos seus pedidos recentes.</p>
+                    </div>
+                    <div class="order-list">
+                        {% for pedido in pedidos %}
+                            {{ PedidoCard(pedido) }}
+                        {% endfor %}
+                    </div>
                 {% endif %}
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card p-4 h-100">
-    {% if success %}
-    <div class="alert alert-success mb-4">
-        {{ success }}
+        </main>
     </div>
-    {% endif %}
-    {% if error %}
-    <div class="alert alert-danger mb-4">
-        {{ error }}
-    </div>
-    {% endif %}
-    <form action="/minha-conta" method="post">
-        <input type="hidden" name="user_id" value="{{ user.id_usuario }}">
-        <section class="row gy-4 mb-5">
-            <div class="col-md-6">
-                <div class="card p-4 h-100">
-                    <h3>Dados pessoais</h3>
-                    <div class="mb-3">
-                        <label class="form-label" for="nome">Nome</label>
-                        <input class="form-control" id="nome" name="nome" value="{{ user.nome_usuario }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="email">Email</label>
-                        <input class="form-control" id="email" name="email" type="email" value="{{ user.login }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="senha">Senha (deixe em branco para manter)</label>
-                        <input class="form-control" id="senha" name="senha" type="password" placeholder="Nova senha">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="cpf">CPF</label>
-                        <input class="form-control" id="cpf" name="cpf" value="{{ user.cpf }}" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card p-4 h-100">
-                    <h3>Endereço</h3>
-                    <div class="mb-3">
-                        <label class="form-label" for="rua">Rua</label>
-                        <input class="form-control" id="rua" name="rua" value="{{ endereco.rua if endereco else '' }}">
-                    </div>
-                    <div class="row gx-2">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label" for="numero">Número</label>
-                            <input class="form-control" id="numero" name="numero" value="{{ endereco.numero if endereco else '' }}">
-                        </div>
-                        <div class="col-md-8 mb-3">
-                            <label class="form-label" for="complemento">Complemento</label>
-                            <input class="form-control" id="complemento" name="complemento" value="{{ endereco.complemento if endereco else '' }}">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="cep">CEP</label>
-                        <input class="form-control" id="cep" name="cep" value="{{ endereco.cep if endereco else '' }}">
-                    </div>
-                    <div class="row gx-2">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="cidade">Cidade</label>
-                            <input class="form-control" id="cidade" name="cidade" value="{{ endereco.cidade if endereco else '' }}">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="estado">Estado</label>
-                            <input class="form-control" id="estado" name="estado" value="{{ endereco.estado if endereco else '' }}">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="observacoes">Observações</label>
-                        <textarea class="form-control" id="observacoes" name="observacoes">{{ endereco.observacoes if endereco else '' }}</textarea>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="row gy-4 mb-5">
-            <div class="col-md-6">
-                <div class="card p-4 h-100">
-                    <h3>Telefone</h3>
-                    <div class="mb-3">
-                        <label class="form-label" for="telefone_principal">Telefone principal</label>
-                        <input class="form-control" id="telefone_principal" name="telefone_principal" value="{{ telefone.telefone_principal if telefone else '' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="telefone_secundario">Telefone secundário</label>
-                        <input class="form-control" id="telefone_secundario" name="telefone_secundario" value="{{ telefone.telefone_secundario if telefone else '' }}">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card p-4 h-100">
-                    <h3>Favoritos</h3>
-                    {% if favoritos %}
-                        <ul class="list-unstyled">
-                            {% for favorito in favoritos %}
-                            <li class="mb-2">Produto #{{ favorito.id_produto }} (visualização a implementar)</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted">Nenhum favorito registrado ainda.</p>
-                    {% endif %}
-                    <p class="text-muted mt-3">Em breve você poderá gerenciar seus favoritos diretamente por aqui.</p>
-                </div>
-            </div>
-        </section>
-        <div class="mb-5 text-end">
-            <button type="submit" class="btn btn-primary">Salvar alterações</button>
-        </div>
-    </form>
-            <!-- <div class="col-md-6">
-                <strong>Nome</strong>
-                <p>{{ user.nome_usuario }}</p>
-            </div>
-            <div class="col-md-6">
-                <strong>Email</strong>
-                <p>{{ user.login }}</p>
-            </div>
-            <div class="col-md-6">
-                <strong>Função</strong>
-                <p>{{ user.role }}</p>
-            </div>
-            <div class="col-md-6">
-                <strong>Status</strong>
-                <p>Cliente</p>
-            </div> -->
-        </div>
-    </section>
-    {% else %}
-    <section class="card p-4 mb-5 text-center">
-        <h3>Não está logado</h3>
-        <p class="text-muted">Acesse sua conta para ver pedidos, orçamentos e atualizar seus dados pessoais.</p>
-        <a href="/login.html" class="btn btn-primary me-2">Entrar</a>
-        <a href="/cadastro" class="btn btn-secondary">Criar conta</a>
-    </section>
-    {% endif %}
 </div>
 {% endblock %}
