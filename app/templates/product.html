@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5 product-page">
     <div class="row">
         <div class="col-md-6">
             <div class="product-gallery mb-3">
@@ -27,42 +27,51 @@
             <h1 class="mb-2">{{ produto.nome_produto }}</h1>
             <p class="text-muted mb-3">{{ produto.descricao }}</p>
 
-            <div class="mb-3">
-                <div class="fw-bold mb-1">Variações</div>
-                <div class="mb-2">
-                    <label>Tamanho</label>
-                    <select class="form-control">
-                        <option>Pequeno</option>
-                        <option>Médio</option>
-                        <option>Grande</option>
-                    </select>
+            {% if cart_message %}
+            <div class="alert alert-success mb-3">{{ cart_message }}</div>
+            {% endif %}
+            <form action="/carrinho/adicionar" method="post">
+                <div class="mb-3">
+                    <div class="fw-bold mb-1">Variações</div>
+                    <div class="mb-2">
+                        <label for="tamanho">Tamanho</label>
+                        <select id="tamanho" name="tamanho" class="form-control">
+                            <option>Pequeno</option>
+                            <option>Médio</option>
+                            <option>Grande</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="material">Material</label>
+                        <select id="material" name="material" class="form-control">
+                            <option>{{ produto.material or 'PLA' }}</option>
+                            <option>Resina</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="pintura">Pintura</label>
+                        <select id="pintura" name="pintura" class="form-control">
+                            <option>Sem pintura</option>
+                            <option>Pintado (opcional)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label>Material</label>
-                    <select class="form-control">
-                        <option>{{ produto.material or 'PLA' }}</option>
-                        <option>Resina</option>
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label>Pintura</label>
-                    <select class="form-control">
-                        <option>Sem pintura</option>
-                        <option>Pintado (opcional)</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="mb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="price display-6">R$ {{ "%.2f"|format(produto.valor) }}</div>
-                    <div class="production-time text-muted">Prazo: 7-14 dias úteis</div>
+                <input type="hidden" name="produto_id" value="{{ produto.id_produto }}">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="price display-6">R$ {{ "%.2f"|format(produto.valor) }}</div>
+                        <div class="production-time text-muted">Prazo: 7-14 dias úteis</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="d-flex gap-2 mb-3">
-                <button class="btn btn-success">Comprar</button>
-                <button class="btn btn-outline-primary">Personalizar</button>
+                <div class="d-flex gap-2 mb-3">
+                    <button type="submit" name="action" value="add" class="btn btn-success">Adicionar ao carrinho</button>
+                    <button type="submit" name="action" value="buy" class="btn btn-outline-primary">Comprar agora</button>
+                </div>
+            </form>
+            <div class="mb-3">
+                <a href="/orcamento" class="btn btn-outline-secondary">Personalizar</a>
             </div>
 
             <div class="mb-3">

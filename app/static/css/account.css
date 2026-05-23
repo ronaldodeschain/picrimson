@@ -13,6 +13,7 @@
 .account-header h1 {
     margin-bottom: 0.4rem;
     font-size: clamp(2rem, 2.5vw, 2.5rem);
+    color: #ffffff;
 }
 
 .account-header .account-subtitle {
@@ -28,18 +29,20 @@
 
 .account-sidebar .sidebar-card,
 .account-main .main-card {
-    background: #fff;
+    background: #0f1724;
     border-radius: 1rem;
     padding: 1.75rem;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .sidebar-user h2 {
     margin-bottom: 0.25rem;
+    color: #ffffff;
 }
 
 .sidebar-user p {
-    color: #6c757d;
+    color: #495057;
     margin-bottom: 1.5rem;
 }
 
@@ -48,20 +51,20 @@
     gap: 0.75rem;
 }
 
-.sidebar-link {
+ .sidebar-link {
     display: block;
     padding: 0.95rem 1rem;
     border-radius: 0.8rem;
-    color: #212529;
-    background: #f9fafb;
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.06);
     text-decoration: none;
     transition: background 0.2s ease, color 0.2s ease;
 }
 
 .sidebar-link:hover,
 .sidebar-link.active {
-    background: #212529;
-    color: #fff;
+    background: rgba(87, 199, 255, 0.18);
+    color: #f8fafc;
 }
 
 .sidebar-link--danger {
@@ -73,12 +76,13 @@
     margin-bottom: 1.25rem;
 }
 
-.section-header h2 {
+ .section-header h2 {
     margin-bottom: 0.35rem;
+    color: #f8fafc;
 }
 
-.section-description {
-    color: #6c757d;
+ .section-description {
+    color: #cbd5e1;
 }
 
 .order-list {

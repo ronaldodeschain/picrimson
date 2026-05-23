@@ -31,7 +31,11 @@
 		<div class="navbar__actions" aria-hidden="true">
 			{% set nav_user = user if user else request.state.user %}
 			{% set nav_admin = is_admin if is_admin else request.state.is_admin %}
+			{% set cart_count = request.session.cart|length if request.session and request.session.cart else 0 %}
 			{% if nav_user %}
+				{% if cart_count > 0 %}
+					<a href="/carrinho" class="navbar__link navbar__link--primary">Carrinho ({{ cart_count }})</a>
+				{% endif %}
 				<a href="/minha-conta" class="navbar__link">Minha Conta</a>
 				{% if nav_admin %}
 					<a href="#" class="navbar__link navbar__link--primary">Admin</a>

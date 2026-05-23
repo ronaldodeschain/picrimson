@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Carrinho - Crimson Claw Studio{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/cart.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <header class="cart-header mb-4">
+        <div>
+            <p class="eyebrow">Carrinho</p>
+            <h1>Seu carrinho</h1>
+            <p class="text-muted">Revise os itens escolhidos e confirme o pedido por mensagem com o administrador.</p>
+        </div>
+    </header>
+
+    {% if cart_message %}
+    <div class="alert alert-success mb-4">{{ cart_message }}</div>
+    {% endif %}
+
+    {% if checkout_message %}
+    <div class="alert alert-success mb-4">{{ checkout_message }}</div>
+    {% endif %}
+
+    {% if cart %}
+    <div class="cart-grid">
+        <section class="cart-items">
+            {% for item in cart %}
+            <article class="cart-item">
+                <div class="cart-item__media">
+                    <img src="{{ item.imagem or '/static/img/placeholder-100.png' }}" alt="{{ item.nome }}">
+                </div>
+                <div class="cart-item__content">
+                    <h2>{{ item.nome }}</h2>
+                    <p class="item-variant">Tamanho: {{ item.tamanho }} · Material: {{ item.material }} · Pintura: {{ item.pintura }}</p>
+                    <p class="item-quantity">Quantidade: {{ item.quantidade }}</p>
+                    <p class="item-price">R$ {{ "%.2f"|format(item.valor * item.quantidade) }}</p>
+                    <div class="cart-item__actions">
+                        <a href="{{ item.link }}" class="btn btn-outline-secondary btn-sm">Ver produto</a>
+                        <form action="/carrinho/remover" method="post" class="inline-form">
+                            <input type="hidden" name="item_index" value="{{ loop.index0 }}">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Remover</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+
+        <aside class="cart-summary">
+            <div class="summary-card">
+                <h2>Resumo do pedido</h2>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <strong>R$ {{ "%.2f"|format(cart_total) }}</strong>
+                </div>
+                <div class="summary-note text-muted">A compra será finalizada como uma mensagem ao administrador.</div>
+                <form action="/carrinho/finalizar" method="post">
+                    <button type="submit" class="btn btn-primary btn-block">Finalizar compra por mensagem</button>
+                </form>
+                <a href="/produtos" class="btn btn-secondary btn-block">Continuar comprando</a>
+            </div>
+        </aside>
+    </div>
+    {% else %}
+    <section class="empty-cart card p-4 text-center">
+        <h2>Seu carrinho está vazio</h2>
+        <p class="text-muted">Adicione produtos ao carrinho e eles aparecerão aqui.</p>
+        <a href="/produtos" class="btn btn-primary">Ver produtos</a>
+    </section>
+    {% endif %}
+
+    {% if suggestions %}
+    <section class="cart-suggestions mt-5">
+        <div class="section-header">
+            <h2>Você pode gostar</h2>
+            <p class="text-muted">Sugestões baseadas em seus favoritos ou na categoria dos itens do carrinho.</p>
+        </div>
+        <div class="suggestions-grid">
+            {% for produto in suggestions %}
+            <article class="suggestion-card">
+                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens and produto.imagens|length > 0 else '/static/img/placeholder-100.png' }}" alt="{{ produto.nome_produto }}">
+                <div class="suggestion-content">
+                    <h3>{{ produto.nome_produto }}</h3>
+                    <p class="text-muted">R$ {{ "%.2f"|format(produto.valor) }}</p>
+                    <a href="/produto/{{ produto.id_produto }}" class="btn btn-outline-primary btn-sm">Ver produto</a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

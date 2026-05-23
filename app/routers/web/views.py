@@ -1,4 +1,8 @@
 from typing import Annotated
+import os
+import smtplib
+import json
+from email.message import EmailMessage
 from fastapi import APIRouter, Request, Depends, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -10,8 +14,8 @@ from app.repositories.imagem_produto import ImagemProdutoRepository
 from app.repositories.avaliacoes import AvaliacoesRepository
 from app.repositories.usuario import UsuarioRepository
 from app.repositories.email import EmailRepository
+from app.repositories.mensagem import MensagemRepository
 from app.repositories.favoritos import FavoritosRepository
-from app.repositories.produto import ProdutoRepository
 import app.dependencies as dependencies
 
 router = APIRouter(tags=["Frontend"])
@@ -23,6 +27,67 @@ async def get_authenticated_usuario(request: Request, usuario_repo: Annotated[Us
     if not user_id:
         return None
     return await usuario_repo.get_cliente(user_id)
+
+
+def _get_cart(request: Request) -> list[dict]:
+    return request.session.get("cart", [])
+
+
+def _save_cart(request: Request, cart: list[dict]) -> None:
+    request.session["cart"] = cart
+
+
+def _cart_total(cart: list[dict]) -> float:
+    return sum(item.get("valor", 0.0) * item.get("quantidade", 1) for item in cart)
+
+
+def _format_cart_item(produto, tamanho: str, material: str, pintura: str) -> dict:
+    return {
+        "produto_id": produto.id_produto,
+        "nome": produto.nome_produto,
+        "valor": float(produto.valor or 0.0),
+        "tamanho": tamanho,
+        "material": material,
+        "pintura": pintura,
+        "quantidade": 1,
+        "link": f"/produto/{produto.id_produto}",
+        "categoria": produto.id_categoria,
+        "imagem": produto.imagens[0].arquivo_imagem if produto.imagens and len(produto.imagens) > 0 else None,
+    }
+
+
+def _find_cart_item(cart: list[dict], produto_id: int, tamanho: str, material: str, pintura: str):
+    for index, item in enumerate(cart):
+        if item["produto_id"] == produto_id and item["tamanho"] == tamanho and item["material"] == material and item["pintura"] == pintura:
+            return index, item
+    return None, None
+
+
+def _send_email(subject: str, body: str, to_address: str) -> bool:
+    smtp_host = os.getenv("EMAIL_SMTP_HOST")
+    smtp_port = int(os.getenv("EMAIL_SMTP_PORT", "587"))
+    smtp_user = os.getenv("EMAIL_SMTP_USER")
+    smtp_password = os.getenv("EMAIL_SMTP_PASSWORD")
+    from_address = os.getenv("EMAIL_FROM", smtp_user or "no-reply@crimsonclaw.local")
+    if not smtp_host or not smtp_user or not smtp_password:
+        print("[cart] SMTP configuration missing, email not sent.")
+        print(subject)
+        print(body)
+        return False
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = from_address
+        msg["To"] = to_address
+        msg.set_content(body)
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.send_message(msg)
+        return True
+    except Exception as exc:
+        print(f"[cart] Failed to send email: {exc}")
+        return False
 
 @router.get("/", response_class=HTMLResponse)
 async def home(
@@ -190,6 +255,7 @@ async def produto_detail(
         fav_repo = FavoritosRepository(dependencies.get_database())
         favs = await fav_repo.listar_favoritos_por_usuario(usuario.id_usuario)
         is_favorited = any(f.id_produto == produto_id for f in favs)
+    cart_message = request.session.pop("cart_message", None)
     return templates.TemplateResponse("product.html", {
         "request": request,
         "titulo": produto.nome_produto,
@@ -198,6 +264,140 @@ async def produto_detail(
         "user": usuario,
         "is_admin": usuario.role == "admin" if usuario else False,
         "is_favorited": is_favorited,
+        "cart_message": cart_message,
+        "year": datetime.utcnow().year,
+    })
+
+
+@router.post("/carrinho/adicionar")
+async def carrinho_adicionar(
+    request: Request,
+    produto_repo: Annotated[ProdutoRepository, Depends(dependencies.get_produto_repository)],
+    produto_id: int = Form(...),
+    tamanho: str = Form("P"),
+    material: str = Form("PLA"),
+    pintura: str = Form("Sem pintura"),
+    action: str = Form("add")
+):
+    produto = await produto_repo.get_produto(produto_id)
+    if not produto:
+        return RedirectResponse(url=f"/produto/{produto_id}", status_code=303)
+    cart = _get_cart(request)
+    index, existing = _find_cart_item(cart, produto_id, tamanho, material, pintura)
+    if index is not None:
+        cart[index]["quantidade"] += 1
+    else:
+        cart.append(_format_cart_item(produto, tamanho, material, pintura))
+    _save_cart(request, cart)
+    request.session["cart_message"] = "Produto adicionado ao carrinho."
+    if action == "buy":
+        return RedirectResponse(url="/carrinho", status_code=303)
+    return RedirectResponse(url=f"/produto/{produto_id}", status_code=303)
+
+
+@router.post("/carrinho/remover")
+async def carrinho_remover(
+    request: Request,
+    item_index: int = Form(...)
+):
+    cart = _get_cart(request)
+    if 0 <= item_index < len(cart):
+        del cart[item_index]
+        _save_cart(request, cart)
+        request.session["cart_message"] = "Item removido do carrinho."
+    return RedirectResponse(url="/carrinho", status_code=303)
+
+
+@router.post("/carrinho/finalizar")
+async def carrinho_finalizar(
+    request: Request,
+    produto_repo: Annotated[ProdutoRepository, Depends(dependencies.get_produto_repository)],
+    favoritos_repo: Annotated[FavoritosRepository, Depends(dependencies.get_favoritos_repository)],
+    mensagem_repo: Annotated[MensagemRepository, Depends(dependencies.get_mensagem_repository)],
+):
+    user = await get_authenticated_usuario(request, UsuarioRepository(dependencies.get_database()))
+    if not user or user.id_usuario is None:
+        return RedirectResponse(url="/login.html", status_code=302)
+    cart = _get_cart(request)
+    if not cart:
+        request.session["cart_message"] = "Seu carrinho está vazio."
+        return RedirectResponse(url="/carrinho", status_code=303)
+
+    subject = f"Novo pedido por mensagem de {user.nome_usuario}"
+    linhas = [f"Usuario: {user.nome_usuario} <{user.login}>", "", "Itens do carrinho:"]
+    for item in cart:
+        linhas.append(f"- {item['nome']} | Tamanho: {item['tamanho']} | Material: {item['material']} | Pintura: {item['pintura']} | Quantidade: {item['quantidade']} | R$ {item['valor']:.2f}")
+    linhas.append("")
+    linhas.append(f"Total: R$ {_cart_total(cart):.2f}")
+    linhas.append("")
+    linhas.append("Dados do carrinho (JSON):")
+    linhas.append(json.dumps(cart, ensure_ascii=False, indent=2))
+    body = "\n".join(linhas)
+    admin_email = os.getenv("ADMIN_EMAIL") or os.getenv("EMAIL_SMTP_USER") or "admin@crimsonclaw.local"
+    email_sent = _send_email(subject, body, admin_email)
+    try:
+        from app.models.mensagem import MensagemCriarAtualizar
+        mensagem_model = MensagemCriarAtualizar(
+            mensagem=body,
+            tipo_mensagem="pedido",
+            id_pedido=0,
+            id_email=0,
+            id_orcamento=0,
+            id_usuario=user.id_usuario,
+            id_nota_fiscal=0,
+            id_rastreio=0
+        )
+        await mensagem_repo.criar_mensagem(mensagem_model)
+    except Exception:
+        pass
+    if email_sent:
+        request.session.pop("cart", None)
+        request.session["checkout_message"] = "Pedido enviado ao administrador via email."
+    else:
+        request.session["checkout_message"] = "Pedido registrado, mas não foi possível enviar email com os dados. Seu carrinho foi preservado para tentativa posterior."
+    return RedirectResponse(url="/carrinho", status_code=303)
+
+
+@router.get("/carrinho", response_class=HTMLResponse)
+async def carrinho(
+    request: Request,
+    produto_repo: Annotated[ProdutoRepository, Depends(dependencies.get_produto_repository)],
+    favoritos_repo: Annotated[FavoritosRepository, Depends(dependencies.get_favoritos_repository)]
+):
+    user = request.state.user
+    cart = _get_cart(request)
+    cart_message = request.session.pop("cart_message", None)
+    checkout_message = request.session.pop("checkout_message", None)
+    suggestions = []
+    cart_product_ids = {item["produto_id"] for item in cart}
+    if user and user.id_usuario is not None:
+        favoritos = await favoritos_repo.listar_favoritos_por_usuario(user.id_usuario)
+        for favorito in favoritos:
+            if favorito.id_produto not in cart_product_ids:
+                produto = await produto_repo.get_produto(favorito.id_produto)
+                if produto:
+                    suggestions.append(produto)
+                    if len(suggestions) >= 3:
+                        break
+    if not suggestions and cart:
+        first_category = cart[0].get("categoria")
+        if first_category:
+            products_in_category = await produto_repo.listar_produtos(categoria=first_category)
+            for produto in products_in_category:
+                if produto.id_produto not in cart_product_ids:
+                    suggestions.append(produto)
+                    if len(suggestions) >= 3:
+                        break
+    return templates.TemplateResponse("carrinho.html", {
+        "request": request,
+        "titulo": "Carrinho",
+        "user": user,
+        "is_admin": user.role == "admin" if user else False,
+        "cart": cart,
+        "cart_total": _cart_total(cart),
+        "suggestions": suggestions,
+        "cart_message": cart_message,
+        "checkout_message": checkout_message,
         "year": datetime.utcnow().year,
     })
 
@@ -444,36 +644,6 @@ async def minha_conta(
         if p:
             favoritos_detalhados.append({"favorito": f, "produto": p})
     pedidos = []
-    if not pedidos:
-        pedidos = [
-            {
-                "id_pedido": 1057,
-                "data": "2026-05-20",
-                "status": "Enviado",
-                "status_class": "status-success",
-                "valor_total": 398.50,
-                "quantidade": 3,
-                "link": "/pedido/1057"
-            },
-            {
-                "id_pedido": 1049,
-                "data": "2026-05-16",
-                "status": "Em processamento",
-                "status_class": "status-warning",
-                "valor_total": 259.90,
-                "quantidade": 1,
-                "link": "/pedido/1049"
-            },
-            {
-                "id_pedido": 1032,
-                "data": "2026-05-10",
-                "status": "Cancelado",
-                "status_class": "status-danger",
-                "valor_total": 112.00,
-                "quantidade": 2,
-                "link": "/pedido/1032"
-            }
-        ]
     orcamentos = []
     return templates.TemplateResponse("minha_conta.html", {
         "request": request,
