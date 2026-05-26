@@ -86,6 +86,23 @@ async def populate_all_tables():
         )
         await usuario_repo.criar_usuario(usuario)
 
+    # Create Admin user
+    admin_usuario = UsuarioCriarAtualizar(
+        nome_usuario="Admin",
+        login="admin",
+        senha="admin123",
+        cpf="00000000000",
+        role="admin"
+    )
+    admin_criado = await usuario_repo.criar_usuario(admin_usuario)
+    if admin_criado and admin_criado.id_usuario:
+        await email_repo.criar_email(
+            EmailCriarAtualizar(
+                email="admin@crimson.com",
+                id_usuario=admin_criado.id_usuario
+            )
+        )
+
     # Populate categorias
     for i in range(1, 6):
         categoria = CategoriaCriarAtualizar(

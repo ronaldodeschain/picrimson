@@ -65,7 +65,11 @@ def _find_cart_item(cart: list[dict], produto_id: int, tamanho: str, material: s
 
 def _send_email(subject: str, body: str, to_address: str) -> bool:
     smtp_host = os.getenv("EMAIL_SMTP_HOST")
-    smtp_port = int(os.getenv("EMAIL_SMTP_PORT", "587"))
+    smtp_port_raw = os.getenv("EMAIL_SMTP_PORT", "587")
+    try:
+        smtp_port = int(smtp_port_raw)
+    except (TypeError, ValueError):
+        smtp_port = 587
     smtp_user = os.getenv("EMAIL_SMTP_USER")
     smtp_password = os.getenv("EMAIL_SMTP_PASSWORD")
     from_address = os.getenv("EMAIL_FROM", smtp_user or "no-reply@crimsonclaw.local")
@@ -155,30 +159,12 @@ async def login_submit(
             "is_auth": True,
             "year": datetime.utcnow().year,
         })
-    endereco = None
-    telefone = None
-    favoritos = []
-    if usuario.id_usuario is not None:
-        endereco = await endereco_repo.get_endereco_por_usuario(usuario.id_usuario)
-        telefone = await telefone_repo.get_telefone_por_usuario(usuario.id_usuario)
-        favoritos = await favoritos_repo.listar_favoritos_por_usuario(usuario.id_usuario)
 
     request.session["user_id"] = usuario.id_usuario
-
-    pedidos = []
-    orcamentos = []
-    return templates.TemplateResponse("minha_conta.html", {
-        "request": request,
-        "user": usuario,
-        "is_admin": usuario.role == "admin",
-        "endereco": endereco,
-        "telefone": telefone,
-        "favoritos": favoritos,
-        "pedidos": pedidos,
-        "orcamentos": orcamentos,
-        "year": datetime.utcnow().year,
-    })
-
+    
+    if usuario.role == "admin":
+        return RedirectResponse(url="/admin/", status_code=303)
+    return RedirectResponse(url="/minha-conta", status_code=303)
 
 @router.get("/logout")
 async def logout(request: Request):

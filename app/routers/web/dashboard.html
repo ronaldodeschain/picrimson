@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="display-6"><i class="bi bi-speedometer2"></i> Dashboard Administrativo</h2>
+            <p class="text-muted">Bem-vindo, <strong>{{ user.nome_usuario }}</strong>. Veja o resumo do estúdio Crimson Claw.</p>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="background-color: #0d6efd; color: white;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-uppercase mb-1 small">Total de Produtos</h6>
+                        <h2 class="mb-0">{{ stats.total_produtos }}</h2>
+                    </div>
+                    <i class="bi bi-box-seam fs-1 opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="/admin/produtos" class="text-white text-decoration-none small">Gerenciar produtos <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="background-color: #198754; color: white;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-uppercase mb-1 small">Solicitações de Orçamento</h6>
+                        <h2 class="mb-0">{{ stats.total_orcamentos }}</h2>
+                    </div>
+                    <i class="bi bi-file-earmark-text fs-1 opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="#" class="text-white text-decoration-none small">Ver orçamentos <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100" style="background-color: #ffc107; color: #212529;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-uppercase mb-1 small">Perguntas sem Resposta</h6>
+                        <h2 class="mb-0">{{ stats.perguntas_pendentes }}</h2>
+                    </div>
+                    <i class="bi bi-chat-dots fs-1 opacity-50"></i>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="#" class="text-dark text-decoration-none small">Responder clientes <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atalhos Administrativos -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0 py-1">Ações Administrativas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/admin/produtos/novo" class="btn btn-outline-dark">
+                            <i class="bi bi-plus-circle me-1"></i> Adicionar Produto
+                        </a>
+                        <a href="/admin/produtos" class="btn btn-outline-dark">
+                            <i class="bi bi-table me-1"></i> Lista de Produtos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

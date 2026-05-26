@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-box-seam"></i> Gerenciamento de Produtos</h2>
+        <a href="/admin/produtos/novo" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Novo Produto
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagem</th>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produto in produtos %}
+                    <tr>
+                        <td class="align-middle">{{ produto.id_produto }}</td>
+                        <td class="align-middle">
+                            {% if produto.imagens %}
+                            <img src="{{ produto.imagens[0].arquivo_imagem }}" alt="{{ produto.nome_produto }}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;">
+                            {% else %}
+                            <div class="bg-light text-center" style="width: 45px; height: 45px; line-height: 45px; border-radius: 4px;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle"><strong>{{ produto.nome_produto }}</strong></td>
+                        <td class="align-middle">{{ cat_map.get(produto.id_categoria, "Sem Categoria") }}</td>
+                        <td class="align-middle">R$ {{ "%.2f"|format(produto.valor) }}</td>
+                        <td class="align-middle">{{ produto.quantidade }} unid.</td>
+                        <td class="text-center align-middle">
+                            <div class="btn-group">
+                                <a href="/admin/produtos/editar/{{ produto.id_produto }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <form action="/admin/produtos/excluir/{{ produto.id_produto }}" method="post" onsubmit="return confirm('Tem certeza que deseja remover este produto permanentemente?');" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">Nenhum produto encontrado na base de dados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
