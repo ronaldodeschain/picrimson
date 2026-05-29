@@ -531,74 +531,29 @@ async def cadastro(request: Request):
 async def cadastro_submit(
     request: Request,
     usuario_repo: Annotated[UsuarioRepository, Depends(dependencies.get_usuario_repository)],
+    email_repo: Annotated[EmailRepository, Depends(dependencies.get_email_repository)],
     nome: str = Form(...),
     email: str = Form(...),
     senha: str = Form(...),
     cpf: str = Form(...),
 ):
-    from app.models.usuario import UsuarioCriarAtualizar
-    novo_usuario = UsuarioCriarAtualizar(
-        nome_usuario=nome,
-        login=email,
-        senha=senha,
-        cpf=cpf,
-        role="user"
-    )
-    usuario = await usuario_repo.criar_usuario(novo_usuario)
-    # also create email row linking to the new usuario so login by email works
-    from app.models.email import EmailCriarAtualizar
-    email_repo: Annotated[EmailRepository, Depends(dependencies.get_email_repository)]
-    # create email entry (if repository available)
-    try:
-        email_model = EmailCriarAtualizar(email=email, id_usuario=usuario.id_usuario)  # type: ignore
-        # use low-level call to repository to avoid changing signature: instantiate repo here
-        email_repo_instance = EmailRepository(dependencies.get_database())
-        await email_repo_instance.criar_email(email_model)
-    except Exception:
-        pass
-    # create empty endereco and telefone records so Minha Conta always has objects to read
-    try:
-        from app.models.endereco import EnderecoCriarAtualizar
-        from app.models.telefone import TelefoneCriarAtualizar
-        endereco_repo_instance = dependencies.get_endereco_repository(dependencies.get_database())
-        telefone_repo_instance = dependencies.get_telefone_repository(dependencies.get_database())
-        uid = usuario.id_usuario if usuario and usuario.id_usuario is not None else 0
-        endereco_model = EnderecoCriarAtualizar(
-            rua="",
-            numero=0,
-            complemento="",
-            cep="",
-            cidade="",
-            estado="",
-            observacoes="",
-            id_usuario=uid
-        )
-        telefone_model = TelefoneCriarAtualizar(
-            telefone_principal=0,
-            telefone_secundario=0,
-            id_usuario=uid
-        )
-        # create but ignore result/errors
-        try:
-            await endereco_repo_instance.criar_endereco(endereco_model)
-        except Exception:
-            pass
-        try:
-            await telefone_repo_instance.criar_telefone(telefone_model)
-        except Exception:
-            pass
-    except Exception:
-        pass
+    from app.services.usuario_service import UsuarioService
+    # Instancia repositórios extras necessários para o serviço
+    end_repo = dependencies.get_endereco_repository(dependencies.get_database())
+    tel_repo = dependencies.get_telefone_repository(dependencies.get_database())
+    
+    service = UsuarioService(usuario_repo, email_repo, end_repo, tel_repo)
+    usuario, erro = await service.registrar_usuario(nome, email, senha, cpf)
+
+    if erro:
+        return templates.TemplateResponse("cadastro.html", {
+            "request": request, "user": None, "is_admin": False, "success": False,
+            "error": erro, "nome": nome, "email": email, "cpf": cpf, "year": datetime.utcnow().year,
+        })
+
     return templates.TemplateResponse("cadastro.html", {
-        "request": request,
-        "user": None,
-        "is_admin": False,
-        "success": True,
-        "error": None,
-        "nome": nome,
-        "email": email,
-        "cpf": cpf,
-        "year": datetime.utcnow().year,
+        "request": request, "user": None, "is_admin": False, "success": True,
+        "error": None, "nome": nome, "email": email, "cpf": cpf, "year": datetime.utcnow().year,
     })
 
 

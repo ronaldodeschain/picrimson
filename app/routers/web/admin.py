@@ -123,39 +123,23 @@ async def admin_criar_produto(
     id_categoria: int = Form(...),
     imagem_arquivo: Optional[UploadFile] = File(None)
 ):
-    # 1. Persistir o produto
-    novo_produto_data = ProdutoCriarAtualizar(
-        nome_produto=nome_produto,
-        descricao=descricao,
-        material=material,
-        altura=altura,
-        comprimento=comprimento,
-        largura=largura,
-        quantidade=quantidade,
-        peso=peso,
-        valor=valor,
-        id_categoria=id_categoria
+    from app.services.produto_service import ProdutoService
+    service = ProdutoService(produto_repo, imagem_repo)
+    
+    dados_produto = ProdutoCriarAtualizar(
+        nome_produto=nome_produto, descricao=descricao, material=material,
+        altura=altura, comprimento=comprimento, largura=largura,
+        quantidade=quantidade, peso=peso, valor=valor, id_categoria=id_categoria
     )
-    produto_criado = await produto_repo.criar_produto(novo_produto_data)
+    
+    produto, erro = await service.cadastrar_produto(dados_produto, imagem_arquivo)
 
-    # 2. Lidar com o upload da imagem (se fornecida)
-    if produto_criado and imagem_arquivo and imagem_arquivo.filename:
-        uploads_dir = Path("app/static/uploads/produtos")
-        uploads_dir.mkdir(parents=True, exist_ok=True)
-        
-        ext = Path(imagem_arquivo.filename).suffix
-        nome_final = f"{uuid4().hex}{ext}"
-        path_final = uploads_dir / nome_final
-        
-        with path_final.open("wb") as buffer:
-            buffer.write(await imagem_arquivo.read())
-        
-        # Salvar referência no banco
-        img_model = ImagemProdutoCriarAtualizar(
-            nome_imagem=nome_produto,
-            arquivo_imagem=f"/static/uploads/produtos/{nome_final}",
-            id_produto=produto_criado.id_produto
-        )
-        await imagem_repo.criar_imagem_produto(img_model)
+    if erro:
+        categoria_repo = dependencies.get_categoria_repository(dependencies.get_database())
+        categorias = await categoria_repo.listar_categorias()
+        return templates.TemplateResponse("admin/produto_form.html", {
+            "request": request, "user": request.state.user, "categorias": categorias,
+            "error": erro, "year": datetime.utcnow().year,
+        })
 
     return RedirectResponse(url="/admin/produtos", status_code=303)
