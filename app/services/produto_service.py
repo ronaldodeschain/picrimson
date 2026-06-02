@@ -10,8 +10,22 @@ class ProdutoService:
         self.produto_repo = produto_repo
         self.imagem_repo = imagem_repo
 
-    async def cadastrar_produto(self, dados: ProdutoCriarAtualizar, arquivo: UploadFile = None):
+    async def cadastrar_produto(self, dados: ProdutoCriarAtualizar, arquivo: UploadFile = None, image_url: str | None = None):
         """Valida e persiste um produto com sua imagem."""
+        if not dados.nome_produto or not dados.nome_produto.strip():
+            return None, "O nome do produto é obrigatório."
+
+        if dados.valor is None or dados.valor <= 0:
+            return None, "O preço do produto deve ser maior que zero."
+
+        if dados.quantidade is None or dados.quantidade < 0:
+            return None, "A quantidade do produto não pode ser negativa."
+
+        if image_url is not None and not isinstance(image_url, str):
+            return None, "A URL da imagem deve ser uma string válida."
+
+        if image_url is not None and image_url.strip() == "":
+            return None, "A URL da imagem não pode estar vazia."
         # 1. Validação de Negócio: Preço
         if dados.valor < 0:
             return None, "O preço do produto não pode ser negativo."
@@ -37,6 +51,14 @@ class ProdutoService:
             img_model = ImagemProdutoCriarAtualizar(
                 nome_imagem=dados.nome_produto,
                 arquivo_imagem=f"/static/uploads/produtos/{nome_final}",
+                id_produto=produto.id_produto
+            )
+            await self.imagem_repo.criar_imagem_produto(img_model)
+
+        elif image_url:
+            img_model = ImagemProdutoCriarAtualizar(
+                nome_imagem=dados.nome_produto,
+                arquivo_imagem=image_url,
                 id_produto=produto.id_produto
             )
             await self.imagem_repo.criar_imagem_produto(img_model)

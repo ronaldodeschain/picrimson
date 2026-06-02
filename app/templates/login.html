@@ -29,6 +29,11 @@
             <p style="color: red;">{{ error}} </p>
         </div>
         {%endif%}
+        {% if remaining_attempts is not none and remaining_attempts > 0 %}
+        <div>
+            <p style="color: orange;">Tentativas restantes: {{ remaining_attempts }}</p>
+        </div>
+        {% endif %}
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Logar</button>

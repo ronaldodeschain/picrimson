@@ -1,8 +1,6 @@
 from typing import Annotated
 import os
-import smtplib
 import json
-from email.message import EmailMessage
 from fastapi import APIRouter, Request, Depends, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -22,76 +20,9 @@ router = APIRouter(tags=["Frontend"])
 templates = Jinja2Templates(directory="app/templates")
 
 
-async def get_authenticated_usuario(request: Request, usuario_repo: Annotated[UsuarioRepository, Depends(dependencies.get_usuario_repository)]):
-    user_id = request.session.get("user_id")
-    if not user_id:
-        return None
-    return await usuario_repo.get_cliente(user_id)
-
-
-def _get_cart(request: Request) -> list[dict]:
-    return request.session.get("cart", [])
-
-
-def _save_cart(request: Request, cart: list[dict]) -> None:
-    request.session["cart"] = cart
-
-
-def _cart_total(cart: list[dict]) -> float:
-    return sum(item.get("valor", 0.0) * item.get("quantidade", 1) for item in cart)
-
-
-def _format_cart_item(produto, tamanho: str, material: str, pintura: str) -> dict:
-    return {
-        "produto_id": produto.id_produto,
-        "nome": produto.nome_produto,
-        "valor": float(produto.valor or 0.0),
-        "tamanho": tamanho,
-        "material": material,
-        "pintura": pintura,
-        "quantidade": 1,
-        "link": f"/produto/{produto.id_produto}",
-        "categoria": produto.id_categoria,
-        "imagem": produto.imagens[0].arquivo_imagem if produto.imagens and len(produto.imagens) > 0 else None,
-    }
-
-
-def _find_cart_item(cart: list[dict], produto_id: int, tamanho: str, material: str, pintura: str):
-    for index, item in enumerate(cart):
-        if item["produto_id"] == produto_id and item["tamanho"] == tamanho and item["material"] == material and item["pintura"] == pintura:
-            return index, item
-    return None, None
-
-
-def _send_email(subject: str, body: str, to_address: str) -> bool:
-    smtp_host = os.getenv("EMAIL_SMTP_HOST")
-    smtp_port_raw = os.getenv("EMAIL_SMTP_PORT", "587")
-    try:
-        smtp_port = int(smtp_port_raw)
-    except (TypeError, ValueError):
-        smtp_port = 587
-    smtp_user = os.getenv("EMAIL_SMTP_USER")
-    smtp_password = os.getenv("EMAIL_SMTP_PASSWORD")
-    from_address = os.getenv("EMAIL_FROM", smtp_user or "no-reply@crimsonclaw.local")
-    if not smtp_host or not smtp_user or not smtp_password:
-        print("[cart] SMTP configuration missing, email not sent.")
-        print(subject)
-        print(body)
-        return False
-    try:
-        msg = EmailMessage()
-        msg["Subject"] = subject
-        msg["From"] = from_address
-        msg["To"] = to_address
-        msg.set_content(body)
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
-            server.starttls()
-            server.login(smtp_user, smtp_password)
-            server.send_message(msg)
-        return True
-    except Exception as exc:
-        print(f"[cart] Failed to send email: {exc}")
-        return False
+from app.services.cart_service import _get_cart, _save_cart, _cart_total, _format_cart_item, _find_cart_item, _send_email
+from app.services.auth_service import get_authenticated_usuario
+from app.services.login_attempt_service import LoginAttemptService
 
 @router.get("/", response_class=HTMLResponse)
 async def home(
@@ -117,6 +48,7 @@ async def login(request: Request):
         "email": "",
         "password": "",
         "error": None,
+        "remaining_attempts": None,
         "is_auth": True,
         "year": datetime.utcnow().year,
     })
@@ -133,9 +65,24 @@ async def login_submit(
     email: str = Form(...),
     password: str = Form(...),
 ):
+    login_service = LoginAttemptService(request)
+    if login_service.is_blocked(email):
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "user": None,
+            "is_admin": False,
+            "email": email,
+            "password": "",
+            "error": f"Conta bloqueada temporariamente. Tente novamente em {login_service.blocked_seconds_left(email)} segundos.",
+            "remaining_attempts": login_service.remaining_attempts(email),
+            "is_auth": True,
+            "year": datetime.utcnow().year,
+        })
+
     # Lookup the email record first (login by real email address)
     email_obj = await email_repo.get_email_por_valor(email)
     if not email_obj:
+        login_service.register_failure(email)
         return templates.TemplateResponse("login.html", {
             "request": request,
             "user": None,
@@ -143,12 +90,14 @@ async def login_submit(
             "email": email,
             "password": "",
             "error": "Email ou senha inválidos.",
+            "remaining_attempts": login_service.remaining_attempts(email),
             "is_auth": True,
             "year": datetime.utcnow().year,
         })
 
     usuario = await usuario_repo.get_cliente(email_obj.id_usuario)
     if not usuario or usuario.senha != password:
+        login_service.register_failure(email)
         return templates.TemplateResponse("login.html", {
             "request": request,
             "user": None,
@@ -156,9 +105,12 @@ async def login_submit(
             "email": email,
             "password": "",
             "error": "Email ou senha inválidos.",
+            "remaining_attempts": login_service.remaining_attempts(email),
             "is_auth": True,
             "year": datetime.utcnow().year,
         })
+
+    login_service.reset_attempts(email)
 
     request.session["user_id"] = usuario.id_usuario
     
@@ -633,14 +585,14 @@ async def minha_conta_update(
         return RedirectResponse(url="/login.html", status_code=302)
 
     new_password = senha if senha else usuario.senha
-    # Do not allow changing the login/email via this form — keep existing login
+    # Do not allow changing the login/email or CPF — keep existing values
     usuario_atualizado = await usuario_repo.update_usuario(
         user_id,
         UsuarioCriarAtualizar(
             nome_usuario=nome,
             login=usuario.login,
             senha=new_password,
-            cpf=cpf,
+            cpf=usuario.cpf,
             role=usuario.role
         )
     )

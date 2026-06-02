@@ -1,6 +1,45 @@
 import sqlite3
 from contextlib import contextmanager
 
+
+class SQLiteCursor:
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, sql, params=None):
+        if params is None:
+            return self._cursor.execute(sql.replace("%s", "?"))
+        return self._cursor.execute(sql.replace("%s", "?"), params)
+
+    def executemany(self, sql, seq_of_params):
+        return self._cursor.executemany(sql.replace("%s", "?"), seq_of_params)
+
+    def executescript(self, script):
+        return self._cursor.executescript(script)
+
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
+
+
+class SQLiteConnection:
+    def __init__(self, connection):
+        self._connection = connection
+
+    def cursor(self):
+        return SQLiteCursor(self._connection.cursor())
+
+    def commit(self):
+        return self._connection.commit()
+
+    def rollback(self):
+        return self._connection.rollback()
+
+    def close(self):
+        return self._connection.close()
+
+    def __getattr__(self, name):
+        return getattr(self._connection, name)
+
 class Database():
     def __init__ (self,nome_arquivo="test_crimson.db"):
         self.nome_arquivo = nome_arquivo
@@ -8,13 +47,15 @@ class Database():
         
     @contextmanager
     def connect(self):
-        connection = sqlite3.connect(self.nome_arquivo)
+        raw_conn = sqlite3.connect(self.nome_arquivo)
+        raw_conn.row_factory = sqlite3.Row
+        connection = SQLiteConnection(raw_conn)
         try:
             yield connection
             connection.commit()
-        except Exception as e:
+        except Exception:
             connection.rollback()
-            raise e
+            raise
         finally:
             connection.close()
             
