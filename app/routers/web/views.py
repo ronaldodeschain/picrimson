@@ -23,6 +23,7 @@ templates = Jinja2Templates(directory="app/templates")
 from app.services.cart_service import _get_cart, _save_cart, _cart_total, _format_cart_item, _find_cart_item, _send_email
 from app.services.auth_service import get_authenticated_usuario
 from app.services.login_attempt_service import LoginAttemptService
+from app.services.confirmacao_email_service import ConfirmacaoEmailService
 
 @router.get("/", response_class=HTMLResponse)
 async def home(
@@ -503,10 +504,88 @@ async def cadastro_submit(
             "error": erro, "nome": nome, "email": email, "cpf": cpf, "year": datetime.utcnow().year,
         })
 
+    # Gerar token de confirmação de email
+    db = dependencies.get_database()
+    confirmacao_service = ConfirmacaoEmailService(db)
+    
+    try:
+        if usuario and usuario.id_usuario:
+            usuario_id = int(usuario.id_usuario) if isinstance(usuario.id_usuario, str) else usuario.id_usuario
+            token = confirmacao_service.criar_token_confirmacao(email, usuario_id)
+            
+            # Enviar email de confirmação
+            url_base = str(request.base_url).rstrip("/")
+            enviado = await confirmacao_service.enviar_email_confirmacao(
+                email,
+                nome,
+                token,
+                url_base
+            )
+            
+            if not enviado:
+                print(f"Aviso: Email de confirmação não enviado para {email}")
+    except Exception as e:
+        print(f"Erro ao gerar token de confirmação: {e}")
+
     return templates.TemplateResponse("cadastro.html", {
         "request": request, "user": None, "is_admin": False, "success": True,
         "error": None, "nome": nome, "email": email, "cpf": cpf, "year": datetime.utcnow().year,
     })
+
+
+@router.get("/confirmar-email", response_class=HTMLResponse)
+async def confirmar_email(
+    request: Request,
+    token: str | None = None,
+):
+    """Rota para confirmar email do usuário."""
+    if not token:
+        return templates.TemplateResponse("confirmar_email.html", {
+            "request": request,
+            "user": None,
+            "is_admin": False,
+            "sucesso": False,
+            "mensagem": "Token não fornecido",
+            "year": datetime.utcnow().year,
+        })
+
+    db = dependencies.get_database()
+    confirmacao_service = ConfirmacaoEmailService(db)
+    
+    # Verificar token
+    resultado = confirmacao_service.verificar_token(token)
+    
+    if not resultado:
+        return templates.TemplateResponse("confirmar_email.html", {
+            "request": request,
+            "user": None,
+            "is_admin": False,
+            "sucesso": False,
+            "mensagem": "Token inválido ou expirado",
+            "year": datetime.utcnow().year,
+        })
+    
+    # Marcar como confirmado
+    marcado = confirmacao_service.marcar_como_confirmado(resultado["token_hash"])
+    
+    if marcado:
+        return templates.TemplateResponse("confirmar_email.html", {
+            "request": request,
+            "user": None,
+            "is_admin": False,
+            "sucesso": True,
+            "mensagem": f"Email {resultado['email']} confirmado com sucesso! Agora você pode fazer login.",
+            "year": datetime.utcnow().year,
+        })
+    else:
+        return templates.TemplateResponse("confirmar_email.html", {
+            "request": request,
+            "user": None,
+            "is_admin": False,
+            "sucesso": False,
+            "mensagem": "Erro ao confirmar email. Tente novamente.",
+            "year": datetime.utcnow().year,
+        })
 
 
 @router.get("/minha-conta", response_class=HTMLResponse)

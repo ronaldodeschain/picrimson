@@ -297,6 +297,16 @@ class Database():
                     id_pergunta INTEGER
                 );
 
+                CREATE TABLE IF NOT EXISTS confirmacao_email (
+                    id_confirmacao INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_usuario INTEGER NOT NULL,
+                    email TEXT NOT NULL,
+                    token_hash TEXT NOT NULL UNIQUE,
+                    expira_em TEXT NOT NULL,
+                    confirmado INTEGER DEFAULT 0,
+                    criado_em TEXT DEFAULT CURRENT_TIMESTAMP
+                );
+
             """)
             # Ensure existing databases get the new column when migrating
             cursor.execute("PRAGMA table_info(resposta)")

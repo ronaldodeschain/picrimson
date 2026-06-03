@@ -281,5 +281,15 @@ class Database:
                     id_produto INTEGER,
                     id_pergunta INTEGER
                 );
+
+                CREATE TABLE IF NOT EXISTS confirmacao_email (
+                    id_confirmacao SERIAL PRIMARY KEY,
+                    id_usuario INTEGER NOT NULL,
+                    email TEXT NOT NULL,
+                    token_hash TEXT NOT NULL UNIQUE,
+                    expira_em TIMESTAMP NOT NULL,
+                    confirmado BOOLEAN DEFAULT FALSE,
+                    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
             """)
         print("Banco de dados PostgreSQL criado com sucesso!")

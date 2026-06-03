@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Confirmação de Email - Crimson Claw Studio{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 20px;">
+    <div class="card" style="max-width: 600px; margin: 0 auto; padding: 40px; text-align: center;">
+        {% if sucesso %}
+            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="color: #155724; margin-top: 0;">✓ Sucesso!</h2>
+                <p style="color: #155724; font-size: 16px;">{{ mensagem }}</p>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>Você será redirecionado para o login em alguns segundos...</p>
+                <a href="/login.html" class="btn btn-primary" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+                    Ir para Login
+                </a>
+            </div>
+            <script>
+                setTimeout(function() {
+                    window.location.href = '/login.html';
+                }, 3000);
+            </script>
+        {% else %}
+            <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="color: #721c24; margin-top: 0;">✗ Erro</h2>
+                <p style="color: #721c24; font-size: 16px;">{{ mensagem }}</p>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>Por favor, tente novamente ou solicite um novo link de confirmação.</p>
+                <a href="/cadastro" class="btn btn-secondary" style="display: inline-block; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px;">
+                    Voltar ao Cadastro
+                </a>
+                <a href="/login.html" class="btn btn-primary" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+                    Ir para Login
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
