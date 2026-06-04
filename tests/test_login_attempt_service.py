@@ -1,3 +1,12 @@
+"""Testes do serviço de tentativa de login.
+
+Cobertura:
+    - registra falhas de login e incrementa contagem
+    - bloqueia após número máximo de tentativas
+    - zera contador após login bem-sucedido
+    - calcula corretamente tentativas restantes
+"""
+
 import time
 from typing import Any, cast
 
@@ -10,11 +19,12 @@ class DummyRequest:
 
 
 def test_login_attempts_increment_and_block_after_maximum():
-    """CT-007: deve bloquear o login após exceder o número máximo de tentativas."""
+    """CT-007: bloqueio deve ocorrer depois de várias tentativas falhas."""
     request = cast(Any, DummyRequest())
     service = LoginAttemptService(request)
     email = "usuario@example.com"
 
+    # Simula falhas de login até a última tentativa permitida
     for attempt in range(LoginAttemptService.MAX_ATTEMPTS - 1):
         assert not service.is_blocked(email)
         service.register_failure(email)
@@ -30,7 +40,7 @@ def test_login_attempts_increment_and_block_after_maximum():
 
 
 def test_login_attempts_reset_on_successful_login():
-    """Usuário bem-sucedido deve limpar o contador de tentativas."""
+    """Após login bem-sucedido, as tentativas devem ser zeradas."""
     request = cast(Any, DummyRequest())
     service = LoginAttemptService(request)
     email = "usuario@example.com"
@@ -45,7 +55,7 @@ def test_login_attempts_reset_on_successful_login():
 
 
 def test_block_duration_is_applied_and_expires():
-    """O bloqueio deve expirar após o tempo configurado."""
+    """O bloqueio temporário deve expirar ao passar o intervalo definido."""
     request = cast(Any, DummyRequest())
     service = LoginAttemptService(request)
     email = "usuario@example.com"
@@ -57,14 +67,14 @@ def test_block_duration_is_applied_and_expires():
     remaining = service.blocked_seconds_left(email)
     assert remaining > 0
 
-    # Simulate the passage of time so the block expires.
+    # Simula a passagem do tempo para liberar o bloqueio.
     service.request.session[LoginAttemptService.SESSION_KEY][email]["blocked_until"] = int(time.time()) - 1
     assert not service.is_blocked(email)
     assert service.blocked_seconds_left(email) == 0
 
 
 def test_remaining_attempts_decreases_with_failures():
-    """Deve mostrar o número correto de tentativas restantes."""
+    """A contagem de tentativas restantes deve diminuir após cada falha."""
     request = cast(Any, DummyRequest())
     service = LoginAttemptService(request)
     email = "usuario@example.com"

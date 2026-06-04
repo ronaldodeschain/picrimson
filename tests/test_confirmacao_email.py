@@ -1,3 +1,13 @@
+"""Testes de confirmação de email e do serviço SMTP.
+
+Cobertura:
+    - criação, verificação e expiração de tokens de confirmação
+    - marcação de token como confirmado
+    - inicialização do serviço SMTP
+    - comportamento sem credenciais SMTP
+"""
+
+import asyncio
 import pytest
 from typing import cast, Any
 import sqlite3
@@ -40,7 +50,7 @@ class TestConfirmacaoEmailService:
         """Executado antes de cada teste."""
         self.db = MinimalTestDatabase()
         
-        # Garantir que a tabela é criada
+        # Criar somente a tabela necessária para os testes do token
         with self.db.connect() as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -57,7 +67,7 @@ class TestConfirmacaoEmailService:
         self.confirmacao_service = ConfirmacaoEmailService(cast(Any, self.db))
 
     def test_criar_token_confirmacao(self):
-        """Deve criar um token de confirmação válido."""
+        """Cria o token de confirmação e assegura que não seja vazio."""
         email = "usuario@example.com"
         usuario_id = 1
         
@@ -68,7 +78,7 @@ class TestConfirmacaoEmailService:
         assert isinstance(token, str)
 
     def test_verificar_token_valido(self):
-        """Deve verificar um token válido."""
+        """Verifica se um token recém-criado é considerado válido."""
         email = "usuario@example.com"
         usuario_id = 1
         
@@ -81,14 +91,14 @@ class TestConfirmacaoEmailService:
         assert resultado["token_hash"] is not None
 
     def test_verificar_token_invalido(self):
-        """Deve retornar None para token inválido."""
+        """Verifica que um token inválido retorna None."""
         token_invalido = "token_invalido_xyz"
         resultado = self.confirmacao_service.verificar_token(token_invalido)
         
         assert resultado is None
 
     def test_marcar_como_confirmado(self):
-        """Deve marcar um token como confirmado."""
+        """Marca token como confirmado e garante que não possa ser reutilizado."""
         email = "usuario@example.com"
         usuario_id = 1
         
@@ -107,7 +117,7 @@ class TestConfirmacaoEmailService:
         assert resultado_apos is None
 
     def test_token_expira(self):
-        """Deve considerar o token como expirado após o tempo de expiração."""
+        """Valida que tokens com data de expiração anterior são rejeitados."""
         email = "usuario@example.com"
         usuario_id = 1
         
@@ -126,7 +136,7 @@ class TestConfirmacaoEmailService:
         assert resultado is None
 
     def test_multiplos_tokens_diferentes_usuarios(self):
-        """Cada usuário deve ter seu próprio token."""
+        """Confirma que tokens distintos são gerados para usuários diferentes."""
         email1 = "usuario1@example.com"
         email2 = "usuario2@example.com"
         usuario_id1 = 1
@@ -154,7 +164,7 @@ class TestEmailService:
     """Testes para o serviço de email SMTP."""
 
     def test_email_service_inicializa(self):
-        """Deve inicializar o serviço de email."""
+        """Verifica a inicialização do EmailService com configuração do ambiente."""
         service = EmailService()
         
         assert service.smtp_server is not None
@@ -162,13 +172,12 @@ class TestEmailService:
         # sender_email e sender_password podem ser None em testes
 
     def test_email_service_sem_credenciais(self):
-        """Deve falhar gracefully sem credenciais SMTP."""
+        """Verifica que o envio falha quando não há credenciais SMTP."""
         service = EmailService()
         
         # Simular credenciais vazias
         service.sender_email = None
         service.sender_password = None
-        
-        # A função é async, então vamos testar apenas o método de forma síncrona
-        # A implementação deve retornar False quando sem credenciais
-        assert service.sender_email is None or service.sender_password is None
+        # A função é assíncrona, então executamos o envio no teste com asyncio
+        resultado = asyncio.run(service.enviar_email("destino@example.com", "Teste", "<p>Teste</p>", "Teste"))
+        assert resultado is False

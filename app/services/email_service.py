@@ -11,10 +11,14 @@ class EmailService:
     """Serviço para enviar emails via SMTP."""
 
     def __init__(self):
-        self.smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-        self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
-        self.sender_email = os.getenv("SENDER_EMAIL")
-        self.sender_password = os.getenv("SENDER_PASSWORD")
+        self.smtp_server = os.getenv("SMTP_SERVER") or os.getenv("EMAIL_SMTP_HOST", "smtp.gmail.com")
+        port_value = os.getenv("SMTP_PORT") or os.getenv("EMAIL_SMTP_PORT", "587")
+        try:
+            self.smtp_port = int(port_value)
+        except (TypeError, ValueError):
+            self.smtp_port = 587
+        self.sender_email = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_SMTP_USER")
+        self.sender_password = os.getenv("SENDER_PASSWORD") or os.getenv("EMAIL_SMTP_PASSWORD")
 
     async def enviar_email(
         self, 
