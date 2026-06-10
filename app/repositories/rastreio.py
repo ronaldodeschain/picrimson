@@ -46,7 +46,7 @@ class RastreioRepository:
                 "INSERT INTO rastreio (codigo_rastreio, id_entrega, id_mensagem) VALUES (%s, %s, %s) RETURNING id_rastreio",
                 (rastreio.codigo_rastreio, rastreio.id_entrega, rastreio.id_mensagem)
             )
-            id_rastreio = cursor.fetchone()[0]
+            id_rastreio = cursor.fetchone()[0]#type:ignore
             return Rastreio(
                 id_rastreio=id_rastreio,
                 codigo_rastreio=rastreio.codigo_rastreio,

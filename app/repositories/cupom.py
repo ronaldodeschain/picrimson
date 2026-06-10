@@ -42,14 +42,14 @@ class CupomRepository:
             return None
 
     async def criar_cupom(self,
-                           cupom: CupomCriarAtualizar) -> Cupom | None:
+                        cupom: CupomCriarAtualizar) -> Cupom | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO cupons(chave_cupom, valor_cupom, tipo_cupom, id_pedido) VALUES (%s, %s, %s, %s) RETURNING id_cupom",
                 (cupom.chave_cupom, cupom.valor_cupom, cupom.tipo_cupom, cupom.id_pedido)
             )
-            id_cupom = cursor.fetchone()[0]
+            id_cupom = cursor.fetchone()[0]#type:ignore
             return Cupom(
                 id_cupom=id_cupom,
                 chave_cupom=cupom.chave_cupom,
@@ -59,7 +59,7 @@ class CupomRepository:
             )
 
     async def update_cupom(self, cupom_id: int,
-                           cupom: CupomCriarAtualizar) -> Cupom | None:
+                        cupom: CupomCriarAtualizar) -> Cupom | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

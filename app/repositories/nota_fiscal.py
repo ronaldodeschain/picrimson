@@ -57,7 +57,7 @@ class NotaFiscalRepository:
                 "INSERT INTO notas_fiscais (forma_pagamento, data_emissao, serie, numero, status, id_caixa, id_pagamento, id_mensagem) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_nota_fiscal",
                 (nota.forma_pagamento, nota.data_emissao.isoformat(), nota.serie, nota.numero, nota.status, nota.id_caixa, nota.id_pagamento, nota.id_mensagem)
             )
-            id_nota_fiscal = cursor.fetchone()[0]
+            id_nota_fiscal = cursor.fetchone()[0]#type:ignore
             return NotaFiscal(
                 id_nota_fiscal=id_nota_fiscal,
                 forma_pagamento=nota.forma_pagamento,

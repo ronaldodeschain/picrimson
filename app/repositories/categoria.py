@@ -35,21 +35,21 @@ class CategoriaRepository:
             return None
 
     async def criar_categoria(self,
-                              categoria: CategoriaCriarAtualizar) -> Categoria | None:
+                            categoria: CategoriaCriarAtualizar) -> Categoria | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO categorias(nome_categoria) VALUES (%s) RETURNING id_categoria",
                 (categoria.nome_categoria,)
             )
-            id_categoria = cursor.fetchone()[0]
+            id_categoria = cursor.fetchone()[0]#type:ignore
             return Categoria(
                 id_categoria=id_categoria,
                 nome_categoria=categoria.nome_categoria
             )
 
     async def update_categoria(self, categoria_id: int,
-                               categoria: CategoriaCriarAtualizar) -> Categoria | None:
+                            categoria: CategoriaCriarAtualizar) -> Categoria | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

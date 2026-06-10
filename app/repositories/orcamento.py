@@ -60,7 +60,7 @@ class OrcamentoRepository:
                 "INSERT INTO orcamentos (mensagem, arquivo, imagem, id_mensagem, id_servico, nome, contato, tipo_projeto, descricao, tamanho_desejado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_orcamento",
                 (orcamento.mensagem, orcamento.arquivo, orcamento.imagem, orcamento.id_mensagem, orcamento.id_servico, orcamento.nome, orcamento.contato, orcamento.tipo_projeto, orcamento.descricao, orcamento.tamanho_desejado)
             )
-            id_orcamento = cursor.fetchone()[0]
+            id_orcamento = cursor.fetchone()[0]#type:ignore
             return Orcamento(
                 id_orcamento=id_orcamento,
                 mensagem=orcamento.mensagem,

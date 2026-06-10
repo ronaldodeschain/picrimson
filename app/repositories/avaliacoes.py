@@ -67,7 +67,7 @@ class AvaliacoesRepository:
                 "INSERT INTO avaliacoes(comentario, avaliacao, id_produto, id_usuario) VALUES (%s, %s, %s, %s) RETURNING id_avaliacao",
                 (avaliacao.comentario, avaliacao.avaliacao, avaliacao.id_produto, avaliacao.id_usuario)
             )
-            id_avaliacao = cursor.fetchone()[0]
+            id_avaliacao = cursor.fetchone()[0] #type:ignore
             return Avaliacoes(
                 id_avaliacao=id_avaliacao,
                 comentario=avaliacao.comentario,

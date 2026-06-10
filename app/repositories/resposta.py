@@ -51,7 +51,7 @@ class RespostaRepository:
                 "INSERT INTO resposta(texto_resposta, data_resposta, id_usuario, id_produto, id_pergunta) VALUES (%s, %s, %s, %s, %s) RETURNING id_resposta",
                 (resposta.texto_resposta, resposta.data_resposta, resposta.id_usuario, resposta.id_produto, resposta.id_pergunta)
             )
-            id_resposta = cursor.fetchone()[0]
+            id_resposta = cursor.fetchone()[0]#type:ignore
             return Resposta(
                 id_resposta=id_resposta,
                 texto_resposta=resposta.texto_resposta,

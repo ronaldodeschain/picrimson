@@ -47,14 +47,14 @@ class CaixaRepository:
             return None
 
     async def criar_caixa(self,
-                          caixa: CaixaCriarAtualizar) -> Caixa | None:
+                        caixa: CaixaCriarAtualizar) -> Caixa | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO caixa(tipo_movimentacao, valor, descricao, data_movimentacao, id_nota_fiscal, id_pagamento) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id_caixa",
                 (caixa.tipo_movimentacao, caixa.valor, caixa.descricao, caixa.data_movimentacao.isoformat() if caixa.data_movimentacao else None, caixa.id_nota_fiscal, caixa.id_pagamento)
             )
-            id_caixa = cursor.fetchone()[0]
+            id_caixa = cursor.fetchone()[0]#type:ignore
             return Caixa(
                 id_caixa=id_caixa,
                 tipo_movimentacao=caixa.tipo_movimentacao,
@@ -66,7 +66,7 @@ class CaixaRepository:
             )
 
     async def update_caixa(self, caixa_id: int,
-                           caixa: CaixaCriarAtualizar) -> Caixa | None:
+                        caixa: CaixaCriarAtualizar) -> Caixa | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

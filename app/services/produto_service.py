@@ -10,7 +10,7 @@ class ProdutoService:
         self.produto_repo = produto_repo
         self.imagem_repo = imagem_repo
 
-    async def cadastrar_produto(self, dados: ProdutoCriarAtualizar, arquivo: UploadFile = None, image_url: str | None = None):
+    async def cadastrar_produto(self, dados: ProdutoCriarAtualizar, arquivo: UploadFile = None, image_url: str | None = None):#type:ignore
         """Valida e persiste um produto com sua imagem."""
         if not dados.nome_produto or not dados.nome_produto.strip():
             return None, "O nome do produto é obrigatório."

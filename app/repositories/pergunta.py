@@ -44,14 +44,14 @@ class PerguntaRepository:
             return None
 
     async def criar_pergunta(self,
-                              pergunta: PerguntaCriarAtualizar) -> Pergunta | None:
+                            pergunta: PerguntaCriarAtualizar) -> Pergunta | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO pergunta(pergunta, data_criacao, id_usuario, id_produto, id_resposta) VALUES (%s, %s, %s, %s, %s) RETURNING id_pergunta",
                 (pergunta.pergunta, pergunta.data_criacao, pergunta.id_usuario, pergunta.id_produto, pergunta.id_resposta)
             )
-            id_pergunta = cursor.fetchone()[0]
+            id_pergunta = cursor.fetchone()[0]#type:ignore
             return Pergunta(
                 id_pergunta=id_pergunta,
                 pergunta=pergunta.pergunta,
@@ -62,7 +62,7 @@ class PerguntaRepository:
             )
 
     async def update_pergunta(self, pergunta_id: int,
-                              pergunta: PerguntaCriarAtualizar) -> Pergunta | None:
+                            pergunta: PerguntaCriarAtualizar) -> Pergunta | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

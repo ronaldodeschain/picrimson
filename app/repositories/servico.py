@@ -44,14 +44,14 @@ class ServicoRepository:
             return None
 
     async def criar_servico(self,
-                             servico: ServicoCriarAtualizar) -> Servico | None:
+                            servico: ServicoCriarAtualizar) -> Servico | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO servico(tipo_servico, valor_servico, descricao, id_pedido, id_orcamento) VALUES (%s, %s, %s, %s, %s) RETURNING id_servico",
                 (servico.tipo_servico, servico.valor_servico, servico.descricao, servico.id_pedido, servico.id_orcamento)
             )
-            id_servico = cursor.fetchone()[0]
+            id_servico = cursor.fetchone()[0]#type:ignore
             return Servico(
                 id_servico=id_servico,
                 tipo_servico=servico.tipo_servico,
@@ -62,7 +62,7 @@ class ServicoRepository:
             )
 
     async def update_servico(self, servico_id: int,
-                             servico: ServicoCriarAtualizar) -> Servico | None:
+                            servico: ServicoCriarAtualizar) -> Servico | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

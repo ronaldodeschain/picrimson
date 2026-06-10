@@ -51,7 +51,7 @@ class EmailRepository:
                 "INSERT INTO email (email, id_usuario) VALUES (%s, %s) RETURNING id_email",
                 (email.email, email.id_usuario)
             )
-            id_email = cursor.fetchone()[0]
+            id_email = cursor.fetchone()[0]#type:ignore
             return Email(id_email=id_email, email=email.email, id_usuario=email.id_usuario)  # type: ignore
 
     async def update_email(self, id_email: int, email: EmailCriarAtualizar) -> Optional[Email]:

@@ -42,14 +42,14 @@ class CarrinhoRepository:
             return None
 
     async def criar_carrinho(self,
-                              carrinho: CarrinhoCriarAtualizar) -> Carrinho | None:
+                            carrinho: CarrinhoCriarAtualizar) -> Carrinho | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO carrinho(id_servico, id_pedido, id_item_pedido, id_usuario) VALUES (%s, %s, %s, %s) RETURNING id_carrinho",
                 (carrinho.id_servico, carrinho.id_pedido, carrinho.id_item_pedido, carrinho.id_usuario)
             )
-            id_carrinho = cursor.fetchone()[0]
+            id_carrinho = cursor.fetchone()[0]#type:ignore
             return Carrinho(
                 id_carrinho=id_carrinho,
                 id_servico=carrinho.id_servico,
@@ -59,7 +59,7 @@ class CarrinhoRepository:
             )
 
     async def update_carrinho(self, carrinho_id: int,
-                              carrinho: CarrinhoCriarAtualizar) -> Carrinho | None:
+                            carrinho: CarrinhoCriarAtualizar) -> Carrinho | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

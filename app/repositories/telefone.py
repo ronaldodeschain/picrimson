@@ -57,14 +57,14 @@ class TelefoneRepository:
             return None
 
     async def criar_telefone(self,
-                              telefone: TelefoneCriarAtualizar) -> Telefone | None:
+                            telefone: TelefoneCriarAtualizar) -> Telefone | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO telefone(telefone_principal, telefone_secundario, id_usuario) VALUES (%s, %s, %s) RETURNING id_telefone",
                 (telefone.telefone_principal, telefone.telefone_secundario, telefone.id_usuario)
             )
-            id_telefone = cursor.fetchone()[0]
+            id_telefone = cursor.fetchone()[0]#type:ignore
             return Telefone(
                 id_telefone=id_telefone,
                 telefone_principal=telefone.telefone_principal,
@@ -73,7 +73,7 @@ class TelefoneRepository:
             )
 
     async def update_telefone(self, telefone_id: int,
-                              telefone: TelefoneCriarAtualizar) -> Telefone | None:
+                            telefone: TelefoneCriarAtualizar) -> Telefone | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

@@ -89,7 +89,7 @@ class UsuarioRepository:
                 "INSERT INTO usuarios(nome_usuario,login,senha,cpf,role) values(%s,%s,%s,%s,%s) RETURNING id_usuario",
                 (usuario.nome_usuario,usuario.login,usuario.senha,usuario.cpf, usuario.role)
             )
-            id_user = cursor.fetchone()[0]
+            id_user = cursor.fetchone()[0]#type:ignore
             return Usuario(
                 id_usuario=id_user,
                 nome_usuario=usuario.nome_usuario,

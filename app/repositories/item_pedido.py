@@ -46,7 +46,7 @@ class ItemPedidoRepository:
                 "INSERT INTO item_pedidos (id_usuario, id_produto, id_carrinho) VALUES (%s, %s, %s) RETURNING id_item_pedido",
                 (item.id_usuario, item.id_produto, item.id_carrinho)
             )
-            id_item_pedido = cursor.fetchone()[0]
+            id_item_pedido = cursor.fetchone()[0]#type:ignore
             return ItemPedido(
                 id_item_pedido=id_item_pedido,
                 id_usuario=item.id_usuario,

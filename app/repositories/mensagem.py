@@ -56,7 +56,7 @@ class MensagemRepository:
                 "INSERT INTO mensagem (mensagem, tipo_mensagem, id_pedido, id_email, id_orcamento, id_usuario, id_nota_fiscal, id_rastreio) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_mensagem",
                 (mensagem.mensagem, mensagem.tipo_mensagem, mensagem.id_pedido, mensagem.id_email, mensagem.id_orcamento, mensagem.id_usuario, mensagem.id_nota_fiscal, mensagem.id_rastreio)
             )
-            id_mensagem = cursor.fetchone()[0]
+            id_mensagem = cursor.fetchone()[0]#type:ignore
             return Mensagem(
                 id_mensagem=id_mensagem,
                 mensagem=mensagem.mensagem,

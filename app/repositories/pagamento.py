@@ -51,14 +51,14 @@ class PagamentoRepository:
             return None
 
     async def criar_pagamento(self,
-                              pagamento: PagamentoCriarAtualizar) -> Pagamento | None:
+                            pagamento: PagamentoCriarAtualizar) -> Pagamento | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO pagamentos(expiracao, valor_total, data_pagamento, pixTxid, id_pedido, id_caixa, id_nota_fiscal, id_entrega) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_pagamento",
                 (pagamento.expiracao.isoformat() if pagamento.expiracao else None, pagamento.valor_total, pagamento.data_pagamento.isoformat() if pagamento.data_pagamento else None, pagamento.pixTxid, pagamento.id_pedido, pagamento.id_caixa, pagamento.id_nota_fiscal, pagamento.id_entrega)
             )
-            id_pagamento = cursor.fetchone()[0]
+            id_pagamento = cursor.fetchone()[0]#type:ignore
             return Pagamento(
                 id_pagamento=id_pagamento,
                 expiracao=pagamento.expiracao,
@@ -72,7 +72,7 @@ class PagamentoRepository:
             )
 
     async def update_pagamento(self, pagamento_id: int,
-                               pagamento: PagamentoCriarAtualizar) -> Pagamento | None:
+                            pagamento: PagamentoCriarAtualizar) -> Pagamento | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(

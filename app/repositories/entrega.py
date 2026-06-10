@@ -63,7 +63,7 @@ class EntregaRepository:
                 "INSERT INTO entrega (mensagem, tipo_mensagem, data_entrega_prevista, data_envio, tipo_entrega, endereco_entrega, observacoes, data_pedido, status_entrega, id_pedido, id_rastreio) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_entrega",
                 (entrega.mensagem, entrega.tipo_mensagem, entrega.data_entrega_prevista.isoformat(), entrega.data_envio.isoformat(), entrega.tipo_entrega, entrega.endereco_entrega, entrega.observacoes, entrega.data_pedido.isoformat(), entrega.status_entrega, entrega.id_pedido, entrega.id_rastreio)
             )
-            id_entrega = cursor.fetchone()[0]
+            id_entrega = cursor.fetchone()[0]#type:ignore
             return Entrega(
                 id_entrega=id_entrega,
                 mensagem=entrega.mensagem,

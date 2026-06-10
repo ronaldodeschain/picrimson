@@ -45,14 +45,14 @@ class PedidoRepository:
             return None
 
     async def criar_pedido(self,
-                           pedido: PedidoCriarAtualizar) -> Pedido | None:
+                        pedido: PedidoCriarAtualizar) -> Pedido | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
                 "INSERT INTO pedidos(valor_total, observacoes, id_pagamento, id_carrinho, id_cupom, id_servico) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id_pedido",
                 (pedido.valor_total, pedido.observacoes, pedido.id_pagamento, pedido.id_carrinho, pedido.id_cupom, pedido.id_servico)
             )
-            id_pedido = cursor.fetchone()[0]
+            id_pedido = cursor.fetchone()[0]#type:ignore
             return Pedido(
                 id_pedido=id_pedido,
                 valor_total=pedido.valor_total,

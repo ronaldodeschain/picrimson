@@ -60,7 +60,7 @@ class FavoritosRepository:
                 "INSERT INTO favoritos (id_produto, id_usuario) VALUES (%s, %s) RETURNING id_favoritos",
                 (favorito.id_produto, favorito.id_usuario)
             )
-            id_favoritos = cursor.fetchone()[0]
+            id_favoritos = cursor.fetchone()[0]#type:ignore
             return Favoritos(
                 id_favoritos=id_favoritos,
                 id_produto=favorito.id_produto,
