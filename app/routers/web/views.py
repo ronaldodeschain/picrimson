@@ -185,8 +185,6 @@ async def produto_detail(
     imagens_prod = [img for img in imagens if img.id_produto == produto_id]
     if not produto:
         return templates.TemplateResponse("home.html", {"request": request, "titulo": "Produto não encontrado", "produtos": [], "user": None, "is_admin": False, "year": datetime.utcnow().year})
-    # determine favorite state for current user
-    # instantiate repos directly from database factory (not via Depends)
     usuario_repo_inst = UsuarioRepository(dependencies.get_database())
     usuario = await get_authenticated_usuario(request, usuario_repo_inst)
     is_favorited = False
@@ -754,14 +752,14 @@ async def servicos(request: Request):
             "cta": "Solicitar orçamento",
             "badge": "Precisão extrema"
         },
-        {
-            "titulo": "Modelagem 3D",
-            "descricao": "Criação de modelos digitais a partir de referências ou briefing para produção 3D e impressão perfeita.",
-            "exemplos": "Personagens personalizados, bustos temáticos, conceitos para jogos e peças exclusivas.",
-            "preco": "Orçamento a partir de R$ 250,00 por projeto, com entrega de arquivo pronto para impressão.",
-            "cta": "Solicitar orçamento",
-            "badge": "Design pronto para impressão"
-        },
+        # {
+        #     "titulo": "Modelagem 3D",
+        #     "descricao": "Criação de modelos digitais a partir de referências ou briefing para produção 3D e impressão perfeita.",
+        #     "exemplos": "Personagens personalizados, bustos temáticos, conceitos para jogos e peças exclusivas.",
+        #     "preco": "Orçamento a partir de R$ 250,00 por projeto, com entrega de arquivo pronto para impressão.",
+        #     "cta": "Solicitar orçamento",
+        #     "badge": "Design pronto para impressão"
+        # },
         {
             "titulo": "Pintura artística",
             "descricao": "Acabamento manual premium com pintura realista, sombreado e texturização em peças impressas.",

@@ -17,13 +17,11 @@ class ProdutoRepository:
     ) -> list[Produto]:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            # JOIN para buscar a URL da primeira imagem associada ao produto
-            # Use a subquery to get the first image per product (compatible with SQLite and Postgres)
             cursor.execute("""
                 SELECT p.id_produto, p.nome_produto, p.descricao, p.material,
-                       p.altura, p.comprimento, p.largura, p.quantidade, p.peso, p.valor,
-                       p.id_categoria,
-                       i.id_imagem_produto, i.nome_imagem, i.arquivo_imagem
+                    p.altura, p.comprimento, p.largura, p.quantidade, p.peso, p.valor,
+                    p.id_categoria,
+                    i.id_imagem_produto, i.nome_imagem, i.arquivo_imagem
                 FROM produtos p
                 LEFT JOIN imagem_produtos i ON i.id_imagem_produto = (
                     SELECT id_imagem_produto FROM imagem_produtos WHERE id_produto = p.id_produto ORDER BY id_imagem_produto LIMIT 1
@@ -68,12 +66,11 @@ class ProdutoRepository:
     async def get_produto(self, produto_id: int) -> Produto | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
-            # Use subquery join and inline the id to avoid placeholder style differences between DB drivers
             cursor.execute(f"""
                 SELECT p.id_produto, p.nome_produto, p.descricao, p.material,
-                       p.altura, p.comprimento, p.largura, p.quantidade, p.peso, p.valor,
-                       p.id_categoria,
-                       i.id_imagem_produto, i.nome_imagem, i.arquivo_imagem
+                    p.altura, p.comprimento, p.largura, p.quantidade, p.peso, p.valor,
+                    p.id_categoria,
+                    i.id_imagem_produto, i.nome_imagem, i.arquivo_imagem
                 FROM produtos p
                 LEFT JOIN imagem_produtos i ON i.id_imagem_produto = (
                     SELECT id_imagem_produto FROM imagem_produtos WHERE id_produto = p.id_produto ORDER BY id_imagem_produto LIMIT 1
@@ -131,7 +128,7 @@ class ProdutoRepository:
             )
 
     async def update_produto(self, produto_id: int,
-                             produto: ProdutoCriarAtualizar) -> Produto | None:
+                            produto: ProdutoCriarAtualizar) -> Produto | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
