@@ -63,6 +63,7 @@ class Database:
                     id_avaliacoes INTEGER,
                     id_pergunta INTEGER,
                     id_resposta INTEGER,
+                    autenticado TEXT DEFAULT 'nao_autenticado',
                     role TEXT DEFAULT 'user'
                 );
 

@@ -6,6 +6,7 @@ class Usuario(BaseModel):
     login:str
     senha:str
     cpf:str
+    autenticado:str = "nao_autenticado"
     role:str = "user"
 
 class UsuarioCriarAtualizar(BaseModel):
@@ -13,6 +14,7 @@ class UsuarioCriarAtualizar(BaseModel):
     login:str
     senha:str
     cpf:str
+    autenticado:str = "nao_autenticado"
     role:str = "user"
 
 class UsuarioResposta(BaseModel):

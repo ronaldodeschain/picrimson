@@ -18,8 +18,9 @@ class UsuarioRepository:
                     nome_usuario=linha[1],
                     login=linha[2],
                     senha=linha[3],
-                    cpf=linha[4]
-                    , role=linha[14] if len(linha) > 14 else "user"
+                    cpf=linha[4],
+                    autenticado=linha[14] if len(linha) > 14 else "nao_autenticado",
+                    role=linha[15] if len(linha) > 15 else (linha[14] if len(linha) > 14 else "user")
                 ) for linha in linhas
             ]
     
@@ -38,7 +39,8 @@ class UsuarioRepository:
                     login=linha[2],
                     senha=linha[3],
                     cpf=linha[4],
-                    role=linha[14] if len(linha) > 14 else "user" # Ajustado para o schema do Postgres
+                    autenticado=linha[14] if len(linha) > 14 else "nao_autenticado",
+                    role=linha[15] if len(linha) > 15 else (linha[14] if len(linha) > 14 else "user")
                 )
             return None
             
@@ -58,7 +60,8 @@ class UsuarioRepository:
                     login=linha[2],
                     senha=linha[3],
                     cpf=linha[4]
-                        , role=linha[14] if len(linha) > 14 else "user"
+                    , autenticado=linha[14] if len(linha) > 14 else "nao_autenticado"
+                    , role=linha[15] if len(linha) > 15 else (linha[14] if len(linha) > 14 else "user")
                 )
             return None
 
@@ -77,7 +80,8 @@ class UsuarioRepository:
                     login=linha[2],
                     senha=linha[3],
                     cpf=linha[4],
-                    role=linha[14] if len(linha) > 14 else "user"
+                    autenticado=linha[14] if len(linha) > 14 else "nao_autenticado",
+                    role=linha[15] if len(linha) > 15 else (linha[14] if len(linha) > 14 else "user")
                 )
             return None
 
@@ -86,8 +90,8 @@ class UsuarioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO usuarios(nome_usuario,login,senha,cpf,role) values(%s,%s,%s,%s,%s) RETURNING id_usuario",
-                (usuario.nome_usuario,usuario.login,usuario.senha,usuario.cpf, usuario.role)
+                "INSERT INTO usuarios(nome_usuario,login,senha,cpf,autenticado,role) values(%s,%s,%s,%s,%s,%s) RETURNING id_usuario",
+                (usuario.nome_usuario,usuario.login,usuario.senha,usuario.cpf,usuario.autenticado , usuario.role)
             )
             id_user = cursor.fetchone()[0]#type:ignore
             return Usuario(
@@ -96,6 +100,7 @@ class UsuarioRepository:
                 login=usuario.login,
                 senha=usuario.senha,
                 cpf=usuario.cpf,
+                autenticado=usuario.autenticado,
                 role=usuario.role
             )
     
@@ -104,8 +109,8 @@ class UsuarioRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE usuarios SET nome_usuario=%s, login=%s, senha=%s, cpf=%s, role=%s WHERE id_usuario=%s",
-                (usuario.nome_usuario, usuario.login, usuario.senha, usuario.cpf, usuario.role, usuario_id)
+                "UPDATE usuarios SET nome_usuario=%s, login=%s, senha=%s, cpf=%s, autenticado=%s, role=%s WHERE id_usuario=%s",
+                (usuario.nome_usuario, usuario.login, usuario.senha, usuario.cpf, usuario.autenticado, usuario.role, usuario_id)
             )  
             if cursor.rowcount == 0:
                 return None
@@ -115,6 +120,7 @@ class UsuarioRepository:
                 login=usuario.login,
                 senha=usuario.senha,
                 cpf=usuario.cpf,
+                autenticado=usuario.autenticado,
                 role=usuario.role
             )
 

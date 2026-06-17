@@ -11,12 +11,12 @@ def populate_all_tables():
 
             # 1. Usuários (Admin e Cliente de Teste)
             usuarios = [
-                ('Admin Crimson', 'admin@crimson.com', 'admin123', '111.111.111-11', 'admin'),
-                ('Ronaldo Lemos', 'ronaldo@teste.com', 'cliente123', '222.222.222-22', 'user')
+                ('Admin Crimson', 'admin@crimson.com', 'admin123', '111.111.111-11', 'autenticado', 'admin'),
+                ('Ronaldo Lemos', 'ronaldo@teste.com', 'cliente123', '222.222.222-22', 'nao_autenticado', 'user')
             ]
             cursor.executemany("""
-                INSERT INTO usuarios (nome_usuario, login, senha, cpf, role) 
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO usuarios (nome_usuario, login, senha, cpf, autenticado, role) 
+                VALUES (%s, %s, %s, %s, %s, %s)
             """, usuarios)
             print("- Tabela 'usuarios' populada.")
 

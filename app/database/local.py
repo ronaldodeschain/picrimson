@@ -78,6 +78,7 @@ class Database():
                     id_avaliacoes INTEGER,
                     id_pergunta INTEGER,
                     id_resposta INTEGER,
+                    autenticado TEXT DEFAULT 'nao_autenticado',
                     role TEXT DEFAULT 'user'
                 );
 
@@ -313,4 +314,9 @@ class Database():
             columns = [row[1] for row in cursor.fetchall()]
             if "id_pergunta" not in columns:
                 cursor.execute("ALTER TABLE resposta ADD COLUMN id_pergunta INTEGER")
+
+            cursor.execute("PRAGMA table_info(usuarios)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if "autenticado" not in columns:
+                cursor.execute("ALTER TABLE usuarios ADD COLUMN autenticado TEXT DEFAULT 'nao_autenticado'")
         print("Banco de dados criado com sucesso!")

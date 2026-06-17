@@ -92,6 +92,7 @@ async def populate_all_tables():
         login="admin",
         senha="admin123",
         cpf="00000000000",
+        autenticado="autenticado",
         role="admin"
     )
     admin_criado = await usuario_repo.criar_usuario(admin_usuario)
