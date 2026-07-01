@@ -473,7 +473,6 @@ async def cadastro(request: Request):
         "success": False,
         "nome": "",
         "email": "",
-        "cpf": "",
         "year": datetime.utcnow().year,
     })
 
@@ -486,7 +485,6 @@ async def cadastro_submit(
     nome: str = Form(...),
     email: str = Form(...),
     senha: str = Form(...),
-    cpf: str = Form(...),
 ):
     from app.services.usuario_service import UsuarioService
     # Instancia repositórios extras necessários para o serviço
@@ -494,12 +492,12 @@ async def cadastro_submit(
     tel_repo = dependencies.get_telefone_repository(dependencies.get_database())
     
     service = UsuarioService(usuario_repo, email_repo, end_repo, tel_repo)
-    usuario, erro = await service.registrar_usuario(nome, email, senha, cpf)
+    usuario, erro = await service.registrar_usuario(nome, email, senha)
 
     if erro:
         return templates.TemplateResponse("cadastro.html", {
             "request": request, "user": None, "is_admin": False, "success": False,
-            "error": erro, "nome": nome, "email": email, "cpf": cpf, "year": datetime.utcnow().year,
+            "error": erro, "nome": nome, "email": email, "year": datetime.utcnow().year,
         })
 
     # Gerar token de confirmação de email
@@ -525,9 +523,49 @@ async def cadastro_submit(
     except Exception as e:
         print(f"Erro ao gerar token de confirmação: {e}")
 
-    return templates.TemplateResponse("cadastro.html", {
-        "request": request, "user": None, "is_admin": False, "success": True,
-        "error": None, "nome": nome, "email": email, "cpf": cpf, "year": datetime.utcnow().year,
+    request.session["cadastro_email"] = email
+    return RedirectResponse(url="/cadastro/sucesso", status_code=303)
+
+
+@router.get("/cadastro/sucesso", response_class=HTMLResponse)
+async def cadastro_sucesso(request: Request):
+    email = request.session.pop("cadastro_email", None)
+    if not email:
+        return RedirectResponse(url="/cadastro", status_code=302)
+    return templates.TemplateResponse("cadastro_sucesso.html", {
+        "request": request, "user": None, "is_admin": False,
+        "email": email, "reenvio_ok": False, "reenvio_erro": None,
+        "year": datetime.utcnow().year,
+    })
+
+
+@router.post("/cadastro/reenviar", response_class=HTMLResponse)
+async def cadastro_reenviar(
+    request: Request,
+    email: str = Form(...),
+):
+    db = dependencies.get_database()
+    confirmacao_service = ConfirmacaoEmailService(db)
+    usuario_repo = UsuarioRepository(db)
+    usuario = await usuario_repo.get_usuario_por_email(email)
+    reenvio_ok = False
+    reenvio_erro = None
+    if usuario and usuario.id_usuario:
+        try:
+            token = confirmacao_service.criar_token_confirmacao(email, usuario.id_usuario)
+            url_base = str(request.base_url).rstrip("/")
+            enviado = await confirmacao_service.enviar_email_confirmacao(email, usuario.nome_usuario, token, url_base)
+            reenvio_ok = enviado
+            if not enviado:
+                reenvio_erro = "Não foi possível enviar o e-mail. Tente novamente mais tarde."
+        except Exception:
+            reenvio_erro = "Erro ao reenviar. Tente novamente mais tarde."
+    else:
+        reenvio_erro = "E-mail não encontrado."
+    return templates.TemplateResponse("cadastro_sucesso.html", {
+        "request": request, "user": None, "is_admin": False,
+        "email": email, "reenvio_ok": reenvio_ok, "reenvio_erro": reenvio_erro,
+        "year": datetime.utcnow().year,
     })
 
 

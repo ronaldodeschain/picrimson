@@ -4,8 +4,6 @@ from app.models.usuario import UsuarioCriarAtualizar
 from app.models.email import EmailCriarAtualizar
 from app.models.endereco import EnderecoCriarAtualizar
 from app.models.telefone import TelefoneCriarAtualizar
-from validate_docbr import CPF
-
 class UsuarioService:
     def __init__(self, usuario_repo, email_repo, endereco_repo, telefone_repo):
         self.usuario_repo = usuario_repo
@@ -13,28 +11,23 @@ class UsuarioService:
         self.endereco_repo = endereco_repo
         self.telefone_repo = telefone_repo
 
-    async def registrar_usuario(self, nome, email, senha, cpf):
-        """Encapsula a lógica de cadastro e validações de e-mail e CPF."""
+    async def registrar_usuario(self, nome, email, senha):
+        """Encapsula a lógica de cadastro e validações de e-mail."""
         # 0. Validação de campos obrigatórios
-        if not nome or not nome.strip() or not email or not email.strip() or not senha or not senha.strip() or not cpf or not cpf.strip():
+        if not nome or not nome.strip() or not email or not email.strip() or not senha or not senha.strip():
             return None, "Todos os campos obrigatórios devem ser preenchidos."
 
         if len(senha.strip()) < 6:
             return None, "A senha deve ter pelo menos 6 caracteres."
 
-        # 1. Validação de CPF
-        cpf_validador = CPF()
-        if not cpf_validador.validate(cpf):
-            return None, "CPF inválido. Verifique o número informado."
-        
-        # 2. Validação de email existente
+        # 1. Validação de email existente
         email_existente = await self.email_repo.get_email_por_valor(email)
         if email_existente:
             return None, "Este e-mail já está cadastrado no sistema."
 
         # 2. Criar Usuário
         novo_usuario = UsuarioCriarAtualizar(
-            nome_usuario=nome, login=email, senha=senha, cpf=cpf, role="user"
+            nome_usuario=nome, login=email, senha=senha, role="user"
         )
         usuario = await self.usuario_repo.criar_usuario(novo_usuario)
         

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Conta criada - Crimson Claw Studio{% endblock %}
+
+{% block content %}
+<div class="container login-page">
+	<section class="login-card card sucesso-card">
+		<div class="sucesso-icon">📩</div>
+		<h1>Conta criada com sucesso!</h1>
+		<p class="sucesso-desc">
+			Enviamos um e-mail para <strong>{{ email }}</strong> para você ativar sua conta.<br>
+			Verifique sua caixa de entrada e clique no link para continuar.
+		</p>
+
+		<div class="sucesso-hint">
+			<span>📩</span>
+			<div>
+				<strong>Não encontrou o e-mail?</strong>
+				<p>Verifique sua pasta de spam ou solicite o reenvio abaixo.</p>
+			</div>
+		</div>
+
+		{% if reenvio_ok %}
+		<div class="alert alert-success">E-mail reenviado com sucesso!</div>
+		{% endif %}
+		{% if reenvio_erro %}
+		<div class="alert alert-danger">{{ reenvio_erro }}</div>
+		{% endif %}
+
+		<form method="post" action="/cadastro/reenviar" class="form-reenvio">
+			<input type="hidden" name="email" value="{{ email }}">
+			<button type="submit" class="btn btn-secondary">Reenviar e-mail de ativação</button>
+		</form>
+
+		<a href="/login.html" class="btn btn-primary" style="margin-top:0.5rem">Ir para o login</a>
+	</section>
+</div>
+{% endblock %}
