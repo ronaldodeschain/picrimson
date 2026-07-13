@@ -1,5 +1,6 @@
 from datetime import date
 from pydantic import BaseModel
+from typing import Optional
 
 class NotaFiscal(BaseModel):
     id_nota_fiscal:int
@@ -8,9 +9,9 @@ class NotaFiscal(BaseModel):
     serie:str
     numero:int
     status:str
-    id_caixa:int
-    id_pagamento:int
-    id_mensagem:int
+    id_caixa:Optional[int] = None
+    id_pagamento:Optional[int] = None
+    id_mensagem:Optional[int] = None
 
 class NotaFiscalCriarAtualizar(BaseModel):
     forma_pagamento:str
@@ -18,6 +19,6 @@ class NotaFiscalCriarAtualizar(BaseModel):
     serie:str
     numero:int
     status:str
-    id_caixa:int
-    id_pagamento:int
-    id_mensagem:int
+    id_caixa:Optional[int] = None
+    id_pagamento:Optional[int] = None
+    id_mensagem:Optional[int] = None

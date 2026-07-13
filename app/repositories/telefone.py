@@ -16,8 +16,8 @@ class TelefoneRepository:
             return [
                 Telefone(
                     id_telefone=linha[0],
-                    telefone_principal=linha[1],
-                    telefone_secundario=linha[2],
+                    telefone_principal=str(linha[1]) if linha[1] is not None else "",
+                    telefone_secundario=str(linha[2]) if linha[2] is not None else "",
                     id_usuario=linha[3]
                 ) for linha in linhas
             ]
@@ -33,8 +33,8 @@ class TelefoneRepository:
             if linha:
                 return Telefone(
                     id_telefone=linha[0],
-                    telefone_principal=linha[1],
-                    telefone_secundario=linha[2],
+                    telefone_principal=str(linha[1]) if linha[1] is not None else "",
+                    telefone_secundario=str(linha[2]) if linha[2] is not None else "",
                     id_usuario=linha[3]
                 )
             return None
@@ -50,8 +50,8 @@ class TelefoneRepository:
             if linha:
                 return Telefone(
                     id_telefone=linha[0],
-                    telefone_principal=linha[1],
-                    telefone_secundario=linha[2],
+                    telefone_principal=str(linha[1]) if linha[1] is not None else "",
+                    telefone_secundario=str(linha[2]) if linha[2] is not None else "",
                     id_usuario=linha[3]
                 )
             return None

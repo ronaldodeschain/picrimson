@@ -1,5 +1,6 @@
 from datetime import date
 from pydantic import BaseModel
+from typing import Optional
 
 class Entrega(BaseModel):
     id_entrega:int
@@ -12,8 +13,8 @@ class Entrega(BaseModel):
     observacoes:str
     data_pedido:date
     status_entrega:str
-    id_pedido:int
-    id_rastreio:int
+    id_pedido:Optional[int] = None
+    id_rastreio:Optional[int] = None
 
 class EntregaCriarAtualizar(BaseModel):
     mensagem:str
@@ -25,5 +26,5 @@ class EntregaCriarAtualizar(BaseModel):
     observacoes:str
     data_pedido:date
     status_entrega:str
-    id_pedido:int
-    id_rastreio:int
+    id_pedido:Optional[int] = None
+    id_rastreio:Optional[int] = None

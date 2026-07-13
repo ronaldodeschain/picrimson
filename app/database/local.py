@@ -319,4 +319,10 @@ class Database():
             columns = [row[1] for row in cursor.fetchall()]
             if "autenticado" not in columns:
                 cursor.execute("ALTER TABLE usuarios ADD COLUMN autenticado TEXT DEFAULT 'nao_autenticado'")
+
+            cursor.execute("PRAGMA table_info(orcamentos)")
+            columns = [row[1] for row in cursor.fetchall()]
+            for col, tipo in [("nome", "TEXT"), ("contato", "TEXT"), ("tipo_projeto", "TEXT"), ("descricao", "TEXT"), ("tamanho_desejado", "TEXT")]:
+                if col not in columns:
+                    cursor.execute(f"ALTER TABLE orcamentos ADD COLUMN {col} {tipo}")
         print("Banco de dados criado com sucesso!")
