@@ -21,7 +21,7 @@
 			<span class="navbar__toggle-bar"></span>
 			<span class="navbar__toggle-bar"></span>
 		</button>
-		<nav id="main-navbar" class="navbar__nav" aria-hidden="true">
+		<nav id="main-navbar" class="navbar__nav">
 			<!-- nav menu items -->
 			<a href="/" class="navbar__link">Home</a>
 			<a href="/produtos" class="navbar__link">Produtos</a>
@@ -30,7 +30,7 @@
 			<a href="/sobre" class="navbar__link">Sobre</a>
 			<a href="/faq" class="navbar__link">FAQ</a>
 		</nav>
-		<div class="navbar__actions" aria-hidden="true">
+		<div class="navbar__actions">
 			{% set nav_user = user if user else request.state.user %}
 			{% set nav_admin = is_admin if is_admin else request.state.is_admin %}
 			{% set cart_count = request.session.cart|length if request.session and request.session.cart else 0 %}

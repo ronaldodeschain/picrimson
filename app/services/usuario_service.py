@@ -17,8 +17,8 @@ class UsuarioService:
         if not nome or not nome.strip() or not email or not email.strip() or not senha or not senha.strip():
             return None, "Todos os campos obrigatórios devem ser preenchidos."
 
-        if len(senha.strip()) < 6:
-            return None, "A senha deve ter pelo menos 6 caracteres."
+        if len(senha.strip()) < 8:
+            return None, "A senha deve ter pelo menos 8 caracteres."
 
         # 1. Validação de email existente
         email_existente = await self.email_repo.get_email_por_valor(email)

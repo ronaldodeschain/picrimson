@@ -4,7 +4,7 @@
   --panel: rgba(255, 255, 255, 0.06);
   --border: rgba(255, 255, 255, 0.12);
   --text: #f1f4ff;
-  --muted: rgba(255, 255, 255, 0.7);
+  --muted: rgba(255, 255, 255, 0.82);
   --primary: #57c7ff;
   --primary-dark: #2fa5d2;
   --danger: #ff5a5f;
@@ -434,6 +434,49 @@ body.navbar--menu-open {
   color: rgba(255, 255, 255, 0.55);
 }
 
+select.form-control {
+  background-color: #1a2030;
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2357c7ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+select.form-control option {
+  background-color: #1a2030;
+  color: var(--text);
+}
+
+select.form-control:focus {
+  background-color: #1e2638;
+}
+
+input[type="file"].form-control {
+  background-color: #1a2030;
+  color: var(--text);
+  cursor: pointer;
+}
+
+input[type="file"].form-control::file-selector-button {
+  background: rgba(87, 199, 255, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(87, 199, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  margin-right: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+input[type="file"].form-control::file-selector-button:hover {
+  background: rgba(87, 199, 255, 0.25);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -544,6 +587,27 @@ small {
   margin-bottom: 16px;
 }
 
+.senha-forca {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.senha-forca__barra {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.senha-forca__barra--fraca  { background: var(--danger); }
+.senha-forca__barra--media  { background: #f0a500; }
+.senha-forca__barra--forte  { background: #2ecc71; }
+
+.senha-feedback--warn { color: #f0a500; }
+
 .senha-feedback {
   font-size: 0.82rem;
   font-weight: 600;
@@ -622,6 +686,15 @@ small {
 .cadastro-link p {
   margin: 0;
   color: var(--muted);
+}
+
+.arquivo-erro {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--danger);
+  min-height: 1.2em;
 }
 
 .footer {

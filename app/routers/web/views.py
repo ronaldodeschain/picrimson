@@ -369,6 +369,31 @@ async def orcamento_submit(
     tamanho_desejado: str = Form(...),
     arquivo: UploadFile | None = File(None),
 ):
+    ALLOWED_EXT = {"stl", "obj", "3mf", "ply", "step", "stp", "jpg", "jpeg", "png", "webp", "gif", "pdf"}
+    MAX_BYTES = 20 * 1024 * 1024
+    tipos_projeto = [
+        "Impressão 3D personalizável",
+        "Modelagem 3D",
+        "Pintura artística/manual",
+        "Projeto para RPG ou diorama"
+    ]
+
+    def _erro(msg):
+        return templates.TemplateResponse("orcamento.html", {
+            "request": request, "titulo": "Orçamento", "tipos_projeto": tipos_projeto,
+            "success": False, "nome": nome, "user": None, "is_admin": False,
+            "arquivo_erro": msg, "year": datetime.utcnow().year,
+        })
+
+    if arquivo and arquivo.filename:
+        ext = arquivo.filename.rsplit(".", 1)[-1].lower() if "." in arquivo.filename else ""
+        if ext not in ALLOWED_EXT:
+            return _erro(f'Formato ".{ext}" não permitido. Envie STL, OBJ, 3MF, PLY, STEP ou imagem/PDF.')
+        conteudo = await arquivo.read()
+        if len(conteudo) > MAX_BYTES:
+            return _erro(f"Arquivo muito grande ({len(conteudo) / 1024 / 1024:.1f} MB). Máximo permitido: 20 MB.")
+        await arquivo.seek(0)
+
     upload_path = None
     if arquivo and arquivo.filename:
         uploads_dir = Path("app/static/uploads")
@@ -875,6 +900,17 @@ async def toggle_favoritar(
     if referer:
         return RedirectResponse(url=referer, status_code=303)
     return RedirectResponse(url=f"/produto/{produto_id}", status_code=303)
+
+
+@router.get("/faq", response_class=HTMLResponse)
+async def faq(request: Request):
+    return templates.TemplateResponse("faq.html", {
+        "request": request,
+        "titulo": "FAQ – Perguntas Frequentes",
+        "user": None,
+        "is_admin": False,
+        "year": datetime.utcnow().year,
+    })
 
 
 @router.get("/favoritar/remove/{produto_id}")

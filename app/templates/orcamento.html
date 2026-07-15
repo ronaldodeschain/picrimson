@@ -3,7 +3,7 @@
 {% block title %}{{ titulo }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/orcamento.css">
 {% endblock %}
 
 {% block content %}
@@ -16,9 +16,15 @@
         </div>
 
         {% if success %}
-        <div class="alert alert-success p-4 mb-4" role="alert">
+        <div class="alert alert-success p-4 mb-4" role="alert" aria-live="polite">
             <h4 class="alert-heading">Recebemos seu pedido!</h4>
             <p>Obrigado, {{ nome }}. Sua solicitação foi enviada com sucesso. Nossa equipe entrará em contato em até 24 horas.</p>
+        </div>
+        {% endif %}
+
+        {% if arquivo_erro %}
+        <div class="alert alert-danger p-4 mb-4" role="alert" aria-live="assertive">
+            {{ arquivo_erro }}
         </div>
         {% endif %}
 
@@ -47,8 +53,13 @@
                     </div>
                     <div class="form-group mb-3">
                         <label for="arquivo" class="form-label">Upload de arquivo</label>
-                        <input type="file" id="arquivo" name="arquivo" class="form-control" accept=".stl,.obj,.jpg,.png,.jpeg,.pdf" />
-                        <small class="form-text text-muted">Envie STL, imagem de referência ou arquivo de sketch.</small>
+                        <input type="file" id="arquivo" name="arquivo" class="form-control"
+                            accept=".stl,.obj,.3mf,.ply,.step,.stp,.jpg,.jpeg,.png,.webp,.gif,.pdf"
+                            aria-describedby="arquivo-hint arquivo-erro" />
+                        <small id="arquivo-hint" class="form-text text-muted">
+                            Formatos aceitos: STL, OBJ, 3MF, PLY, STEP — imagens (JPG, PNG, WEBP, GIF) — PDF. Máx. 20 MB.
+                        </small>
+                        <span id="arquivo-erro" class="arquivo-erro" role="alert" aria-live="assertive"></span>
                     </div>
                     <div class="form-group mb-4">
                         <label for="tamanho_desejado" class="form-label">Tamanho desejado</label>
@@ -82,4 +93,39 @@
         </div>
     </section>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    const ALLOWED = new Set(['stl','obj','3mf','ply','step','stp','jpg','jpeg','png','webp','gif','pdf']);
+    const MAX_MB  = 20;
+    const input   = document.getElementById('arquivo');
+    const erro    = document.getElementById('arquivo-erro');
+    const form    = input.closest('form');
+
+    function validate(file) {
+        if (!file) { erro.textContent = ''; return true; }
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!ALLOWED.has(ext)) {
+            erro.textContent = `Formato ".${ext}" não permitido. Use STL, OBJ, 3MF, PLY, STEP ou imagem/PDF.`;
+            return false;
+        }
+        if (file.size > MAX_MB * 1024 * 1024) {
+            erro.textContent = `Arquivo muito grande (${(file.size / 1024 / 1024).toFixed(1)} MB). Máximo: ${MAX_MB} MB.`;
+            return false;
+        }
+        erro.textContent = '';
+        return true;
+    }
+
+    input.addEventListener('change', () => validate(input.files[0]));
+    form.addEventListener('submit', (e) => {
+        if (!validate(input.files[0])) {
+            e.preventDefault();
+            input.focus();
+        }
+    });
+})();
+</script>
 {% endblock %}

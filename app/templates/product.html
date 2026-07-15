@@ -15,11 +15,11 @@
                     <img src="{{ imagens[0].arquivo_imagem }}" alt="{{ produto.nome_produto }}" class="main-image">
                     <div class="thumbs mt-2 d-flex gap-2">
                         {% for img in imagens %}
-                            <img src="{{ img.arquivo_imagem }}" class="thumb" data-src="{{ img.arquivo_imagem }}">
+                            <img src="{{ img.arquivo_imagem }}" class="thumb" data-src="{{ img.arquivo_imagem }}" alt="{{ img.nome_imagem }}">
                         {% endfor %}
                     </div>
                 {% else %}
-                    <img src="https://via.placeholder.com/600x450?text=Sem+Imagem" class="main-image">
+                    <img src="https://via.placeholder.com/600x450?text=Sem+Imagem" class="main-image" alt="Imagem não disponível para {{ produto.nome_produto }}">
                 {% endif %}
             </div>
         </div>
@@ -69,19 +69,15 @@
                     <button type="submit" name="action" value="add" class="btn btn-success">Adicionar ao carrinho</button>
                 </div>
             </form>
-            <div class="mb-3">
-            </br>
-            </div>
 
             <div class="mb-3">
                 <form action="/favoritar" method="post" style="display:inline">
                     <input type="hidden" name="produto_id" value="{{ produto.id_produto }}">
-                    <button type="submit" class="btn btn-light">
-                        {% if is_favorited %}
-                            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritado
-                        {% else %}
-                            <i class="fa-regular fa-star" aria-hidden="true"></i> Favoritar
-                        {% endif %}
+                    <button type="submit" class="btn btn-light"
+                        aria-pressed="{% if is_favorited %}true{% else %}false{% endif %}"
+                        aria-label="{% if is_favorited %}Remover {{ produto.nome_produto }} dos favoritos{% else %}Adicionar {{ produto.nome_produto }} aos favoritos{% endif %}">
+                        <i class="{% if is_favorited %}fa-solid{% else %}fa-regular{% endif %} fa-star" aria-hidden="true"></i>
+                        <span aria-hidden="true">{% if is_favorited %}Favoritado{% else %}Favoritar{% endif %}</span>
                     </button>
                 </form>
             </div>

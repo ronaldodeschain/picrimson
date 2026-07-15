@@ -1,5 +1,188 @@
 {% extends "base.html" %}
 
-{% block title %}{{ titulo }}{% endblock %}
+{% block title %}FAQ – Perguntas Frequentes | Crimson Claw Studio{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="/static/css/faq.css">
+{% endblock %}
+
+{% block content %}
+<div class="faq-page">
+
+    <div class="faq-hero">
+        <h1>Perguntas Frequentes</h1>
+        <p>Tudo o que você precisa saber antes de fazer seu pedido.</p>
+    </div>
+
+    <!-- ── CADASTRO E CONTA ─────────────────────────────────── -->
+    <section aria-labelledby="faq-cadastro">
+        <h2 id="faq-cadastro" class="faq-section-title">
+            <i class="fas fa-user-circle" aria-hidden="true"></i> Cadastro e Conta
+        </h2>
+
+        <details class="faq-item">
+            <summary>Preciso criar uma conta para fazer um pedido?</summary>
+            <p>Sim. O cadastro é necessário para acompanhar seus pedidos, salvar favoritos e acessar o histórico de compras. O processo leva menos de 1 minuto.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Como faço meu cadastro?</summary>
+            <p>Clique em <strong>Criar conta</strong> no menu superior, preencha seu nome, e-mail e uma senha com no mínimo 8 caracteres. Após o cadastro, você receberá um e-mail de confirmação para ativar sua conta.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Não recebi o e-mail de confirmação. O que faço?</summary>
+            <p>Verifique a pasta de spam ou lixo eletrônico. Se não encontrar, acesse a <a href="/cadastro/sucesso">página de reenvio</a> e solicite um novo e-mail de ativação.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Posso alterar meus dados cadastrais?</summary>
+            <p>Sim, acesse <a href="/minha-conta">Minha Conta</a> após fazer login para atualizar suas informações.</p>
+        </details>
+    </section>
+
+    <!-- ── COMO COMPRAR ─────────────────────────────────────── -->
+    <section aria-labelledby="faq-compra">
+        <h2 id="faq-compra" class="faq-section-title">
+            <i class="fas fa-shopping-cart" aria-hidden="true"></i> Como Comprar
+        </h2>
+
+        <details class="faq-item">
+            <summary>Como faço um pedido de produto do catálogo?</summary>
+            <p>Navegue até <a href="/produtos">Produtos</a>, escolha o item desejado, selecione as variações (tamanho, material e pintura) e clique em <strong>Adicionar ao carrinho</strong>. Finalize o pedido pelo carrinho.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Posso pedir um modelo que não está no catálogo?</summary>
+            <p>Sim! Acesse <a href="/orcamento">Orçamento Personalizado</a>, descreva o projeto ou envie seu arquivo STL e entraremos em contato com prazo e valor.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Onde encontro modelos 3D para enviar no orçamento?</summary>
+            <p>Existem várias plataformas com modelos gratuitos e pagos:</p>
+            <ul class="faq-links">
+                <li>
+                    <a href="https://www.thingiverse.com" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> Thingiverse
+                    </a>
+                    — maior repositório gratuito de modelos 3D
+                </li>
+                <li>
+                    <a href="https://www.printables.com" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> Printables
+                    </a>
+                    — plataforma da Prusa com modelos gratuitos e comunidade ativa
+                </li>
+                <li>
+                    <a href="https://cults3d.com" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> Cults3D
+                    </a>
+                    — modelos gratuitos e premium, forte em miniaturas e arte
+                </li>
+                <li>
+                    <a href="https://www.myminifactory.com" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> MyMiniFactory
+                    </a>
+                    — especializado em miniaturas para RPG e colecionáveis
+                </li>
+            </ul>
+            <p>Após encontrar o modelo, baixe o arquivo <strong>.STL</strong> ou <strong>.OBJ</strong> e anexe no formulário de orçamento.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Posso salvar produtos para comprar depois?</summary>
+            <p>Sim. Em cada página de produto há o botão <strong>Favoritar</strong>. Seus favoritos ficam salvos em <a href="/minha-conta">Minha Conta</a>.</p>
+        </details>
+    </section>
+
+    <!-- ── PRAZOS ────────────────────────────────────────────── -->
+    <section aria-labelledby="faq-prazos">
+        <h2 id="faq-prazos" class="faq-section-title">
+            <i class="fas fa-clock" aria-hidden="true"></i> Prazos de Produção e Entrega
+        </h2>
+
+        <details class="faq-item">
+            <summary>Qual o prazo de produção?</summary>
+            <p>O prazo padrão é de <strong>7 a 14 dias úteis</strong> após a confirmação do pagamento. Projetos personalizados ou com pintura manual podem ter prazo estendido, informado no orçamento.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Qual o prazo de entrega após a produção?</summary>
+            <p>O envio é feito pelos Correios ou transportadora. O prazo varia conforme a região:</p>
+            <ul>
+                <li>Capitais e regiões Sul/Sudeste: 3 a 7 dias úteis</li>
+                <li>Demais regiões: 7 a 15 dias úteis</li>
+            </ul>
+            <p>O código de rastreio é enviado por e-mail assim que o pedido é despachado.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Vocês fazem envio para todo o Brasil?</summary>
+            <p>Sim, enviamos para todos os estados brasileiros.</p>
+        </details>
+    </section>
+
+    <!-- ── PAGAMENTO ─────────────────────────────────────────── -->
+    <section aria-labelledby="faq-pagamento">
+        <h2 id="faq-pagamento" class="faq-section-title">
+            <i class="fas fa-credit-card" aria-hidden="true"></i> Pagamento
+        </h2>
+
+        <details class="faq-item">
+            <summary>Quais formas de pagamento são aceitas?</summary>
+            <div class="faq-badge-dev">
+                <i class="fas fa-tools" aria-hidden="true"></i> Módulo de pagamento em desenvolvimento
+            </div>
+            <p>Estamos integrando as seguintes formas de pagamento:</p>
+            <ul>
+                <li>Pix (à vista)</li>
+                <li>Cartão de crédito (em até 6x sem juros)</li>
+                <li>Boleto bancário</li>
+            </ul>
+            <p>Enquanto o sistema não está disponível, os pedidos são combinados diretamente via WhatsApp ou e-mail.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>O pagamento é feito antes ou depois da produção?</summary>
+            <div class="faq-badge-dev">
+                <i class="fas fa-tools" aria-hidden="true"></i> Módulo de pagamento em desenvolvimento
+            </div>
+            <p>O pagamento é realizado <strong>antes do início da produção</strong>. A produção começa somente após a confirmação do pagamento.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Posso cancelar ou alterar meu pedido após o pagamento?</summary>
+            <p>Cancelamentos e alterações são aceitos em até <strong>24 horas</strong> após o pagamento, desde que a produção ainda não tenha iniciado. Entre em contato pelo WhatsApp o quanto antes.</p>
+        </details>
+    </section>
+
+    <!-- ── PRODUTOS E MATERIAIS ──────────────────────────────── -->
+    <section aria-labelledby="faq-produtos">
+        <h2 id="faq-produtos" class="faq-section-title">
+            <i class="fas fa-cube" aria-hidden="true"></i> Produtos e Materiais
+        </h2>
+
+        <details class="faq-item">
+            <summary>Qual a diferença entre PLA e Resina?</summary>
+            <p><strong>PLA (filamento)</strong> é ideal para peças maiores, decorativas e funcionais. Tem boa resistência e custo acessível.</p>
+            <p><strong>Resina</strong> oferece detalhamento muito superior, ideal para miniaturas de RPG, bustos e colecionáveis com detalhes finos. O acabamento é mais liso.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>O que inclui o serviço de pintura?</summary>
+            <p>A pintura é feita manualmente após o pós-processamento da peça. Inclui lixamento, primer, pintura base e detalhes. O estilo e as cores são combinados com o cliente antes do início.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>As peças são resistentes?</summary>
+            <p>Sim. Peças em PLA suportam uso decorativo e manuseio regular. Peças em resina são mais frágeis a impactos, mas têm acabamento superior. Para peças funcionais (engrenagens, suportes), recomendamos PLA ou PETG.</p>
+        </details>
+    </section>
+
+    <div class="faq-cta">
+        <p>Não encontrou sua resposta?</p>
+        <a href="/orcamento" class="btn btn-primary">Fale conosco</a>
+    </div>
+
+</div>
+{% endblock %}

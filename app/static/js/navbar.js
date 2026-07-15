@@ -5,6 +5,11 @@ const menu = document.querySelector('.navbar__nav');
 const actions = document.querySelector('.navbar__actions');
 const body = document.body;
 
+// Inicializa aria-hidden corretamente no carregamento
+const isMobile = () => window.innerWidth <= 840;
+if (menu) menu.setAttribute('aria-hidden', String(isMobile()));
+if (actions) actions.setAttribute('aria-hidden', String(isMobile()));
+
 // Prevent scroll/touch events when menu is open
 function preventScroll(e) {
     e.preventDefault();
@@ -24,21 +29,10 @@ if (toggle && navbar) {
 			// Menu is now open - prevent scroll
 			document.addEventListener('wheel', preventScroll, { passive: false });
 			document.addEventListener('touchmove', preventScroll, { passive: false });
-			document.addEventListener('keydown', (e) => {
-				// Prevent arrow keys and spacebar
-				if ([32, 37, 38, 39, 40].includes(e.keyCode)) {
-					preventScroll(e);
-				}
-			});
 		} else {
 			// Menu is now closed - allow scroll
 			document.removeEventListener('wheel', preventScroll);
 			document.removeEventListener('touchmove', preventScroll);
-			document.removeEventListener('keydown', (e) => {
-				if ([32, 37, 38, 39, 40].includes(e.keyCode)) {
-					preventScroll(e);
-				}
-			});
 		}
 
 		const expanded = toggle.getAttribute('aria-expanded') === 'true';
