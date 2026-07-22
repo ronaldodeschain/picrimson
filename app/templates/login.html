@@ -10,7 +10,11 @@
     <section class="login-card card">
         <div class="login-card__header">
             <h1>Entrar</h1>
+            {% if next == '/orcamento' %}
+            <p>Faça login para enviar seu pedido de orçamento.</p>
+            {% else %}
             <p>Use seu email e senha para acessar sua conta.</p>
+            {% endif %}
         </div>
         <form id="formLogin" class="form-login" action="/login.html" method="post">
         <div class="form-group">

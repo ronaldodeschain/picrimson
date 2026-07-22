@@ -18,8 +18,7 @@ class ProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute("""
-                SELECT p.id_produto, p.nome_produto, p.descricao, p.material,
-                    p.altura, p.comprimento, p.largura, p.quantidade, p.peso, p.valor,
+                SELECT p.id_produto, p.nome_produto, p.descricao, p.valor,
                     p.id_categoria,
                     i.id_imagem_produto, i.nome_imagem, i.arquivo_imagem
                 FROM produtos p
@@ -33,27 +32,19 @@ class ProdutoRepository:
                     id_produto=linha[0],
                     nome_produto=linha[1],
                     descricao=linha[2],
-                    material=linha[3],
-                    altura=linha[4],
-                    comprimento=linha[5],
-                    largura=linha[6],
-                    quantidade=linha[7],
-                    peso=linha[8],
-                    valor=linha[9],
-                    id_categoria=linha[10],
+                    valor=linha[3],
+                    id_categoria=linha[4],
                     imagens=[ImagemProduto(
-                        id_imagem_produto=linha[11],
-                        nome_imagem=linha[12],
-                        arquivo_imagem=linha[13],
+                        id_imagem_produto=linha[5],
+                        nome_imagem=linha[6],
+                        arquivo_imagem=linha[7],
                         id_produto=linha[0]
-                    )] if linha[11] else []
+                    )] if linha[5] else []
                 ) for linha in linhas
             ]
 
             def aplica_filtro(p: Produto) -> bool:
                 if categoria is not None and getattr(p, 'id_categoria', None) != categoria:
-                    return False
-                if material and material.lower() not in (p.material or '').lower():
                     return False
                 if preco_min is not None and (p.valor is None or p.valor < preco_min):
                     return False
@@ -67,8 +58,7 @@ class ProdutoRepository:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(f"""
-                SELECT p.id_produto, p.nome_produto, p.descricao, p.material,
-                    p.altura, p.comprimento, p.largura, p.quantidade, p.peso, p.valor,
+                SELECT p.id_produto, p.nome_produto, p.descricao, p.valor,
                     p.id_categoria,
                     i.id_imagem_produto, i.nome_imagem, i.arquivo_imagem
                 FROM produtos p
@@ -83,57 +73,42 @@ class ProdutoRepository:
                     id_produto=linha[0],
                     nome_produto=linha[1],
                     descricao=linha[2],
-                    material=linha[3],
-                    altura=linha[4],
-                    comprimento=linha[5],
-                    largura=linha[6],
-                    quantidade=linha[7],
-                    peso=linha[8],
-                    valor=linha[9],
-                    id_categoria=linha[10],
+                    valor=linha[3],
+                    id_categoria=linha[4],
                     imagens=[ImagemProduto(
-                        id_imagem_produto=linha[11],
-                        nome_imagem=linha[12],
-                        arquivo_imagem=linha[13],
+                        id_imagem_produto=linha[5],
+                        nome_imagem=linha[6],
+                        arquivo_imagem=linha[7],
                         id_produto=linha[0]
-                    )] if linha[11] else []
+                    )] if linha[5] else []
                 )
             return None
 
-    async def criar_produto(self,
-                            produto: ProdutoCriarAtualizar) -> Produto | None:
+    async def criar_produto(self, produto: ProdutoCriarAtualizar) -> Produto | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "INSERT INTO produtos(nome_produto, descricao, material, altura, comprimento, largura, quantidade, peso, valor, id_categoria) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id_produto",
-                (produto.nome_produto, produto.descricao, produto.material, produto.altura, produto.comprimento, produto.largura, produto.quantidade, produto.peso, produto.valor, produto.id_categoria)
+                "INSERT INTO produtos(nome_produto, descricao, valor, id_categoria) VALUES (%s, %s, %s, %s) RETURNING id_produto",
+                (produto.nome_produto, produto.descricao, produto.valor, produto.id_categoria)
             )
             row = cursor.fetchone()
             if not row:
                 return None
-            id_produto = row[0]
             return Produto(
-                id_produto=id_produto,
+                id_produto=row[0],
                 nome_produto=produto.nome_produto,
                 descricao=produto.descricao,
-                material=produto.material,
-                altura=produto.altura,
-                comprimento=produto.comprimento,
-                largura=produto.largura,
-                quantidade=produto.quantidade,
-                peso=produto.peso,
                 valor=produto.valor,
                 id_categoria=produto.id_categoria,
                 imagens=[]
             )
 
-    async def update_produto(self, produto_id: int,
-                            produto: ProdutoCriarAtualizar) -> Produto | None:
+    async def update_produto(self, produto_id: int, produto: ProdutoCriarAtualizar) -> Produto | None:
         with self.db.connect() as connexion:
             cursor = connexion.cursor()
             cursor.execute(
-                "UPDATE produtos SET nome_produto = %s, descricao = %s, material = %s, altura = %s, comprimento = %s, largura = %s, quantidade = %s, peso = %s, valor = %s, id_categoria = %s WHERE id_produto = %s",
-                (produto.nome_produto, produto.descricao, produto.material, produto.altura, produto.comprimento, produto.largura, produto.quantidade, produto.peso, produto.valor, produto.id_categoria, produto_id)
+                "UPDATE produtos SET nome_produto = %s, descricao = %s, valor = %s, id_categoria = %s WHERE id_produto = %s",
+                (produto.nome_produto, produto.descricao, produto.valor, produto.id_categoria, produto_id)
             )
             if cursor.rowcount == 0:
                 return None
@@ -141,12 +116,6 @@ class ProdutoRepository:
                 id_produto=produto_id,
                 nome_produto=produto.nome_produto,
                 descricao=produto.descricao,
-                material=produto.material,
-                altura=produto.altura,
-                comprimento=produto.comprimento,
-                largura=produto.largura,
-                quantidade=produto.quantidade,
-                peso=produto.peso,
                 valor=produto.valor,
                 id_categoria=produto.id_categoria,
                 imagens=[]

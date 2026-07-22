@@ -45,29 +45,16 @@ async def criar_produto(
     request: Request,
     nome_produto: str,
     descricao: str,
-    material: str,
-    altura: float,
-    comprimento: float,
-    largura: float,
-    quantidade: int,
-    peso: float,
     valor: float,
     id_categoria: int | None = None
 ):
     produto_criar = ProdutoCriarAtualizar(
         nome_produto=nome_produto,
         descricao=descricao,
-        material=material,
-        altura=altura,
-        comprimento=comprimento,
-        largura=largura,
-        quantidade=quantidade,
-        peso=peso,
         valor=valor,
         id_categoria=id_categoria
     )
-    produto = await produto_repository.criar_produto(produto_criar)
-    return produto
+    return await produto_repository.criar_produto(produto_criar)
 
 @router.put("/{produto_id}", response_model=ProdutoCriarAtualizar | None)
 async def update_produto(

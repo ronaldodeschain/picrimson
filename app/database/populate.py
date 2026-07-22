@@ -29,16 +29,14 @@ def populate_all_tables():
             cursor.executemany("INSERT INTO categorias (nome_categoria) VALUES (%s)", categorias)
             print("- Tabela 'categorias' populada.")
 
-            # 3. Produtos (Exemplo vinculado à categoria 1)
+            # 3. Produtos
             produtos = [
-                ('Estátua Crimson Claw', 'Estátua detalhada em resina', 'Resina', 30.0, 15.0, 15.0, 10, 1.5, 250.0, 1),
-                ('Chaveiro Garra', 'Chaveiro de metal personalizado', 'Metal', 5.0, 2.0, 0.5, 50, 0.05, 25.0, 3)
+                ('Estátua Crimson Claw', 'Estátua detalhada em resina', 250.0, 1),
+                ('Chaveiro Garra', 'Chaveiro de metal personalizado', 25.0, 3)
             ]
             cursor.executemany("""
-                INSERT INTO produtos (
-                    nome_produto, descricao, material, altura, comprimento, largura, 
-                    quantidade, peso, valor, id_categoria
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO produtos (nome_produto, descricao, valor, id_categoria)
+                VALUES (%s, %s, %s, %s)
             """, produtos)
             print("- Tabela 'produtos' populada.")
 
@@ -51,6 +49,19 @@ def populate_all_tables():
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, enderecos)
             print("- Tabela 'enderecos' populada.")
+
+            # 5. Avaliações (com destaque para exibir na home)
+            avaliacoes = [
+                ('A qualidade da impressão em resina superou minhas expectativas. Os detalhes da miniatura são incríveis!', 5.0, 1, 2, True),
+                ('Pedi um projeto exclusivo e serviu perfeitamente. Atendimento nota 10.', 5.0, 2, 2, True),
+                ('A pintura manual deu vida nova à minha estátua. Com certeza farei novos pedidos.', 4.0, 1, 2, True),
+                ('Produto chegou bem embalado e dentro do prazo. Recomendo!', 4.0, 2, 2, False),
+            ]
+            cursor.executemany("""
+                INSERT INTO avaliacoes (comentario, avaliacao, id_produto, id_usuario, destaque)
+                VALUES (%s, %s, %s, %s, %s)
+            """, avaliacoes)
+            print("- Tabela 'avaliacoes' populada.")
 
             print("\nSucesso! O banco de dados PostgreSQL foi populado corretamente.")
 

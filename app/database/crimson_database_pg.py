@@ -77,12 +77,6 @@ class Database:
                     id_produto SERIAL PRIMARY KEY,
                     nome_produto TEXT,
                     descricao TEXT,
-                    material TEXT,
-                    altura REAL,
-                    comprimento REAL,
-                    largura REAL,
-                    quantidade INTEGER,
-                    peso REAL,
                     valor REAL,
                     id_item_pedidos INTEGER,
                     id_categoria INTEGER,
@@ -151,7 +145,8 @@ class Database:
                     comentario TEXT,
                     avaliacao REAL,
                     id_produto INTEGER,
-                    id_usuario INTEGER
+                    id_usuario INTEGER,
+                    destaque BOOLEAN DEFAULT FALSE
                 );
 
                 CREATE TABLE IF NOT EXISTS pagamentos (
@@ -294,3 +289,27 @@ class Database:
                 );
             """)
         print("Banco de dados PostgreSQL criado com sucesso!")
+        self._migrate_produtos()
+        self._migrate_avaliacoes()
+
+    def _migrate_avaliacoes(self):
+        with self.connect() as connection:
+            cursor = connection.cursor()
+            cursor.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_name = 'avaliacoes' AND column_name = 'destaque'
+            """)
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE avaliacoes ADD COLUMN destaque BOOLEAN DEFAULT FALSE")
+
+    def _migrate_produtos(self):
+        cols = ['material', 'altura', 'comprimento', 'largura', 'quantidade', 'peso']
+        with self.connect() as connection:
+            cursor = connection.cursor()
+            for col in cols:
+                cursor.execute("""
+                    SELECT column_name FROM information_schema.columns
+                    WHERE table_name = 'produtos' AND column_name = %s
+                """, (col,))
+                if cursor.fetchone():
+                    cursor.execute(f"ALTER TABLE produtos DROP COLUMN {col}")

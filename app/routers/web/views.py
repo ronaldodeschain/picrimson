@@ -28,13 +28,16 @@ from app.services.confirmacao_email_service import ConfirmacaoEmailService
 @router.get("/", response_class=HTMLResponse)
 async def home(
     request: Request,
-    produto_repo: Annotated[ProdutoRepository, Depends(dependencies.get_produto_repository)]
+    produto_repo: Annotated[ProdutoRepository, Depends(dependencies.get_produto_repository)],
+    avaliacoes_repo: Annotated[AvaliacoesRepository, Depends(dependencies.get_avaliacoes_repository)]
 ):
     produtos = await produto_repo.listar_produtos()
+    testemunhos = await avaliacoes_repo.listar_avaliacoes_destaque()
     return templates.TemplateResponse("home.html", {
         "request": request,
         "titulo": "Crimson Claw Studio",
         "produtos": produtos,
+        "testemunhos": testemunhos,
         "user": None,
         "is_admin": False,
         "year": datetime.utcnow().year,
@@ -51,6 +54,7 @@ async def login(request: Request):
         "error": None,
         "remaining_attempts": None,
         "is_auth": True,
+        "next": request.session.get("next"),
         "year": datetime.utcnow().year,
     })
 
@@ -114,10 +118,11 @@ async def login_submit(
     login_service.reset_attempts(email)
 
     request.session["user_id"] = usuario.id_usuario
-    
+
     if usuario.role == "admin":
         return RedirectResponse(url="/admin/", status_code=303)
-    return RedirectResponse(url="/minha-conta", status_code=303)
+    next_url = request.session.pop("next", "/minha-conta")
+    return RedirectResponse(url=next_url, status_code=303)
 
 @router.get("/logout")
 async def logout(request: Request):
@@ -133,8 +138,6 @@ async def produtos(
     categoria: str | None = None,
     preco_min: str | None = None,
     preco_max: str | None = None,
-    material: str | None = None,
-    pintado: str | None = None,
 ):
     categorias = await categoria_repo.listar_categorias()
 
@@ -158,8 +161,7 @@ async def produtos(
     produtos = await produto_repo.listar_produtos(
         categoria=cat_id,
         preco_min=preco_min_val,
-        preco_max=preco_max_val,
-        material=material
+        preco_max=preco_max_val
     )
 
     return templates.TemplateResponse("products.html", {
@@ -193,6 +195,11 @@ async def produto_detail(
         favs = await fav_repo.listar_favoritos_por_usuario(usuario.id_usuario)
         is_favorited = any(f.id_produto == produto_id for f in favs)
     cart_message = request.session.pop("cart_message", None)
+    avaliacoes_repo = AvaliacoesRepository(dependencies.get_database())
+    avaliacoes = await avaliacoes_repo.listar_avaliacoes_por_produto(produto_id)
+    ja_avaliou = False
+    if usuario and usuario.id_usuario is not None:
+        ja_avaliou = await avaliacoes_repo.get_avaliacao_por_usuario_produto(usuario.id_usuario, produto_id) is not None
     return templates.TemplateResponse("product.html", {
         "request": request,
         "titulo": produto.nome_produto,
@@ -202,6 +209,8 @@ async def produto_detail(
         "is_admin": usuario.role == "admin" if usuario else False,
         "is_favorited": is_favorited,
         "cart_message": cart_message,
+        "avaliacoes": avaliacoes,
+        "ja_avaliou": ja_avaliou,
         "year": datetime.utcnow().year,
     })
 
@@ -341,6 +350,10 @@ async def carrinho(
 
 @router.get("/orcamento", response_class=HTMLResponse)
 async def orcamento(request: Request):
+    user = request.state.user
+    if not user:
+        request.session["next"] = "/orcamento"
+        return RedirectResponse(url="/login.html", status_code=302)
     tipos_projeto = [
         "Impressão 3D personalizável",
         "Modelagem 3D",
@@ -352,8 +365,8 @@ async def orcamento(request: Request):
         "titulo": "Orçamento",
         "tipos_projeto": tipos_projeto,
         "success": False,
-        "user": None,
-        "is_admin": False,
+        "user": user,
+        "is_admin": user.role == "admin" if user else False,
         "year": datetime.utcnow().year,
     })
 
@@ -363,12 +376,15 @@ async def orcamento_submit(
     request: Request,
     orcamento_repo: Annotated[dependencies.OrcamentoRepository, Depends(dependencies.get_orcamento_repository)],
     nome: str = Form(...),
-    contato: str = Form(...),
     tipo_projeto: str = Form(...),
     descricao: str = Form(...),
     tamanho_desejado: str = Form(...),
     arquivo: UploadFile | None = File(None),
 ):
+    user = request.state.user
+    if not user:
+        return RedirectResponse(url="/login.html", status_code=302)
+    contato = user.login
     ALLOWED_EXT = {"stl", "obj", "3mf", "ply", "step", "stp", "jpg", "jpeg", "png", "webp", "gif", "pdf"}
     MAX_BYTES = 20 * 1024 * 1024
     tipos_projeto = [
@@ -381,7 +397,8 @@ async def orcamento_submit(
     def _erro(msg):
         return templates.TemplateResponse("orcamento.html", {
             "request": request, "titulo": "Orçamento", "tipos_projeto": tipos_projeto,
-            "success": False, "nome": nome, "user": None, "is_admin": False,
+            "success": False, "nome": nome, "user": user,
+            "is_admin": user.role == "admin" if user else False,
             "arquivo_erro": msg, "year": datetime.utcnow().year,
         })
 
@@ -430,8 +447,8 @@ async def orcamento_submit(
         "tipos_projeto": tipos_projeto,
         "success": True,
         "nome": nome,
-        "user": None,
-        "is_admin": False,
+        "user": user,
+        "is_admin": user.role == "admin" if user else False,
         "year": datetime.utcnow().year,
     })
 
@@ -899,6 +916,28 @@ async def toggle_favoritar(
     referer = request.headers.get("referer")
     if referer:
         return RedirectResponse(url=referer, status_code=303)
+    return RedirectResponse(url=f"/produto/{produto_id}", status_code=303)
+
+
+@router.post("/avaliar")
+async def avaliar_produto(
+    request: Request,
+    avaliacoes_repo: Annotated[AvaliacoesRepository, Depends(dependencies.get_avaliacoes_repository)],
+    produto_id: int = Form(...),
+    avaliacao: float = Form(...),
+    comentario: str = Form(...),
+):
+    user = request.state.user
+    if not user or user.id_usuario is None:
+        return RedirectResponse(url="/login.html", status_code=302)
+    existente = await avaliacoes_repo.get_avaliacao_por_usuario_produto(user.id_usuario, produto_id)
+    if not existente:
+        from app.models.avaliacoes import AvaliacoesCriarAtualizar
+        nota = max(1.0, min(5.0, avaliacao))
+        await avaliacoes_repo.criar_avaliacao(AvaliacoesCriarAtualizar(
+            comentario=comentario, avaliacao=nota,
+            id_produto=produto_id, id_usuario=user.id_usuario
+        ))
     return RedirectResponse(url=f"/produto/{produto_id}", status_code=303)
 
 

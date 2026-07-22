@@ -18,7 +18,6 @@
                         <th>Nome</th>
                         <th>Categoria</th>
                         <th>Preço</th>
-                        <th>Estoque</th>
                         <th class="text-center">Ações</th>
                     </tr>
                 </thead>
@@ -38,7 +37,6 @@
                         <td class="align-middle"><strong>{{ produto.nome_produto }}</strong></td>
                         <td class="align-middle">{{ cat_map.get(produto.id_categoria, "Sem Categoria") }}</td>
                         <td class="align-middle">R$ {{ "%.2f"|format(produto.valor) }}</td>
-                        <td class="align-middle">{{ produto.quantidade }} unid.</td>
                         <td class="text-center align-middle">
                             <div class="btn-group">
                                 <a href="/admin/produtos/editar/{{ produto.id_produto }}" class="btn btn-sm btn-outline-primary" title="Editar">
@@ -54,7 +52,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">Nenhum produto encontrado na base de dados.</td>
+                        <td colspan="6" class="text-center py-4 text-muted">Nenhum produto encontrado na base de dados.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

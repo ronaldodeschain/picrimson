@@ -9,6 +9,7 @@ from app.repositories.produto import ProdutoRepository
 from app.repositories.orcamento import OrcamentoRepository
 from app.repositories.pergunta import PerguntaRepository
 from app.repositories.imagem_produto import ImagemProdutoRepository
+from app.repositories.avaliacoes import AvaliacoesRepository
 from app.models.produto import ProdutoCriarAtualizar
 from app.models.imagem_produto import ImagemProdutoCriarAtualizar
 from datetime import datetime
@@ -89,7 +90,41 @@ async def admin_excluir_produto(
     await produto_repo.delete_produto(produto_id)
     return RedirectResponse(url="/admin/produtos", status_code=303)
 
-@router.get("/produtos/novo", response_class=HTMLResponse)
+
+@router.get("/avaliacoes", response_class=HTMLResponse)
+async def admin_listar_avaliacoes(
+    request: Request,
+    _auth: Annotated[bool, Depends(ensure_admin)],
+    avaliacoes_repo: Annotated[AvaliacoesRepository, Depends(dependencies.get_avaliacoes_repository)],
+):
+    avaliacoes = await avaliacoes_repo.listar_avaliacoes_com_usuario_produto()
+    return templates.TemplateResponse("admin/avaliacoes_lista.html", {
+        "request": request,
+        "titulo": "Gerenciar Avaliações | Crimson Claw",
+        "user": request.state.user,
+        "avaliacoes": avaliacoes,
+        "year": datetime.utcnow().year,
+    })
+
+
+@router.post("/avaliacoes/{avaliacao_id}/destaque")
+async def admin_toggle_destaque(
+    avaliacao_id: int,
+    _auth: Annotated[bool, Depends(ensure_admin)],
+    avaliacoes_repo: Annotated[AvaliacoesRepository, Depends(dependencies.get_avaliacoes_repository)],
+):
+    await avaliacoes_repo.toggle_destaque(avaliacao_id)
+    return RedirectResponse(url="/admin/avaliacoes", status_code=303)
+
+
+@router.post("/avaliacoes/{avaliacao_id}/excluir")
+async def admin_excluir_avaliacao(
+    avaliacao_id: int,
+    _auth: Annotated[bool, Depends(ensure_admin)],
+    avaliacoes_repo: Annotated[AvaliacoesRepository, Depends(dependencies.get_avaliacoes_repository)],
+):
+    await avaliacoes_repo.delete_avaliacao(avaliacao_id)
+    return RedirectResponse(url="/admin/avaliacoes", status_code=303)
 async def admin_novo_produto_form(
     request: Request,
     _auth: Annotated[bool, Depends(ensure_admin)],
@@ -113,25 +148,18 @@ async def admin_criar_produto(
     imagem_repo: Annotated[ImagemProdutoRepository, Depends(dependencies.get_imagem_produto_repository)],
     nome_produto: str = Form(...),
     descricao: str = Form(...),
-    material: str = Form(...),
-    altura: float = Form(...),
-    comprimento: float = Form(...),
-    largura: float = Form(...),
-    quantidade: int = Form(...),
-    peso: float = Form(...),
     valor: float = Form(...),
     id_categoria: int = Form(...),
     imagem_arquivo: Optional[UploadFile] = File(None)
 ):
     from app.services.produto_service import ProdutoService
     service = ProdutoService(produto_repo, imagem_repo)
-    
+
     dados_produto = ProdutoCriarAtualizar(
-        nome_produto=nome_produto, descricao=descricao, material=material,
-        altura=altura, comprimento=comprimento, largura=largura,
-        quantidade=quantidade, peso=peso, valor=valor, id_categoria=id_categoria
+        nome_produto=nome_produto, descricao=descricao,
+        valor=valor, id_categoria=id_categoria
     )
-    
+
     produto, erro = await service.cadastrar_produto(dados_produto, imagem_arquivo)
 
     if erro:
