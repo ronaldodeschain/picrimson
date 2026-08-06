@@ -8,6 +8,10 @@ from app.models.produto import Produto, ProdutoCriarAtualizar
 from app.services.produto_service import ProdutoService
 
 
+class FakeProdutoCriarAtualizar(ProdutoCriarAtualizar):
+    quantidade: int
+
+
 class FakeProdutoRepository:
     def __init__(self, produto: Produto | None = None):
         self.criar_produto = AsyncMock(return_value=produto)
@@ -24,12 +28,6 @@ def test_cadastrar_produto_valido_com_imagem_url():
         id_produto=1,
         nome_produto="Miniatura de Dragão",
         descricao="Miniatura pintada à mão",
-        material="Resina",
-        altura=12.0,
-        comprimento=7.0,
-        largura=5.0,
-        quantidade=10,
-        peso=0.5,
         valor=199.90,
         id_categoria=2,
         imagens=[],
@@ -38,15 +36,10 @@ def test_cadastrar_produto_valido_com_imagem_url():
     imagem_repo = FakeImagemProdutoRepository()
     service = ProdutoService(produto_repo, imagem_repo)
 
-    dados = ProdutoCriarAtualizar(
+    dados = FakeProdutoCriarAtualizar(
         nome_produto="Miniatura de Dragão",
         descricao="Miniatura pintada à mão",
-        material="Resina",
-        altura=12.0,
-        comprimento=7.0,
-        largura=5.0,
         quantidade=10,
-        peso=0.5,
         valor=199.90,
         id_categoria=2,
     )
@@ -73,15 +66,10 @@ def test_cadastrar_produto_preco_invalido(invalid_value):
     imagem_repo = FakeImagemProdutoRepository()
     service = ProdutoService(produto_repo, imagem_repo)
 
-    dados = ProdutoCriarAtualizar(
+    dados = FakeProdutoCriarAtualizar(
         nome_produto="Miniatura de Dragão",
         descricao="Miniatura pintada à mão",
-        material="Resina",
-        altura=12.0,
-        comprimento=7.0,
-        largura=5.0,
         quantidade=5,
-        peso=0.5,
         valor=invalid_value,
         id_categoria=2,
     )
@@ -100,15 +88,10 @@ def test_cadastrar_produto_nome_vazio():
     imagem_repo = FakeImagemProdutoRepository()
     service = ProdutoService(produto_repo, imagem_repo)
 
-    dados = ProdutoCriarAtualizar(
+    dados = FakeProdutoCriarAtualizar(
         nome_produto="  ",
         descricao="Miniatura pintada à mão",
-        material="Resina",
-        altura=12.0,
-        comprimento=7.0,
-        largura=5.0,
         quantidade=5,
-        peso=0.5,
         valor=199.90,
         id_categoria=2,
     )
@@ -127,15 +110,10 @@ def test_cadastrar_produto_estoque_invalido():
     imagem_repo = FakeImagemProdutoRepository()
     service = ProdutoService(produto_repo, imagem_repo)
 
-    dados = ProdutoCriarAtualizar(
+    dados = FakeProdutoCriarAtualizar(
         nome_produto="Miniatura de Dragão",
         descricao="Miniatura pintada à mão",
-        material="Resina",
-        altura=12.0,
-        comprimento=7.0,
-        largura=5.0,
         quantidade=-1,
-        peso=0.5,
         valor=199.90,
         id_categoria=2,
     )

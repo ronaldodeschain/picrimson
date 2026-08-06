@@ -4,16 +4,12 @@ import string
 import unittest
 from fastapi.testclient import TestClient
 
-# Ensure Postgres is used for the test run
-os.environ.setdefault("DATABASE_TYPE", "postgres")
-os.environ.setdefault("DB_NAME", "crimson_db")
-os.environ.setdefault("DB_USER", "postgres")
-os.environ.setdefault("DB_PASS", "postgres")
-os.environ.setdefault("DB_HOST", "localhost")
-os.environ.setdefault("DB_PORT", "5432")
+# Use SQLite for tests to avoid an external PostgreSQL dependency.
+os.environ["DATABASE_TYPE"] = "sqlite"
 
 from app.main import app
-from app.database.crimson_database_pg import Database as PostgresDatabase
+from app.database.local import Database as SQLiteDatabase
+import app.dependencies as dependencies
 
 
 def generate_valid_cpf() -> str:
@@ -40,7 +36,8 @@ class AuthTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.client = TestClient(app)
-        cls.database = PostgresDatabase()
+        cls.database = SQLiteDatabase()
+        dependencies._db_instance = cls.database
 
     def setUp(self):
         self.created_emails = []
@@ -84,7 +81,7 @@ class AuthTestCase(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Cadastro realizado com sucesso", response.text)
+        self.assertIn("Conta criada com sucesso", response.text)
 
         login_response = self.client.post(
             "/login.html",
@@ -104,7 +101,7 @@ class AuthTestCase(unittest.TestCase):
             cpf=cpf,
         )
         self.assertEqual(first_response.status_code, 200)
-        self.assertIn("Cadastro realizado com sucesso", first_response.text)
+        self.assertIn("Conta criada com sucesso", first_response.text)
 
         duplicate_response = self._register_user(
             nome="Outro Usuario",
