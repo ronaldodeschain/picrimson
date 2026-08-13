@@ -7,24 +7,23 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="home-page">
+
     <!-- 1. Hero Section -->
-    <section class="hero-section text-center py-5 mb-5 bg-dark text-white rounded">
-        <div class="py-5">
-            <h1 class="display-4 fw-bold">Impressões 3D personalizadas para colecionadores, RPG e projetos exclusivos</h1>
-            <p class="lead mb-4">Transformamos suas ideias digitais em realidade física com precisão e qualidade premium.</p>
-            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                <a href="/produtos" class="btn btn-success btn-lg px-4 gap-3">Ver Produtos</a>
-                <a href="/orcamento" class="btn btn-warning btn-lg px-4 text-dark">Pedir Orçamento</a>
-            </div>
+    <section class="home-hero" aria-labelledby="hero-titulo">
+        <h1 id="hero-titulo">Impressões 3D personalizadas para colecionadores, RPG e projetos exclusivos</h1>
+        <p class="home-hero__sub">Transformamos suas ideias digitais em realidade física com precisão e qualidade premium.</p>
+        <div class="home-hero__actions">
+            <a href="/produtos" class="btn btn-primary btn-lg">Ver Produtos</a>
+            <a href="/orcamento" class="btn btn-secondary btn-lg">Pedir Orçamento</a>
         </div>
     </section>
 
-    <!-- 2. Destaques (Dinâmico do Banco) -->
-    <section class="featured-products mb-5" aria-labelledby="destaque-titulo">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- 2. Destaques -->
+    <section class="home-section" aria-labelledby="destaque-titulo">
+        <div class="home-section__header">
             <h2 id="destaque-titulo">Produtos em Destaque</h2>
-            <a href="/produtos" class="text-decoration-none">Ver todos os produtos <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            <a href="/produtos">Ver todos <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
         </div>
         <div class="carousel-container">
             <button class="carousel-btn prev" aria-label="Anterior">&#10094;</button>
@@ -32,16 +31,15 @@
                 <div class="carousel-track">
                     {% if produtos %}
                         {% for produto in produtos[:6] %}
-                        <div class="card product-card carousel-slide h-100 shadow-sm">
+                        <div class="card product-card carousel-slide">
                             <a href="/produto/{{ produto.id_produto }}" class="carousel-image-link">
-                                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens else 'https://via.placeholder.com/300x200?text=Sem+Imagem' }}" 
+                                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens else 'https://via.placeholder.com/300x200?text=Sem+Imagem' }}"
                                     class="card-img-top" alt="{{ produto.nome_produto }}">
                             </a>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <!-- Fallback caso o banco esteja vazio -->
-                        <p class="text-muted">Nenhum produto em destaque no momento.</p>
+                        <p class="home-empty">Nenhum produto em destaque no momento.</p>
                     {% endif %}
                 </div>
             </div>
@@ -50,118 +48,99 @@
     </section>
 
     <!-- 3. Como funciona -->
-    <section class="how-it-works py-5 mb-5 border-top border-bottom" aria-labelledby="como-funciona-titulo">
-        <h2 id="como-funciona-titulo" class="text-center mb-5">Como funciona</h2>
-        <div class="row text-center">
-            <div class="col-md-4 mb-4">
-                <div class="icon-circle bg-primary text-white mx-auto mb-3">
+    <section class="home-section home-how" aria-labelledby="como-funciona-titulo">
+        <h2 id="como-funciona-titulo" class="home-section__title-center">Como funciona</h2>
+        <div class="home-steps">
+            <div class="home-step">
+                <div class="icon-circle">
                     <i class="fas fa-file-upload" aria-hidden="true"></i>
                 </div>
                 <h4>1. Escolha ou envie</h4>
-                <p class="text-muted">Selecione um item do nosso catálogo ou envie seu próprio arquivo STL para orçamento.</p>
+                <p>Selecione um item do nosso catálogo ou envie seu próprio arquivo STL para orçamento.</p>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="icon-circle bg-primary text-white mx-auto mb-3">
+            <div class="home-step">
+                <div class="icon-circle">
                     <i class="fas fa-print" aria-hidden="true"></i>
                 </div>
                 <h4>2. Produção 3D</h4>
-                <p class="text-muted">Utilizamos tecnologia de ponta em resina ou filamento para garantir cada detalhe do projeto.</p>
+                <p>Utilizamos tecnologia de ponta em resina ou filamento para garantir cada detalhe do projeto.</p>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="icon-circle bg-primary text-white mx-auto mb-3">
+            <div class="home-step">
+                <div class="icon-circle">
                     <i class="fas fa-box-open" aria-hidden="true"></i>
                 </div>
                 <h4>3. Acabamento e Envio</h4>
-                <p class="text-muted">Realizamos o pós-processamento cuidadoso e enviamos com segurança para todo o Brasil.</p>
+                <p>Realizamos o pós-processamento cuidadoso e enviamos com segurança para todo o Brasil.</p>
             </div>
         </div>
     </section>
 
-    <!-- 4. Prova Social -->
-    <section class="social-proof mb-5" aria-labelledby="depoimentos-titulo">
-        <h2 id="depoimentos-titulo" class="text-center mb-4">O que nossos clientes dizem</h2>
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <div class="card p-3 border-0 bg-light">
-                    <p class="fst-italic text-muted">"A qualidade da impressão em resina superou minhas expectativas. Os detalhes da miniatura de RPG são incríveis!"</p>
-                    <div class="d-flex align-items-center">
-                        <div class="fw-bold">- João Silva, Mestre de RPG</div>
-                    </div>
-                </div>
+    <!-- 4. Depoimentos -->
+    <section class="home-section" aria-labelledby="depoimentos-titulo">
+        <h2 id="depoimentos-titulo" class="home-section__title-center">O que nossos clientes dizem</h2>
+        <div class="home-testimonials">
+            <div class="card home-testimonial">
+                <p><em>"A qualidade da impressão em resina superou minhas expectativas. Os detalhes da miniatura de RPG são incríveis!"</em></p>
+                <strong>— João Silva, Mestre de RPG</strong>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card p-3 border-0 bg-light">
-                    <p class="fst-italic text-muted">"Pedi um projeto exclusivo de peça de reposição e serviu perfeitamente. Atendimento nota 10."</p>
-                    <div class="d-flex align-items-center">
-                        <div class="fw-bold">- Maria Oliveira, Colecionadora</div>
-                    </div>
-                </div>
+            <div class="card home-testimonial">
+                <p><em>"Pedi um projeto exclusivo de peça de reposição e serviu perfeitamente. Atendimento nota 10."</em></p>
+                <strong>— Maria Oliveira, Colecionadora</strong>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card p-3 border-0 bg-light">
-                    <p class="fst-italic text-muted">"A pintura manual opcional deu vida nova à minha estátua. Com certeza farei novos pedidos."</p>
-                    <div class="d-flex align-items-center">
-                        <div class="fw-bold">- Ricardo L., Geek entusiasta</div>
-                    </div>
-                </div>
+            <div class="card home-testimonial">
+                <p><em>"A pintura manual opcional deu vida nova à minha estátua. Com certeza farei novos pedidos."</em></p>
+                <strong>— Ricardo L., Geek entusiasta</strong>
             </div>
         </div>
     </section>
 
     <!-- 5. Diferenciais -->
-    <section class="differentials py-5 mb-5 bg-light rounded px-4" aria-labelledby="diferenciais-titulo">
-        <h2 id="diferenciais-titulo" class="mb-4">Por que escolher o Crimson Claw Studio?</h2>
-        <div class="row g-4">
-            <div class="col-md-6 mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fas fa-check-circle text-success fs-4" aria-hidden="true"></i>
-                    <div>
-                        <h3 class="mb-0">Alta qualidade de impressão</h3>
-                        <p class="text-muted mb-0">Equipamentos calibrados para mínima visibilidade de camadas e máxima resistência.</p>
-                    </div>
+    <section class="home-section home-differentials" aria-labelledby="diferenciais-titulo">
+        <h2 id="diferenciais-titulo">Por que escolher o Crimson Claw Studio?</h2>
+        <div class="home-differentials__grid">
+            <div class="home-differential">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                <div>
+                    <h3>Alta qualidade de impressão</h3>
+                    <p>Equipamentos calibrados para mínima visibilidade de camadas e máxima resistência.</p>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fas fa-check-circle text-success fs-4" aria-hidden="true"></i>
-                    <div>
-                        <h3 class="mb-0">Personalização total</h3>
-                        <p class="text-muted mb-0">Ajustamos escala, material e densidade conforme a necessidade do seu projeto.</p>
-                    </div>
+            <div class="home-differential">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                <div>
+                    <h3>Personalização total</h3>
+                    <p>Ajustamos escala, material e densidade conforme a necessidade do seu projeto.</p>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fas fa-check-circle text-success fs-4" aria-hidden="true"></i>
-                    <div>
-                        <h3 class="mb-0">Pintura opcional</h3>
-                        <p class="text-muted mb-0">Serviço de acabamento artístico manual para deixar sua peça pronta para exibição.</p>
-                    </div>
+            <div class="home-differential">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                <div>
+                    <h3>Pintura opcional</h3>
+                    <p>Serviço de acabamento artístico manual para deixar sua peça pronta para exibição.</p>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fas fa-check-circle text-success fs-4" aria-hidden="true"></i>
-                    <div>
-                        <h3 class="mb-0">Atendimento próximo</h3>
-                        <p class="text-muted mb-0">Suporte direto via WhatsApp para acompanhar cada etapa da sua encomenda.</p>
-                    </div>
+            <div class="home-differential">
+                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                <div>
+                    <h3>Atendimento próximo</h3>
+                    <p>Suporte direto via WhatsApp para acompanhar cada etapa da sua encomenda.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- 6. CTA Final -->
-    <section class="final-cta text-center py-5" aria-labelledby="cta-titulo">
-        <div class="card border-primary p-5 shadow">
-            <h2 id="cta-titulo" class="mb-3">Pronto para dar vida à sua ideia?</h2>
-            <p class="lead mb-4">Escolha um modelo do nosso catálogo ou peça um orçamento personalizado hoje mesmo.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/orcamento" class="btn btn-primary btn-lg px-5">Começar meu projeto</a>
-                <a href="/produtos" class="btn btn-outline-secondary btn-lg px-5">Explorar catálogo</a>
+    <section class="home-cta" aria-labelledby="cta-titulo">
+        <div class="card home-cta__card">
+            <h2 id="cta-titulo">Pronto para dar vida à sua ideia?</h2>
+            <p>Escolha um modelo do nosso catálogo ou peça um orçamento personalizado hoje mesmo.</p>
+            <div class="home-cta__actions">
+                <a href="/orcamento" class="btn btn-primary btn-lg">Começar meu projeto</a>
+                <a href="/produtos" class="btn btn-secondary btn-lg">Explorar catálogo</a>
             </div>
         </div>
     </section>
+
 </div>
 {% endblock %}
 

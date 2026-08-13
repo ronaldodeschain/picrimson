@@ -36,4 +36,4 @@ async def health_check():
 @app.exception_handler(401)
 async def unauthorized_redirect_handler(request: Request, exc: HTTPException):
     """Redireciona para o login em caso de erro 401 (não autenticado)."""
-    return RedirectResponse(url="/login.html", status_code=303)
+    return RedirectResponse(url="/login", status_code=303)

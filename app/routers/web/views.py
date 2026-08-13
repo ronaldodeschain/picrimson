@@ -43,7 +43,7 @@ async def home(
         "year": datetime.utcnow().year,
     })
 
-@router.get("/login.html", response_class=HTMLResponse)
+@router.get("/login", response_class=HTMLResponse)
 async def login(request: Request):
     return templates.TemplateResponse("login.html", {
         "request": request,
@@ -59,7 +59,7 @@ async def login(request: Request):
     })
 
 
-@router.post("/login.html", response_class=HTMLResponse)
+@router.post("/login", response_class=HTMLResponse)
 async def login_submit(
     request: Request,
     email_repo: Annotated[EmailRepository, Depends(dependencies.get_email_repository)],
@@ -263,7 +263,7 @@ async def carrinho_finalizar(
 ):
     user = await get_authenticated_usuario(request, UsuarioRepository(dependencies.get_database()))
     if not user or user.id_usuario is None:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
     cart = _get_cart(request)
     if not cart:
         request.session["cart_message"] = "Seu carrinho está vazio."
@@ -353,7 +353,7 @@ async def orcamento(request: Request):
     user = request.state.user
     if not user:
         request.session["next"] = "/orcamento"
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
     tipos_projeto = [
         "Impressão 3D personalizável",
         "Modelagem 3D",
@@ -383,7 +383,7 @@ async def orcamento_submit(
 ):
     user = request.state.user
     if not user:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
     contato = user.login
     ALLOWED_EXT = {"stl", "obj", "3mf", "ply", "step", "stp", "jpg", "jpeg", "png", "webp", "gif", "pdf"}
     MAX_BYTES = 20 * 1024 * 1024
@@ -678,10 +678,10 @@ async def minha_conta(
 ):
     usuario = await get_authenticated_usuario(request, usuario_repo)
     if not usuario:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
 
     if usuario.id_usuario is None:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
 
     usuario_id = usuario.id_usuario
     endereco = await endereco_repo.get_endereco_por_usuario(usuario_id)
@@ -739,7 +739,7 @@ async def minha_conta_update(
 
     usuario = await usuario_repo.get_cliente(user_id)
     if not usuario:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
 
     new_password = senha if senha else usuario.senha
     # Do not allow changing the login/email or CPF — keep existing values
@@ -899,7 +899,7 @@ async def toggle_favoritar(
     # only allow logged-in users to favorite
     usuario = request.state.user
     if not usuario or usuario.id_usuario is None:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
 
     # check existing favorite
     favs = await favoritos_repo.listar_favoritos_por_usuario(usuario.id_usuario)
@@ -929,7 +929,7 @@ async def avaliar_produto(
 ):
     user = request.state.user
     if not user or user.id_usuario is None:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
     existente = await avaliacoes_repo.get_avaliacao_por_usuario_produto(user.id_usuario, produto_id)
     if not existente:
         from app.models.avaliacoes import AvaliacoesCriarAtualizar
@@ -960,7 +960,7 @@ async def remover_favorito(
 ):
     usuario = request.state.user
     if not usuario or usuario.id_usuario is None:
-        return RedirectResponse(url="/login.html", status_code=302)
+        return RedirectResponse(url="/login", status_code=302)
     favs = await favoritos_repo.listar_favoritos_por_usuario(usuario.id_usuario)
     existing = next((f for f in favs if f.id_produto == produto_id), None)
     if existing:
