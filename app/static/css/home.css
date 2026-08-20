@@ -67,18 +67,23 @@
 
 .carousel-slide {
     flex-direction: column;
+    padding: 0 !important;
 }
 
 .carousel-image-link {
     display: block;
     overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1 / 1;
 }
 
 .carousel-slide .card-img-top {
     width: 100%;
-    height: 320px;
+    height: 100% !important;
+    max-height: none !important;
     object-fit: cover;
     display: block;
+    border-radius: 14px;
 }
 
 .carousel-slide .card-body {
@@ -96,19 +101,6 @@
     scroll-snap-align: center;
 }
 
-@media (min-width: 768px) {
-    .carousel-slide {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-}
-
-@media (min-width: 1200px) {
-    .carousel-slide {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-}
 
 /* ── Home page layout ── */
 .home-page {

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 from fastapi import APIRouter, Request, Depends, HTTPException, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -11,7 +11,6 @@ from app.repositories.pergunta import PerguntaRepository
 from app.repositories.imagem_produto import ImagemProdutoRepository
 from app.repositories.avaliacoes import AvaliacoesRepository
 from app.models.produto import ProdutoCriarAtualizar
-from app.models.imagem_produto import ImagemProdutoCriarAtualizar
 from datetime import datetime
 
 router = APIRouter(prefix="/admin", tags=["Admin Panel"])
@@ -125,6 +124,7 @@ async def admin_excluir_avaliacao(
 ):
     await avaliacoes_repo.delete_avaliacao(avaliacao_id)
     return RedirectResponse(url="/admin/avaliacoes", status_code=303)
+@router.get("/produtos/novo", response_class=HTMLResponse)
 async def admin_novo_produto_form(
     request: Request,
     _auth: Annotated[bool, Depends(ensure_admin)],
@@ -136,7 +136,7 @@ async def admin_novo_produto_form(
         "titulo": "Novo Produto | Crimson Claw",
         "user": request.state.user,
         "categorias": categorias,
-        "produto": None,  # Usado para diferenciar de "editar"
+        "produto": None,
         "year": datetime.utcnow().year,
     })
 
@@ -150,7 +150,7 @@ async def admin_criar_produto(
     descricao: str = Form(...),
     valor: float = Form(...),
     id_categoria: int = Form(...),
-    imagem_arquivo: Optional[UploadFile] = File(None)
+    imagens: list[UploadFile] = File(default=[])
 ):
     from app.services.produto_service import ProdutoService
     service = ProdutoService(produto_repo, imagem_repo)
@@ -160,14 +160,15 @@ async def admin_criar_produto(
         valor=valor, id_categoria=id_categoria
     )
 
-    produto, erro = await service.cadastrar_produto(dados_produto, imagem_arquivo)
+    arquivos_validos = [f for f in imagens if f.filename] or None
+    produto, erro = await service.cadastrar_produto(dados_produto, arquivos_validos)
 
     if erro:
-        categoria_repo = dependencies.get_categoria_repository(dependencies.get_database())
-        categorias = await categoria_repo.listar_categorias()
+        cat_repo = dependencies.get_categoria_repository(dependencies.get_database())
+        categorias = await cat_repo.listar_categorias()
         return templates.TemplateResponse("admin/produto_form.html", {
             "request": request, "user": request.state.user, "categorias": categorias,
-            "error": erro, "year": datetime.utcnow().year,
+            "produto": None, "error": erro, "year": datetime.utcnow().year,
         })
 
     return RedirectResponse(url="/admin/produtos", status_code=303)

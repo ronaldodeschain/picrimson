@@ -33,7 +33,7 @@
                         {% for produto in produtos[:6] %}
                         <div class="card product-card carousel-slide">
                             <a href="/produto/{{ produto.id_produto }}" class="carousel-image-link">
-                                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens else 'https://via.placeholder.com/300x200?text=Sem+Imagem' }}"
+                                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens else '/static/uploads/produtos/angel.jpeg' }}"
                                     class="card-img-top" alt="{{ produto.nome_produto }}">
                             </a>
                         </div>

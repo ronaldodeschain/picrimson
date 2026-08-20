@@ -75,7 +75,7 @@
                         {% for item in favoritos %}
                         {% set produto = item.produto %}
                         <article class="favorite-card">
-                            <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens and produto.imagens|length > 0 else '/static/img/placeholder-100.png' }}" alt="{{ produto.nome_produto }}">
+                            <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens and produto.imagens|length > 0 else '/static/uploads/produtos/angel.jpeg' }}" alt="{{ produto.nome_produto }}">
                             <div class="favorite-card__info">
                                 <h3>{{ produto.nome_produto }}</h3>
                                 <p class="text-muted">R$ {{ "%.2f"|format(produto.valor) }}</p>

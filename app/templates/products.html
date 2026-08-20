@@ -60,7 +60,7 @@
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="card product-card h-100 shadow-sm">
                         <a href="/produto/{{ produto.id_produto }}">
-                            <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens else 'https://via.placeholder.com/400x300?text=Sem+Imagem' }}"
+                            <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens else '/static/uploads/produtos/angel.jpeg' }}"
                                 class="card-img-top" alt="{{ produto.nome_produto }}">
                         </a>
                         <div class="card-body">

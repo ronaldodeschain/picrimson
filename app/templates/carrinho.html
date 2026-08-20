@@ -30,7 +30,7 @@
             {% for item in cart %}
             <article class="cart-item">
                 <div class="cart-item__media">
-                    <img src="{{ item.imagem or '/static/img/placeholder-100.png' }}" alt="{{ item.nome }}">
+                    <img src="{{ item.imagem or '/static/uploads/produtos/angel.jpeg' }}" alt="{{ item.nome }}">
                 </div>
                 <div class="cart-item__content">
                     <h2>{{ item.nome }}</h2>
@@ -81,7 +81,7 @@
         <div class="suggestions-grid">
             {% for produto in suggestions %}
             <article class="suggestion-card">
-                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens and produto.imagens|length > 0 else '/static/img/placeholder-100.png' }}" alt="{{ produto.nome_produto }}">
+                <img src="{{ produto.imagens[0].arquivo_imagem if produto.imagens and produto.imagens|length > 0 else '/static/uploads/produtos/angel.jpeg' }}" alt="{{ produto.nome_produto }}">
                 <div class="suggestion-content">
                     <h3>{{ produto.nome_produto }}</h3>
                     <p class="text-muted">R$ {{ "%.2f"|format(produto.valor) }}</p>

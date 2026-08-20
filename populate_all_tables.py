@@ -132,37 +132,48 @@ async def populate_all_tables():
         ))
 
     # 5. Categorias (sem dependências)
+    categorias_data = [
+        "Miniaturas de RPG",
+        "Colecionáveis",
+        "Peças de Xadrez",
+        "Arte e Decoração",
+        "Personagens Anime",
+    ]
     categoria_ids = []
-    for i in range(1, 6):
+    for nome in categorias_data:
         c = await categoria_repo.criar_categoria(CategoriaCriarAtualizar(
-            nome_categoria=f"Categoria {i}"
+            nome_categoria=nome
         ))
         categoria_ids.append(c.id_categoria)
 
     # 6. Produtos (depende de categoria)
+    produtos_data = [
+        dict(nome="Anjo Guardião", descricao="Escultura detalhada de anjo em resina, ideal para colecionadores e decoração. Acabamento premium com pintura opcional.", material="Resina", altura=18.0, comprimento=10.0, largura=8.0, quantidade=15, peso=0.4, valor=189.90, id_categoria=categoria_ids[3], imagem="angel.jpeg"),
+        dict(nome="Peça de Xadrez — Torre", descricao="Torre de xadrez impressa em resina de alta resolução. Detalhes arquitetônicos precisos, pronta para uso ou exposição.", material="Resina", altura=8.0, comprimento=4.0, largura=4.0, quantidade=30, peso=0.15, valor=49.90, id_categoria=categoria_ids[2], imagem="chess-piece.jpeg"),
+        dict(nome="Clérigo — Miniatura RPG", descricao="Miniatura de clérigo para mesa de RPG, impressa em resina com detalhes finos de armadura e cajado sagrado.", material="Resina", altura=7.5, comprimento=3.0, largura=3.0, quantidade=20, peso=0.08, valor=79.90, id_categoria=categoria_ids[0], imagem="cleric.jpeg"),
+        dict(nome="Guts — Berserk", descricao="Figura colecionável do Guts de Berserk com espada Dragonslayer. Impressão em resina com pintura artesanal opcional.", material="Resina", altura=22.0, comprimento=12.0, largura=8.0, quantidade=10, peso=0.6, valor=299.90, id_categoria=categoria_ids[4], imagem="guts.jpeg"),
+        dict(nome="Cristo Redentor Miniatura", descricao="Réplica artística do Cristo Redentor em resina, acabamento detalhado. Peça decorativa exclusiva para colecionadores.", material="Resina", altura=20.0, comprimento=14.0, largura=6.0, quantidade=12, peso=0.5, valor=219.90, id_categoria=categoria_ids[1], imagem="jesus.jpeg"),
+        dict(nome="Ayrton Senna — Busto", descricao="Busto colecionável de Ayrton Senna em resina de alta fidelidade. Homenagem ao maior piloto de todos os tempos.", material="Resina", altura=16.0, comprimento=10.0, largura=10.0, quantidade=8, peso=0.45, valor=259.90, id_categoria=categoria_ids[1], imagem="senna.jpeg"),
+        dict(nome="Máscara Sub-Zero", descricao="Máscara do Sub-Zero de Mortal Kombat impressa em PLA, wearable e resistente. Perfeita para cosplay e coleção.", material="PLA", altura=25.0, comprimento=20.0, largura=15.0, quantidade=10, peso=0.3, valor=149.90, id_categoria=categoria_ids[1], imagem="subzeromask.jpeg"),
+    ]
     produto_ids = []
-    for i, cid in enumerate(categoria_ids, 1):
+    for pd in produtos_data:
         p = await produto_repo.criar_produto(ProdutoCriarAtualizar(
-            nome_produto=f"Produto {i}",
-            descricao=f"Descrição do produto {i}",
-            material=f"Material {i}",
-            altura=10.0 + i,
-            comprimento=20.0 + i,
-            largura=5.0 + i,
-            quantidade=100 + i,
-            peso=1.5 + i,
-            valor=50.0 + i * 10,
-            id_categoria=cid
+            nome_produto=pd["nome"],
+            descricao=pd["descricao"],
+            valor=pd["valor"],
+            id_categoria=pd["id_categoria"]
         ))
-        produto_ids.append(p.id_produto)
+        produto_ids.append((p.id_produto, pd["imagem"]))
 
     # 7. Imagem produtos (depende de produto)
-    for i, pid in enumerate(produto_ids, 1):
+    for pid, imagem in produto_ids:
         await imagem_produto_repo.criar_imagem_produto(ImagemProdutoCriarAtualizar(
-            nome_imagem=f"Imagem {i}",
-            arquivo_imagem=f"https://picsum.photos/id/{i+10}/600/400",
+            nome_imagem=imagem.split(".")[0],
+            arquivo_imagem=f"/static/uploads/produtos/{imagem}",
             id_produto=pid
         ))
+    produto_ids = [pid for pid, _ in produto_ids]
 
     # 8. Avaliacoes (depende de produto e usuario)
     for i, (pid, uid) in enumerate(zip(produto_ids, usuario_ids), 1):
