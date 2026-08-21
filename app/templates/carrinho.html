@@ -33,7 +33,7 @@
                     <img src="{{ item.imagem or '/static/uploads/produtos/angel.jpeg' }}" alt="{{ item.nome }}">
                 </div>
                 <div class="cart-item__content">
-                    <h2>{{ item.nome }}</h2>
+                    <h3>{{ item.nome }}</h3>
                     <p class="item-variant">Tamanho: {{ item.tamanho }} · Material: {{ item.material }} · Pintura: {{ item.pintura }}</p>
                     <p class="item-quantity">Quantidade: {{ item.quantidade }}</p>
                     <p class="item-price">R$ {{ "%.2f"|format(item.valor * item.quantidade) }}</p>
@@ -60,7 +60,7 @@
                 <form action="/carrinho/finalizar" method="post">
                     <button type="submit" class="btn btn-primary btn-block">Finalizar compra por mensagem</button>
                 </form>
-                <a href="/produtos" class="btn btn-secondary btn-block">Continuar comprando</a>
+                <a href="/produtos" class="btn btn-secondary btn-block" style="margin-top: 0.75rem;">Continuar comprando</a>
             </div>
         </aside>
     </div>

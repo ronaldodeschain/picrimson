@@ -101,11 +101,11 @@
                         <div class="field-grid">
                             <div class="form-group">
                                 <label for="nome">Nome completo</label>
-                                <input id="nome" name="nome" value="{{ user.nome_usuario }}" required>
+                                <input type="text" id="nome" name="nome" value="{{ user.nome_usuario }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="cpf">CPF</label>
-                                <input id="cpf" name="cpf" value="{{ user.cpf }}" readonly aria-readonly="true">
+                                <input type="text" id="cpf" name="cpf" value="{{ user.cpf }}" readonly aria-readonly="true">
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
@@ -131,27 +131,27 @@
                         <div class="field-grid">
                             <div class="form-group">
                                 <label for="rua">Rua</label>
-                                <input id="rua" name="rua" value="{{ endereco.rua if endereco else '' }}">
+                                <input type="text" id="rua" name="rua" value="{{ endereco.rua if endereco else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="numero">Número</label>
-                                <input id="numero" name="numero" value="{{ endereco.numero if endereco else '' }}">
+                                <input type="text" id="numero" name="numero" value="{{ endereco.numero if endereco else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="complemento">Complemento</label>
-                                <input id="complemento" name="complemento" value="{{ endereco.complemento if endereco else '' }}">
+                                <input type="text" id="complemento" name="complemento" value="{{ endereco.complemento if endereco else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="cep">CEP</label>
-                                <input id="cep" name="cep" value="{{ endereco.cep if endereco else '' }}">
+                                <input type="text" id="cep" name="cep" value="{{ endereco.cep if endereco else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="cidade">Cidade</label>
-                                <input id="cidade" name="cidade" value="{{ endereco.cidade if endereco else '' }}">
+                                <input type="text" id="cidade" name="cidade" value="{{ endereco.cidade if endereco else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="estado">Estado</label>
-                                <input id="estado" name="estado" value="{{ endereco.estado if endereco else '' }}">
+                                <input type="text" id="estado" name="estado" value="{{ endereco.estado if endereco else '' }}">
                             </div>
                             <div class="form-group full-width">
                                 <label for="observacoes">Observações</label>
@@ -159,11 +159,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="telefone_principal">Telefone principal</label>
-                                <input id="telefone_principal" name="telefone_principal" value="{{ telefone.telefone_principal if telefone else '' }}">
+                                <input type="tel" id="telefone_principal" name="telefone_principal" value="{{ telefone.telefone_principal if telefone else '' }}">
                             </div>
                             <div class="form-group">
                                 <label for="telefone_secundario">Telefone secundário</label>
-                                <input id="telefone_secundario" name="telefone_secundario" value="{{ telefone.telefone_secundario if telefone else '' }}">
+                                <input type="tel" id="telefone_secundario" name="telefone_secundario" value="{{ telefone.telefone_secundario if telefone else '' }}">
                             </div>
                         </div>
                         <div class="form-actions">
