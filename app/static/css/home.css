@@ -24,6 +24,7 @@
     justify-content: center;
     place-items: center;
     border-radius: 999px;
+    touch-action: manipulation;
 }
 
 .carousel-btn:hover {
@@ -114,10 +115,16 @@
 
 .home-hero {
     text-align: center;
-    padding: 3.5rem 1rem;
+    padding: 2rem 1rem;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
+}
+
+@media (min-width: 600px) {
+    .home-hero {
+        padding: 3.5rem 1rem;
+    }
 }
 
 .home-hero h1 {
@@ -209,6 +216,13 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
     text-align: center;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.home-steps li.home-step {
+    list-style: none !important;
 }
 
 .home-step {
@@ -242,13 +256,18 @@
     gap: 0.75rem;
 }
 
+.home-testimonial blockquote {
+    margin: 0;
+    padding: 0;
+}
+
 .home-testimonial p {
     color: var(--muted);
     margin: 0;
     line-height: 1.7;
 }
 
-.home-testimonial strong {
+.home-testimonial figcaption strong {
     color: var(--text);
     font-size: 0.9rem;
 }
@@ -267,7 +286,7 @@
 
 .home-differentials__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.25rem;
 }
 
@@ -303,7 +322,13 @@
 }
 
 .home-cta__card {
-    padding: 3rem 2rem;
+    padding: 1.5rem 1rem;
+}
+
+@media (min-width: 600px) {
+    .home-cta__card {
+        padding: 3rem 2rem;
+    }
 }
 
 .home-cta__card h2 {

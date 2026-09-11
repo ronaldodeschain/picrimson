@@ -101,13 +101,13 @@
 
 .quote-form__row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
 }
 
-@media (max-width: 600px) {
+@media (min-width: 600px) {
     .quote-form__row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 }
 

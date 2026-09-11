@@ -17,11 +17,12 @@
     </section>
 
     <section class="service-grid mb-5">
+        <h2 class="visually-hidden">Nossos Serviços</h2>
         {% for servico in servicos %}
         <article class="service-card card">
             <div class="service-card__header">
                 <span class="service-card__badge">{{ servico.badge }}</span>
-                <h2>{{ servico.titulo }}</h2>
+                <h3>{{ servico.titulo }}</h3>
             </div>
             <p class="service-card__description">{{ servico.descricao }}</p>
             <p class="service-card__examples"><strong>Exemplos reais:</strong> {{ servico.exemplos }}</p>
@@ -33,15 +34,15 @@
         {% endfor %}
     </section>
 
-    <section class="service-process py-5 mb-5 border-top border-bottom">
-        <h2 class="text-center mb-5">Antes e depois / processo de criação</h2>
+    <section class="service-process py-5 mb-5 border-top border-bottom" aria-labelledby="processo-titulo">
+        <h2 id="processo-titulo" class="text-center mb-5">Antes e depois / processo de criação</h2>
         <div class="process-grid">
             {% for etapa in etapas %}
-            <div class="process-card card">
+            <article class="process-card card">
                 <div class="process-step">{{ etapa.numero }}</div>
                 <h3>{{ etapa.titulo }}</h3>
                 <p class="text-muted">{{ etapa.descricao }}</p>
-            </div>
+            </article>
             {% endfor %}
         </div>
     </section>

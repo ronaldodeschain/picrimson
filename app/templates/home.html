@@ -2,6 +2,7 @@
 
 {% block title %}{{ titulo }}{% endblock %}
 
+{% block meta_description %}Impressões 3D personalizadas para colecionadores, RPG e projetos exclusivos. Miniaturas, estátuas e peças sob medida com qualidade premium e envio para todo o Brasil.{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="/static/css/home.css">
 {% endblock %}
@@ -50,7 +51,7 @@
     <!-- 3. Como funciona -->
     <section class="home-section home-how" aria-labelledby="como-funciona-titulo">
         <h2 id="como-funciona-titulo" class="home-section__title-center">Como funciona</h2>
-        <div class="home-steps">
+        <ol class="home-steps" role="list">
             <div class="home-step">
                 <div class="icon-circle">
                     <i class="fas fa-file-upload" aria-hidden="true"></i>
@@ -72,25 +73,31 @@
                 <h4>3. Acabamento e Envio</h4>
                 <p>Realizamos o pós-processamento cuidadoso e enviamos com segurança para todo o Brasil.</p>
             </div>
-        </div>
+        </ol>
     </section>
 
     <!-- 4. Depoimentos -->
     <section class="home-section" aria-labelledby="depoimentos-titulo">
         <h2 id="depoimentos-titulo" class="home-section__title-center">O que nossos clientes dizem</h2>
         <div class="home-testimonials">
-            <div class="card home-testimonial">
-                <p><em>"A qualidade da impressão em resina superou minhas expectativas. Os detalhes da miniatura de RPG são incríveis!"</em></p>
-                <strong>— João Silva, Mestre de RPG</strong>
-            </div>
-            <div class="card home-testimonial">
-                <p><em>"Pedi um projeto exclusivo de peça de reposição e serviu perfeitamente. Atendimento nota 10."</em></p>
-                <strong>— Maria Oliveira, Colecionadora</strong>
-            </div>
-            <div class="card home-testimonial">
-                <p><em>"A pintura manual opcional deu vida nova à minha estátua. Com certeza farei novos pedidos."</em></p>
-                <strong>— Ricardo L., Geek entusiasta</strong>
-            </div>
+            <figure class="card home-testimonial">
+                <blockquote>
+                    <p><em>"A qualidade da impressão em resina superou minhas expectativas. Os detalhes da miniatura de RPG são incríveis!"</em></p>
+                </blockquote>
+                <figcaption><strong>— João Silva, Mestre de RPG</strong></figcaption>
+            </figure>
+            <figure class="card home-testimonial">
+                <blockquote>
+                    <p><em>"Pedi um projeto exclusivo de peça de reposição e serviu perfeitamente. Atendimento nota 10."</em></p>
+                </blockquote>
+                <figcaption><strong>— Maria Oliveira, Colecionadora</strong></figcaption>
+            </figure>
+            <figure class="card home-testimonial">
+                <blockquote>
+                    <p><em>"A pintura manual opcional deu vida nova à minha estátua. Com certeza farei novos pedidos."</em></p>
+                </blockquote>
+                <figcaption><strong>— Ricardo L., Geek entusiasta</strong></figcaption>
+            </figure>
         </div>
     </section>
 

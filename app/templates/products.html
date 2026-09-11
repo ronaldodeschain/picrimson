@@ -2,6 +2,7 @@
 
 {% block title %}Produtos - Crimson Claw Studio{% endblock %}
 
+{% block meta_description %}Explore o catálogo de produtos 3D do Crimson Claw Studio. Miniaturas, estátuas e peças personalizadas para colecionadores e jogadores de RPG.{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="/static/css/products.css">
 {% endblock %}
@@ -18,8 +19,8 @@
         <section class="col-12 mb-3">
             <form method="get" class="filters-bar d-flex gap-3 align-items-center">
                 <div class="filter-item">
-                    <label>Categoria</label>
-                    <select name="categoria" class="form-control form-control-sm">
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria" class="form-control form-control-sm">
                         <option value="">Todas</option>
                         {% for cat in categorias %}
                         <option value="{{ cat.id_categoria }}" {% if
@@ -31,16 +32,16 @@
 
                 <div class="filter-item d-flex">
                     <div>
-                        <label class="small text-muted">Preço min</label>
-                        <input type="number" step="0.01" name="preco_min"
+                        <label class="small text-muted" for="preco_min">Preço min</label>
+                        <input type="number" step="0.01" id="preco_min" name="preco_min"
                             value="{{ request.query_params.get('preco_min','') }}" class="form-control form-control-sm"
                             placeholder="R$">
                     </div>
 
                     <div class="filter-item">
                         <div class="ms-2">
-                            <label class="small text-muted">Preço max</label>
-                            <input type="number" step="0.01" name="preco_max"
+                            <label class="small text-muted" for="preco_max">Preço max</label>
+                            <input type="number" step="0.01" id="preco_max" name="preco_max"
                                 value="{{ request.query_params.get('preco_max','') }}"
                                 class="form-control form-control-sm" placeholder="R$">
                         </div>

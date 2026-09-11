@@ -61,13 +61,15 @@
         <div class="row gy-4">
             {% for t in testemunhos %}
             <div class="col-md-4">
-                <div class="card p-4 h-100 testimonial-card">
-                    <p class="text-muted mb-4">“{{ t.comentario }}”</p>
-                    <div class="d-flex align-items-center justify-content-between mt-auto">
-                        <span class="fw-bold">{{ t.nome_usuario }}</span>
-                        <span class="text-warning">★{{ "%.1f"|format(t.avaliacao) }}</span>
-                    </div>
-                </div>
+                <figure class="card p-4 h-100 testimonial-card">
+                    <blockquote>
+                        <p class="text-muted mb-4">“{{ t.comentario }}”</p>
+                    </blockquote>
+                    <figcaption class="d-flex align-items-center justify-content-between mt-auto">
+                        <strong>{{ t.nome_usuario }}</strong>
+                        <span class="text-warning" aria-label="Avaliação: {{ '%.1f'|format(t.avaliacao) }} estrelas">★{{ "%.1f"|format(t.avaliacao) }}</span>
+                    </figcaption>
+                </figure>
             </div>
             {% else %}
             <div class="col-12">

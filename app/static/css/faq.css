@@ -56,6 +56,7 @@
     gap: 1rem;
     color: var(--text);
     user-select: none;
+    touch-action: manipulation;
 }
 
 .faq-item summary::-webkit-details-marker {
