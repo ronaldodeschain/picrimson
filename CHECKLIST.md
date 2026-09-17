@@ -1,222 +1,197 @@
-# 📦 Arquivo de Distribuição - Sistema de Email
+# Crimson Claw Studio — Estado do Projeto
 
-## 📂 Estrutura de Arquivos Criados
-
-```
-picrimson/
-├── app/
-│   ├── services/
-│   │   ├── email_service.py                    ✨ NOVO
-│   │   └── confirmacao_email_service.py        ✨ NOVO
-│   ├── templates/
-│   │   └── confirmar_email.html                ✨ NOVO
-│   ├── database/
-│   │   ├── crimson_database_pg.py              ✏️  MODIFICADO (tabela confirmacao_email)
-│   │   └── local.py                            ✏️  MODIFICADO (tabela confirmacao_email)
-│   └── routers/
-│       └── web/
-│           └── views.py                        ✏️  MODIFICADO (rota /confirmar-email)
-├── tests/
-│   └── test_confirmacao_email.py               ✨ NOVO
-├── .env.example                                ✨ NOVO
-├── EMAIL_SYSTEM.md                             ✨ NOVO
-├── IMPLEMENTATION_SUMMARY.md                   ✨ NOVO
-├── NEXT_STEPS.md                               ✨ NOVO
-└── CHECKLIST.md                                👈 ESTE ARQUIVO
-```
-
-## ✅ Checklist de Implementação
-
-### Fase 1: Arquivos Essenciais
-- [x] `app/services/email_service.py` - Serviço SMTP
-- [x] `app/services/confirmacao_email_service.py` - Gerenciamento de tokens
-- [x] `app/templates/confirmar_email.html` - Template de confirmação
-- [x] `tests/test_confirmacao_email.py` - Testes unitários
-
-### Fase 2: Integração com Banco de Dados
-- [x] Tabela `confirmacao_email` em SQLite
-- [x] Tabela `confirmacao_email` em PostgreSQL
-- [x] Migrations automáticas no `start_database()`
-
-### Fase 3: Integração com Rotas
-- [x] Import de `ConfirmacaoEmailService` em views.py
-- [x] Rota GET `/confirmar-email`
-- [x] Integração no POST `/cadastro`
-- [x] Passagem de `remaining_attempts` ao template
-
-### Fase 4: Testes
-- [x] 8 testes passando em test_confirmacao_email.py
-- [x] 6 testes passando em test_auth.py
-- [x] 5 testes passando em test_product_service.py
-- [x] 4 testes passando em test_login_attempt_service.py
-- [x] **Total: 23 testes ✓**
-
-### Fase 5: Documentação
-- [x] EMAIL_SYSTEM.md - Guia técnico completo
-- [x] IMPLEMENTATION_SUMMARY.md - Resumo executivo
-- [x] NEXT_STEPS.md - Melhorias futuras
-- [x] .env.example - Configuração de variáveis
-- [x] Este CHECKLIST.md - Verificação final
-
-## 🔍 Verificação de Funcionalidades
-
-### EmailService
-```
-✓ Inicialização com variáveis de ambiente
-✓ Envio de emails via SMTP
-✓ Suporte a HTML e texto simples
-✓ Tratamento de erros (autenticação, conexão)
-✓ Logging de status
-```
-
-### ConfirmacaoEmailService
-```
-✓ Geração de tokens únicos e seguros
-✓ Hash SHA256 dos tokens
-✓ Criação de tokens com expiração
-✓ Verificação de validade
-✓ Marcação como confirmado
-✓ Cálculo de tempo restante
-✓ Suporte a múltiplos usuários
-```
-
-### Rotas HTTP
-```
-✓ GET /confirmar-email?token=...
-  - Validação de token
-  - Confirmação de email
-  - Feedback visual ao usuário
-
-✓ POST /cadastro
-  - Integração com confirmação
-  - Envio automático de email
-  - Tratamento de erros
-```
-
-### Banco de Dados
-```
-✓ Tabela confirmacao_email (SQLite)
-✓ Tabela confirmacao_email (PostgreSQL)
-✓ Campos corretos em ambos os bancos
-✓ Constraints de integridade
-✓ UNIQUE em token_hash
-```
-
-## 📊 Estatísticas
-
-### Código
-| Métrica | Valor |
-|---------|-------|
-| Arquivos novos | 5 |
-| Arquivos modificados | 3 |
-| Linhas de código | ~400 |
-| Testes unitários | 8 |
-| Testes total (projeto) | 23 |
-| Taxa de sucesso | 100% ✓ |
-
-### Cobertura
-| Componente | Status |
-|-----------|--------|
-| EmailService | ✓ Implementado |
-| ConfirmacaoEmailService | ✓ Implementado |
-| Rotas de confirmação | ✓ Implementado |
-| Testes | ✓ 8/8 passando |
-| Documentação | ✓ Completa |
-
-## 🔐 Segurança
-
-| Item | Status |
-|------|--------|
-| Tokens com hash | ✓ SHA256 |
-| Expiração | ✓ 24 horas |
-| UNIQUE constraint | ✓ token_hash |
-| Geração criptográfica | ✓ secrets.token_urlsafe |
-| Rate limiting | ⚠️ Futuro |
-| HTTPS em prod | ⚠️ Requer config |
-
-## 🚀 Deploy Checklist
-
-Antes de colocar em produção:
-
-- [ ] Configurar variáveis de ambiente no servidor
-- [ ] Configurar SMTP com certificado SSL/TLS
-- [ ] Testar envio de email em staging
-- [ ] Validar templates de email em clientes populares
-- [ ] Configurar SPF/DKIM/DMARC
-- [ ] Implementar retry automático
-- [ ] Adicionar monitoramento de entrega
-- [ ] Documentar processo de recuperação
-- [ ] Configurar backup de tokens
-- [ ] Testar com volume de emails
-
-## 📋 Testes Realizados
-
-```bash
-$ python -m pytest -v
-
-# Email Service
-✓ test_email_service_inicializa
-✓ test_email_service_sem_credenciais
-
-# Confirmação de Email
-✓ test_criar_token_confirmacao
-✓ test_verificar_token_valido
-✓ test_verificar_token_invalido
-✓ test_marcar_como_confirmado
-✓ test_token_expira
-✓ test_multiplos_tokens_diferentes_usuarios
-
-# Auth (existentes)
-✓ test_01_cadastro_com_dados_validos
-✓ test_02_cadastro_com_email_ja_existente
-✓ test_03_cadastro_campos_obrigatorios_vazios
-✓ test_04_login_validacao_de_acesso
-✓ test_05_login_com_senha_incorreta
-✓ test_06_login_com_usuario_inexistente
-
-# Products (existentes)
-✓ test_product_service_get_all_products
-✓ test_product_service_get_product_not_found
-✓ test_product_service_get_categories
-✓ test_product_service_create_product
-✓ test_product_service_update_product
-
-# Login Attempts (existentes)
-✓ test_login_attempts_increment_and_block_after_maximum
-✓ test_login_attempts_reset_on_successful_login
-✓ test_block_duration_is_applied_and_expires
-✓ test_remaining_attempts_decreases_with_failures
-
-═══════════════════════════════════════════════════════════
-23 passed ✓
-═══════════════════════════════════════════════════════════
-```
-
-## 📞 Suporte
-
-### Documentação
-- 📖 `EMAIL_SYSTEM.md` - Guia técnico completo
-- 🚀 `NEXT_STEPS.md` - Melhorias futuras
-- 📝 `IMPLEMENTATION_SUMMARY.md` - Resumo executivo
-
-### Troubleshooting
-Ver `EMAIL_SYSTEM.md` seção "Troubleshooting"
-
-## 🎉 Conclusão
-
-✅ **Sistema SMTP e Confirmação de Email - COMPLETO E TESTADO**
-
-- ✓ 5 novos arquivos criados
-- ✓ 3 arquivos modificados
-- ✓ 23 testes passando
-- ✓ Documentação completa
-- ✓ Pronto para produção
-
-**Próximo passo recomendado:**
-Implementar confirmação de email obrigatória para login
+**Stack**: FastAPI + Jinja2 + PostgreSQL (Docker) + SQLite (dev)
+**Comando dev**: `uvicorn app.main:app --reload` (rodar da raiz)
+**Container DB**: `docker run --name crimson-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=crimson_db -p 5432:5432 -d postgres`
 
 ---
 
-**Data**: 2026-06-02  
-**Versão**: 1.0  
-**Status**: ✅ Concluído
+## Backend
+
+### Autenticação e Usuários
+- [x] Cadastro com validação via `UsuarioService`
+- [x] Login com `LoginAttemptService` — bloqueio após tentativas falhas
+- [x] Sessão via `SessionMiddleware` (cookie `crimson_session`)
+- [x] Middleware `SessionUserMiddleware` — injeta `request.state.user` em todas as rotas
+- [x] Middleware `DocsAuthMiddleware` — protege `/docs` e `/redoc`
+- [x] Logout com limpeza de sessão
+- [x] Confirmação de email com token SHA256 + expiração 24h (`ConfirmacaoEmailService`)
+- [x] Reenvio de email de confirmação
+- [x] Redirecionamento pós-login para URL de origem (`next` na sessão)
+- [ ] Confirmação de email obrigatória para login (token gerado, verificação não bloqueante ainda)
+- [ ] Hash de senha (atualmente armazenada em texto plano)
+- [ ] Recuperação de senha (esqueci minha senha)
+
+### Produtos e Catálogo
+- [x] Listagem de produtos com filtros (categoria, preço mín/máx)
+- [x] Detalhe do produto com imagens e avaliações
+- [x] Upload de imagens via admin (`ProdutoService`)
+- [x] Favoritar/desfavoritar produto (toggle)
+- [x] Avaliação de produto (1–5 estrelas + comentário, uma por usuário)
+- [ ] Estoque / controle de quantidade disponível
+- [ ] Variações reais de produto no banco (tamanho, material, pintura estão hardcoded no template)
+- [ ] Paginação na listagem de produtos
+
+### Carrinho e Pedidos
+- [x] Carrinho em sessão (adicionar, remover, visualizar)
+- [x] Sugestões no carrinho (baseadas em favoritos ou categoria)
+- [x] Finalização envia email ao admin + registra mensagem no banco
+- [ ] Pedido real no banco (tabela `pedido` existe mas não é usada no checkout)
+- [ ] Integração com pagamento
+- [ ] Status de pedido visível na conta do usuário (lista retorna `[]` atualmente)
+- [ ] Notificação de status por email
+
+### Orçamento
+- [x] Formulário de orçamento com upload de arquivo (STL, OBJ, 3MF, imagem, PDF — máx 20MB)
+- [x] Validação de extensão e tamanho
+- [x] Persistência no banco via `OrcamentoRepository`
+- [ ] Orçamentos visíveis na conta do usuário (lista retorna `[]` atualmente)
+- [ ] Resposta do admin ao orçamento com notificação por email
+
+### Admin
+- [x] Dashboard com métricas (total produtos, orçamentos, perguntas pendentes)
+- [x] Listagem e exclusão de produtos
+- [x] Criação de produto com upload de imagens
+- [x] Listagem, exclusão e toggle de destaque em avaliações
+- [x] Proteção de rotas admin via `ensure_admin` (401/403)
+- [ ] Edição de produto existente
+- [ ] Gestão de orçamentos (visualizar, responder, mudar status)
+- [ ] Gestão de pedidos (visualizar, atualizar status)
+- [ ] Gestão de usuários (listar, bloquear, promover a admin)
+- [ ] Gestão de categorias (criar, editar, excluir)
+
+### API REST
+- [x] Routers organizados em `app/routers/api/` para todas as entidades
+- [ ] Autenticação JWT nas rotas de API (atualmente sem proteção)
+- [ ] Documentação OpenAPI revisada e completa
+
+---
+
+## Frontend
+
+### Semântica e Acessibilidade
+- [x] `<ol>/<li>` corretos em `home.html` (steps)
+- [x] `<article>` + `aria-labelledby` em `servicos.html` (process-cards)
+- [x] `<figure>/<blockquote>/<figcaption>` em depoimentos (`sobre.html`, `home.html`)
+- [x] `<figure>/<figcaption>/<blockquote>` em avaliações (`product.html`)
+- [x] Schema.org `Product` + `AggregateRating` + `Review` em `product.html`
+
+### Mobile-First
+- [x] Navbar reescrita mobile-first (toggle hambúrguer, expande em ≥840px)
+- [x] `cart.css` — `.cart-grid`, `.cart-item` mobile-first
+- [x] `account.css` — `.account-layout`, `.favorite-card`, `.field-grid` mobile-first
+- [x] `products.css` — filtros e thumbnails mobile-first
+- [x] `home.css` — `.home-hero`, `.home-cta__card` mobile-first
+- [x] `style.css` — `.quote-grid`, `.card` mobile-first
+- [x] `orcamento.css` — `.quote-form__row` mobile-first
+- [x] `touch-action: manipulation` em `.carousel-btn` e `.faq-item summary`
+
+### Medidas CSS
+- [x] `px → rem` no carousel (`home.css`)
+- [x] `px → rem` no `filters-bar` (`products.css`)
+- [x] `px → rem` no `small` (`style.css`)
+- [x] `vh → dvh` com fallback em `body` e `.login-page` (`style.css`)
+- [x] `clamp()` em `.home-hero h1`, `.price`, `.faq-hero h1`, `.account-header h1`
+
+### Galeria de Produto
+- [x] PhotoSwipe 5 via CDN — zoom, swipe, teclado, setas
+- [x] Miniaturas trocam imagem principal e sincronizam índice do lightbox
+- [x] `cursor: zoom-in` na imagem principal
+- [ ] Dimensões reais das imagens salvas no banco para o PhotoSwipe (atualmente fixo 1200×1200)
+
+---
+
+## Infraestrutura
+
+### Banco de Dados
+- [x] PostgreSQL via Docker (`crimson-postgres`)
+- [x] SQLite para desenvolvimento local
+- [x] Schema em `postgres_schema.sql`
+- [x] Migrations automáticas no `start_database()`
+- [ ] Migrations versionadas (Alembic)
+
+### Backups
+- [x] `backup_db.bat` — `pg_dump` dentro do container, retenção 7 dias
+- [x] `backup_imagens.bat` — `Compress-Archive` de `app/static/uploads`, retenção 7 dias
+
+### Deploy
+- [ ] `Dockerfile` e `docker-compose.yml` (arquivos existem mas estão vazios)
+- [ ] Variáveis de ambiente configuradas no servidor (ver `.env.example`)
+- [ ] HTTPS / certificado SSL
+- [ ] SPF/DKIM/DMARC para entregabilidade de email
+- [ ] Configurar `WORKERS` para produção (uvicorn multiprocess)
+- [ ] Monitoramento / health check além do `/health` atual
+
+---
+
+## Testes
+
+- [x] `test_auth.py` — 6 testes (cadastro, login, validações)
+- [x] `test_confirmacao_email.py` — 8 testes (token, expiração, múltiplos usuários)
+- [x] `test_product_service.py` — 5 testes (CRUD, categorias)
+- [x] `test_login_attempt_service.py` — 4 testes (bloqueio, reset, duração)
+- [x] **Total: 23 testes passando**
+- [ ] Testes para `cart_service`
+- [ ] Testes para `orcamento` (upload, validação de extensão)
+- [ ] Testes de integração para rotas web (com cliente HTTP)
+- [ ] Cobertura de código (pytest-cov)
+
+---
+
+## Próximos Passos — Para Análise
+
+Os itens abaixo estão ordenados por impacto no produto final. Analise e decida a prioridade.
+
+### 🔴 Alta prioridade — afeta funcionamento core
+
+1. **Hash de senha**
+   Senhas estão em texto plano no banco. Implementar `bcrypt` ou `passlib` no `UsuarioService` antes de qualquer deploy.
+
+2. **Pedido real no checkout**
+   O carrinho finaliza enviando email, mas não cria registro na tabela `pedido`. O usuário não tem histórico de compras. Conectar `carrinho_finalizar` ao `PedidoRepository`.
+
+3. **Variações de produto no banco**
+   Tamanho, material e pintura estão hardcoded no template. Criar tabela de variações ou campo JSON no produto para que o admin controle as opções.
+
+4. **Dockerfile e docker-compose**
+   Arquivos existem mas estão vazios. Necessário para qualquer deploy ou ambiente compartilhado.
+
+### 🟡 Média prioridade — melhora experiência
+
+5. **Confirmação de email obrigatória para login**
+   Token já é gerado no cadastro. Falta bloquear o login de usuários não confirmados e exibir mensagem orientando a confirmar.
+
+6. **Edição de produto no admin**
+   Criação e exclusão existem, mas não há rota de edição. Reaproveitar `produto_form.html` com dados pré-preenchidos.
+
+7. **Orçamentos e pedidos na conta do usuário**
+   As listas retornam `[]` atualmente. Conectar `OrcamentoRepository` e `PedidoRepository` na rota `/minha-conta`.
+
+8. **Dimensões reais das imagens para o PhotoSwipe**
+   Salvar `width` e `height` no upload de imagem para o zoom funcionar corretamente em todos os formatos.
+
+9. **Paginação na listagem de produtos**
+   Sem paginação, todos os produtos são carregados de uma vez. Implementar `limit/offset` no `ProdutoRepository`.
+
+### 🟢 Baixa prioridade — qualidade e escala
+
+10. **JWT nas rotas de API**
+    As rotas em `/api/` não têm autenticação. Necessário se a API for consumida por clientes externos ou mobile.
+
+11. **Migrations com Alembic**
+    Migrations automáticas funcionam para dev, mas em produção é arriscado. Alembic dá controle de versão do schema.
+
+12. **Testes de carrinho e orçamento**
+    As partes mais críticas do fluxo de negócio não têm cobertura de teste.
+
+13. **Gestão de usuários no admin**
+    Listar usuários, bloquear contas e promover a admin são funcionalidades esperadas num painel administrativo.
+
+14. **Recuperação de senha**
+    Fluxo "esqueci minha senha" com token por email, similar ao já implementado para confirmação de email.
+
+---
+
+**Última atualização**: estado atual do projeto após sessões de desenvolvimento
+**Testes**: 23 passando
+**Status geral**: Em desenvolvimento ativo

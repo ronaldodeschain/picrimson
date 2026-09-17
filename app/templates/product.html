@@ -5,6 +5,7 @@
 {% block meta_description %}{{ produto.descricao[:155] }}{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="/static/css/products.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -41,10 +42,17 @@
         <div class="col-md-6">
             <div class="product-gallery mb-3">
                 {% if imagens and imagens|length > 0 %}
-                    <img src="{{ imagens[0].arquivo_imagem }}" alt="{{ produto.nome_produto }}" class="main-image">
-                    <div class="thumbs mt-2 d-flex gap-2">
+                    <a href="{{ imagens[0].arquivo_imagem }}" id="gallery-main-link" class="pswp-gallery-trigger" aria-label="Ampliar imagem">
+                        <img src="{{ imagens[0].arquivo_imagem }}" alt="{{ produto.nome_produto }}" class="main-image" id="main-image">
+                    </a>
+                    <div class="thumbs mt-2 d-flex gap-2 flex-wrap">
                         {% for img in imagens %}
-                            <img src="{{ img.arquivo_imagem }}" class="thumb" data-src="{{ img.arquivo_imagem }}" alt="{{ img.nome_imagem }}">
+                            <img src="{{ img.arquivo_imagem }}" class="thumb" data-src="{{ img.arquivo_imagem }}" data-index="{{ loop.index0 }}" alt="{{ img.nome_imagem }}">
+                        {% endfor %}
+                    </div>
+                    <div id="pswp-items" style="display:none">
+                        {% for img in imagens %}
+                            <a href="{{ img.arquivo_imagem }}" data-pswp-width="1200" data-pswp-height="1200"></a>
                         {% endfor %}
                     </div>
                 {% else %}
@@ -170,15 +178,45 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-// Small gallery behavior: clicking thumb sets main image
+<script type="module">
+import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe-lightbox.esm.min.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const thumbs = document.querySelectorAll('.thumb');
-    const main = document.querySelector('.main-image');
-    if (!thumbs || !main) return;
+    const mainImg = document.getElementById('main-image');
+    const mainLink = document.getElementById('gallery-main-link');
+    const pswpItems = document.querySelectorAll('#pswp-items a');
+
+    if (!mainImg) return;
+
+    let currentIndex = 0;
+
+    // Troca imagem principal ao clicar na miniatura
     thumbs.forEach(t => t.addEventListener('click', () => {
-        main.src = t.dataset.src;
+        currentIndex = parseInt(t.dataset.index);
+        mainImg.src = t.dataset.src;
+        if (mainLink) mainLink.href = t.dataset.src;
     }));
+
+    // PhotoSwipe
+    if (!pswpItems.length) return;
+
+    const dataSource = Array.from(pswpItems).map(a => ({
+        src: a.href,
+        width: parseInt(a.dataset.pswpWidth),
+        height: parseInt(a.dataset.pswpHeight),
+    }));
+
+    const lightbox = new PhotoSwipeLightbox({
+        dataSource,
+        pswpModule: () => import('https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.esm.min.js'),
+    });
+    lightbox.init();
+
+    mainLink && mainLink.addEventListener('click', e => {
+        e.preventDefault();
+        lightbox.loadAndOpen(currentIndex);
+    });
 });
 </script>
 {% endblock %}

@@ -11,9 +11,9 @@
 .filters-bar{
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 0.75rem;
     align-items: flex-start;
-    padding: 8px 12px;
+    padding: 0.5rem 0.75rem;
     background: rgba(0,0,0,0.02);
     border-radius: 6px;
 }
@@ -30,7 +30,7 @@
 /* Ensure price min/max inputs align horizontally */
 .filters-bar .filter-item.d-flex{
     display: flex;
-    gap: 8px;
+    gap: 0.5rem;
     align-items: flex-start;
 }
 .filters-bar .filter-item.d-flex > div{
@@ -38,7 +38,7 @@
     flex-direction: column;
 }
 .filters-bar .filter-item.d-flex label{
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
     font-size: 0.8rem;
 }
 
@@ -52,6 +52,11 @@
     aspect-ratio: 4 / 3;
     object-fit:cover;
     border-radius:6px;
+    cursor: zoom-in;
+}
+
+.pswp-gallery-trigger {
+    display: block;
 }
 
 .product-gallery .thumb{
@@ -70,7 +75,7 @@
     }
 }
 
-.price{font-weight:700;font-size:1.6rem}
+.price{font-weight:700;font-size:clamp(1.3rem, 3vw, 1.6rem)}
 
 .product-page label {
     color: #f8f9fa;

@@ -12,7 +12,7 @@
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: none;
-    padding: 15px 10px;
+    padding: 0.9375rem 0.625rem;
     cursor: pointer;
     z-index: 10;
     transition: background 0.3s;
@@ -32,12 +32,12 @@
 }
 
 .carousel-btn.prev {
-    left: 10px;
+    left: 0.625rem;
     border-radius: 0 4px 4px 0;
 }
 
 .carousel-btn.next {
-    right: 10px;
+    right: 0.625rem;
     border-radius: 4px 0 0 4px;
 }
 
@@ -49,7 +49,7 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 10px;
+    padding-bottom: 0.625rem;
     width: 100%;
     box-sizing: border-box;
 }
@@ -60,10 +60,10 @@
 
 .carousel-track {
     display: flex !important;
-    gap: 20px;
+    gap: 1.25rem;
     flex-wrap: nowrap;
     align-items: stretch;
-    padding: 10px;
+    padding: 0.625rem;
 }
 
 .carousel-track .carousel-slide {
@@ -128,7 +128,7 @@
 }
 
 .home-hero h1 {
-    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-size: clamp(1.4rem, 3.5vw, 2.4rem);
     margin-bottom: 1rem;
     line-height: 1.3;
 }

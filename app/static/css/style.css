@@ -89,6 +89,7 @@ body {
   transparent 60%),
   linear-gradient(135deg, #0b1220 0%, #06080f 100%);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 a {
@@ -284,6 +285,7 @@ body.navbar--menu-open {
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 8rem);
+  min-height: calc(100dvh - 8rem);
   padding: 2rem 0;
 }
 
@@ -697,8 +699,8 @@ input[type="file"].form-control::file-selector-button:hover {
 
 small {
   display: block;
-  margin-top: 6px;
-  margin-bottom: 16px;
+  margin-top: 0.375rem;
+  margin-bottom: 1rem;
 }
 
 .senha-forca {
