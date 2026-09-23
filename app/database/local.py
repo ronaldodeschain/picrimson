@@ -254,8 +254,8 @@ class Database():
 
                 CREATE TABLE IF NOT EXISTS telefone (
                     id_telefone INTEGER PRIMARY KEY AUTOINCREMENT,
-                    telefone_principal INTEGER,
-                    telefone_secundario INTEGER,
+                    telefone_principal TEXT,
+                    telefone_secundario TEXT,
                     id_usuario INTEGER
                 );
 
@@ -325,4 +325,9 @@ class Database():
             for col, tipo in [("nome", "TEXT"), ("contato", "TEXT"), ("tipo_projeto", "TEXT"), ("descricao", "TEXT"), ("tamanho_desejado", "TEXT")]:
                 if col not in columns:
                     cursor.execute(f"ALTER TABLE orcamentos ADD COLUMN {col} {tipo}")
+
+            cursor.execute("PRAGMA table_info(avaliacoes)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if "destaque" not in columns:
+                cursor.execute("ALTER TABLE avaliacoes ADD COLUMN destaque INTEGER DEFAULT 0")
         print("Banco de dados criado com sucesso!")

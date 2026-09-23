@@ -234,8 +234,8 @@ class Database:
 
                 CREATE TABLE IF NOT EXISTS telefone (
                     id_telefone SERIAL PRIMARY KEY,
-                    telefone_principal INTEGER,
-                    telefone_secundario INTEGER,
+                    telefone_principal BIGINT,
+                    telefone_secundario BIGINT,
                     id_usuario INTEGER
                 );
 
@@ -291,6 +291,19 @@ class Database:
         print("Banco de dados PostgreSQL criado com sucesso!")
         self._migrate_produtos()
         self._migrate_avaliacoes()
+        self._migrate_telefone()
+
+    def _migrate_telefone(self):
+        with self.connect() as connection:
+            cursor = connection.cursor()
+            for col in ['telefone_principal', 'telefone_secundario']:
+                cursor.execute("""
+                    SELECT data_type FROM information_schema.columns
+                    WHERE table_name = 'telefone' AND column_name = %s
+                """, (col,))
+                row = cursor.fetchone()
+                if row and row[0] == 'integer':
+                    cursor.execute(f"ALTER TABLE telefone ALTER COLUMN {col} TYPE BIGINT")
 
     def _migrate_avaliacoes(self):
         with self.connect() as connection:
