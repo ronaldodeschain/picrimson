@@ -3,7 +3,8 @@ from . import (
     usuario, categoria, produto, pedido, pagamento, servico, 
     endereco, telefone, avaliacao, caixa, carrinho, cupom, 
     email, entrega, favoritos, imagem_produto, item_pedido, 
-    mensagem, nota_fiscal, orcamento, rastreio, pergunta, resposta
+    mensagem, nota_fiscal, orcamento, rastreio, pergunta, resposta,
+    health
 )
 
 api_router = APIRouter()
@@ -31,3 +32,4 @@ api_router.include_router(item_pedido.router)
 api_router.include_router(nota_fiscal.router)
 api_router.include_router(pergunta.router)
 api_router.include_router(resposta.router)
+api_router.include_router(health.router)

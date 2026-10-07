@@ -590,7 +590,7 @@ input[type="file"].form-control::file-selector-button {
 }
 
 input[type="file"].form-control::file-selector-button:hover {
-  background:white;
+  background: rgba(227, 230, 230, 0.25);
 }
 
 .btn {
